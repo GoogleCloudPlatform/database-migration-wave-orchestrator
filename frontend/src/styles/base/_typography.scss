@@ -1,0 +1,119 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// =======================================================================
+// Typography
+// =======================================================================
+
+// Headings
+// -----------------------------------------------------------------------
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: $heading-color!important;
+  font-family: $heading-font-family!important;
+  font-weight: $heading-font-weight!important;
+  line-height: $heading-line-height!important;
+  margin-top: 0!important;
+  margin-bottom: 0!important;
+}
+
+h1 {
+  font-size: $font-size-h1!important;
+  font-weight: $font-weight-base!important;
+}
+
+h2 {
+  font-size: $font-size-h2!important;
+}
+
+h3 {
+  font-size: $font-size-h3!important;
+}
+
+h4 {
+  font-size: $font-size-h4!important;
+  font-weight: $font-weight-base!important;
+}
+
+h5 {
+  font-size: $font-size-h5!important;
+}
+
+h6 {
+  font-size: $font-size-h6!important;
+  font-weight: $font-weight-base!important;
+}
+
+// Labels
+// -----------------------------------------------------------------------
+label {
+  font-size: $label-font-size;
+  font-family: $font-weight-base;
+  white-space: nowrap;
+}
+
+// Paragraph
+// -----------------------------------------------------------------------
+p {
+  font-size: $paragraph-font-size;
+  font-family: $paragraph-font-family;
+  color: $paragraph-color;
+  line-height: $line-height-base;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+// Line
+// -----------------------------------------------------------------------
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid $body-color;
+  margin: 0;
+  padding: 0;
+}
+
+// Links
+// -----------------------------------------------------------------------
+a {
+  font-size: $link-font-size;
+  color: $link-color;
+  text-decoration: underline;
+
+  &:hover,
+  &:focus {
+    color: inherit;
+  }
+}
+
+.subtitle {
+  font-size: $font-size-subtitle!important;
+  font-weight: $font-weight-semi-bold!important;
+  font-family: $font-family-base!important;
+  color: $body-color!important;
+}
+
+.overline {
+  font-size: $label-font-size;
+  font-weight: $font-weight-semi-bold;
+  font-family: $font-family-base;
+  color: $body-color;
+}

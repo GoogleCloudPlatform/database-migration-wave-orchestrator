@@ -1,0 +1,213 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.mrg0 {
+  margin: 0 !important;
+}
+
+.pad0 {
+  padding: 0 !important;
+}
+
+.pad1em {
+  padding: 1em !important;
+}
+
+.mrg1em {
+  margin: 1em !important;
+}
+
+.pad1em-top {
+  padding-top: 1em !important;
+}
+
+.mrg1em-top {
+  margin-top: 1em !important;
+}
+
+.mrg2em-top {
+  margin-top: 2em !important;
+}
+
+.mrg1em-right {
+  margin-right: 1em !important;
+}
+
+.pad1em-left {
+  padding-left: 1em !important;
+}
+
+.pad2em-left {
+  padding-left: 2em !important;
+}
+
+.pad2em {
+  padding: 2em !important;
+}
+
+.border {
+  border: 1px solid $bd-color;
+}
+
+.section-sub-header {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 16px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.02em;
+  color: #000000;
+  margin-bottom: 2em;
+}
+
+.migration-wave-tabs .mat-tab-label {
+  height: 190px;
+  opacity: 0.9;
+
+  &.mat-tab-label-active {
+    background: $bg-secondary3;
+  }
+}
+
+.mat-form-field-wrapper {
+  padding-bottom: 0;
+}
+
+.wizard {
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+}
+
+.wizard a {
+  padding: 20px 30px;
+  position: relative;
+  text-decoration: none;
+  margin-left: 0.25%;
+  text-align: center;
+  font-size: 14px;
+  color: #707070;
+  background: #ebebeb;
+  white-space: nowrap;
+  flex: 1 auto;
+  cursor: default;
+}
+
+.wizard a:hover {
+  color: #707070;
+}
+
+.wizard a:first-child {
+  margin-left: 0;
+}
+
+.wizard a::before {
+  width: 0;
+  height: 0;
+  border-top: 30px inset transparent;
+  border-bottom: 30px inset transparent;
+  border-left: 30px solid #ffffff;
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+}
+
+.wizard a::after {
+  width: 0;
+  height: 0;
+  border-top: 30px inset transparent;
+  border-bottom: 30px inset transparent;
+  border-left: 30px solid #ebebeb;
+  position: absolute;
+  content: "";
+  top: 0;
+  right: -30px;
+  z-index: 2;
+}
+
+.wizard a:first-child::before,
+.wizard a:last-child::after {
+  border: 0;
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+
+  > * {
+    margin-right: 10px;
+  }
+
+  mat-label,
+  mat-icon {
+    padding-bottom: 7px;
+    height: auto;
+  }
+}
+
+.column {
+  .text-left-container {
+    letter-spacing: -0.02em;
+    color: $font-base;
+  }
+
+
+  .custom-title {
+    display: flex;
+    flex-flow: row nowrap;
+    align-content: center;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 1.3em;
+    font-weight: 400;
+    color: $font-base;
+    font-style: normal;
+    line-height: 21px;
+    letter-spacing: -0.02em;
+    margin-top: 2px;
+  }
+
+  .custom-sub-title {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 16px;
+    letter-spacing: -0.02em;
+    color: $font-base;
+  }
+
+  .background-accent {
+    background: $background-accent-color;
+  }
+}
+
+.right-column {
+  min-width: calc(100% - 293px);
+  min-height: calc(100vh - 52px);
+  height: fit-content;
+}
+
+.list {
+  background-color: #fef9e8;
+  list-style: none;
+  margin: 0;
+  padding: 25px;
+
+  > li {
+    line-height: 30px;
+  }
+}

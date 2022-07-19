@@ -1,0 +1,62 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.banner {
+  padding: 18px 14px 18px 48px;
+  position: relative;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+
+  &.error {
+    background: $bg-danger-secondary;
+    border: 1px solid $bg-danger;
+  }
+
+  &.warning {
+    background: $bg-warning-secondary;
+    border: 1px solid $border-warning-color;
+  }
+
+  &.success {
+    background: $bg-success-secondary;
+    border: 1px solid $bg-success;
+  }
+
+  &.info {
+    background: $bg-surface;
+    border: 1px solid $bg-info;
+  }
+
+  mat-icon {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+  }
+
+  .text {
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 21px;
+    letter-spacing: 0.0015em;
+    color: $text-dark-color;
+
+    &-small {
+      font-size: $font-size-base;
+      font-weight: $font-weight-semi-bold;
+    }
+  }
+}

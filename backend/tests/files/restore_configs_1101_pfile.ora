@@ -1,0 +1,167 @@
+#####################################################################
+# Structural Parms
+#####################################################################
+*.db_domain=mlib
+*.db_block_size=8192
+*.db_writer_processes=4
+#####################################################################
+# Identification & Control Files
+#####################################################################
+*.db_name='orabase'
+*.db_unique_name='test21db_iad25g'
+*.control_files='+DATA',
+                '+REC0'
+*.control_file_record_keep_time=32
+#####################################################################
+# Version Specific
+#####################################################################
+*.compatible=21.0.0
+*.enable_pluggable_database=TRUE
+#####################################################################
+# Platform Specific
+#####################################################################
+*.filesystemio_options=setall
+#####################################################################
+# Security, Audit and Resource Limit
+#####################################################################
+*.audit_file_dest='/u01/app/oracle/admin/test21db_iad25g/adump'
+*.audit_trail=DB
+*.resource_limit=TRUE
+*.remote_login_passwordfile='EXCLUSIVE'
+#####################################################################
+# Recovery and Flashback
+#####################################################################
+*.db_flashback_retention_target=28800
+*.db_recovery_file_dest='+RECO'
+*.db_recovery_file_dest_size=255G
+#####################################################################
+# NLS Settings
+#####################################################################
+*.nls_date_format = DD-MON-YYYY HH24:MI:SS
+*.nls_language='AMERICAN'
+*.nls_territory='AMERICA'
+#####################################################################
+# Archive & Redo Logs
+#####################################################################
+*.diagnostic_dest=/u01/app/oracle
+*.log_buffer=16M
+*.log_checkpoint_interval=0
+*.log_archive_max_processes=4 
+*.archive_lag_target=0
+#####################################################################
+# Dump & Output Directories
+#####################################################################
+*.audit_file_dest='/u01/app/oracle/admin/test21db_iad25g/adump'
+*.core_dump_dest='/u01/app/oracle/diag/rdbms/test21db_iad25g /test21db/cdump'
+#####################################################################
+# DB & Instance Limits
+#####################################################################
+*.db_files=1024
+*.sessions=4000
+*.processes=1500
+*.transactions=600
+#####################################################################
+# Process & Session Specific
+#####################################################################
+*.open_cursors=4000
+*.open_links=4
+*.session_cached_cursors=100
+*.session_max_open_files=12
+*.sort_area_retained_size=0
+*.sort_area_size=4194304
+#####################################################################
+# Buffer Pool
+#####################################################################
+*.db_block_buffers=0
+*.db_block_checksum=FULL
+*.db_block_checking=FULL
+
+_db_block_lru_latches=2048
+_db_block_hash_latches=65536
+#####################################################################
+# Security
+#####################################################################
+*.sec_protocol_error_trace_action='LOG'
+#####################################################################
+# Shared Pool & Other "Pools"
+# Sort, Hash Joins, Bitmap Indexes
+#####################################################################
+*.db_keep_cache_size=4G
+*.db_recycle_cache_size=4G
+*.java_pool_size=4G
+*.large_pool_size=0
+*.log_buffer=7232M
+*.memoptimize_pool_size=4G
+*.pga_aggregate_target=256G
+*.result_cache_max_size=4G
+*.sga_target=756G
+*.shared_pool_size=0
+*.shared_pool_reserved_size=15728640
+*.streams_pool_size=0
+*.memory_target=0
+
+_shared_pool_reserved_min_alloc=4000
+#####################################################################
+# UNDO
+#####################################################################
+# use automatic undo
+*.undo_management='auto'
+# undo tablespace name
+*.undo_tablespace=UNDOTBS1
+# keep 12 hours (12*3600)
+*.undo_retention=43200
+#####################################################################
+# Optimizer
+#####################################################################
+*.optimizer_mode='FIRST_ROWS'
+#####################################################################
+# Parallelism
+#####################################################################
+*.parallel_max_servers=96
+*.parallel_min_servers=8
+*.parallel_threads_per_cpu=1
+*.parallel_execution_message_size=65535
+*.recovery_parallelism=16
+#####################################################################
+# Shared Server
+#####################################################################
+*.dispatchers='(PROTOCOL=TCP) (SERVICE=test21dbXDB)'
+*.connection_brokers='((TYPE=DEDICATED)(BROKERS=1))', '((TYPE=EMON)(BROKERS=1))'
+#####################################################################
+# Job Processing
+#####################################################################
+*.job_queue_processes=40
+*.aq_tm_processes=1
+#####################################################################
+# Miscellaneous
+#####################################################################
+*.background_core_dump=partial
+*.db_file_multiblock_read_count=128
+*.fast_start_parallel_rollback=LOW
+*.plsql_warnings='ENABLE:ALL'
+*.query_rewrite_integrity='TRUSTED'
+*.query_rewrite_enabled='TRUE'
+*.recyclebin='ON'
+_disable_selftune_checkpointing=TRUE
+#####################################################################
+# Undocumented Parameters & Temporary Fixes
+#####################################################################
+_b_tree_bitmap_plans=FALSE
+_shared_pool_reserved_min_alloc=4000
+_small_table_threshold=2560
+_optim_peek_user_binds=FALSE
+#####################################################################
+# Events
+#####################################################################
+#event="600 trace name library_cache level 10"
+#trace PMON actions
+#event="10500 trace name context forever"
+#event="10196 trace name context forever"
+#event="10246 trace name context forever"
+#event="4031 trace name errorstack level 10"
+#event="10511 trace name context forever, level 2"
+#event="32333 trace name context forever, level 8"
+
+*.local_listener='LISTENER_TEST21DB'
+*.global_names=TRUE
+*.resource_manager_plan='SCHEDULER[0x5296]:DEFAULT_MAINTENANCE_PLAN'

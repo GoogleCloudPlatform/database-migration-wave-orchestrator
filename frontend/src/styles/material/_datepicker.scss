@@ -1,0 +1,77 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.mat-calendar-body-selected {
+  background-color: $bg-primary1;
+  color: $text-white-color!important;
+}
+
+.mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover>.mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical),
+.cdk-keyboard-focused .mat-calendar-body-active>.mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical),
+.cdk-program-focused .mat-calendar-body-active>.mat-calendar-body-cell-content:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
+  background-color: $bg-secondary3;
+}
+
+.mat-calendar-body-today.mat-calendar-body-selected {
+  box-shadow: none;
+}
+
+.mat-calendar-body-today:not(.mat-calendar-body-selected):not(.mat-calendar-body-comparison-identical) {
+  border-color: transparent;
+}
+
+.mat-calendar-body-label {
+  color: transparent;
+}
+
+.mat-calendar-table-header th {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 150%;
+  color: $text-dark-color;
+}
+
+.mat-calendar-body-cell-content {
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 150%;
+  letter-spacing: 0.01em;
+  color: $text-secondary-color;
+}
+
+.mat-calendar-body-cell-content {
+  top: 4%!important;
+}
+
+.mat-datepicker-toggle,
+.mat-datepicker-content .mat-calendar-next-button,
+.mat-datepicker-content .mat-calendar-previous-button {
+  color: $text-dark-color;
+}
+
+.mat-datepicker-content .mat-calendar {
+  height: 360px!important;
+}
+
+.mat-calendar-arrow {
+  display: none!important;
+}
+
+.mat-calendar-header .mat-button {
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 150%;
+}

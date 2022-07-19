@@ -1,0 +1,52 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<form [formGroup]="form">
+  <mat-form-field class="custom-input mr-2" appearance="outline">
+    <mat-label>Choose a day:</mat-label>
+    <input
+      autocomplete="off"
+      #minmaxInput
+      (dateChange)="onDateChange($event)"
+      [min]="minDate"
+      [max]="maxDate"
+      matInput
+      [matDatepicker]="picker"
+      formControlName="date"
+      (focus)="picker.open()"
+    />
+    <mat-datepicker-toggle matSuffix [for]="picker">
+      <mat-icon matDatepickerToggleIcon>arrow_drop_down</mat-icon>
+    </mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+    <mat-error
+      *ngIf="form?.get('date')?.hasError('required')">
+      Date is required
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field class="custom-select mb-4" appearance="outline">
+    <mat-label>Choose a time:</mat-label>
+    <mat-select formControlName="time" (selectionChange)="onTimeChange($event)">
+      <mat-option [value]="''"></mat-option>
+      <mat-option *ngFor="let time of timeList" [value]="time">{{ time }}</mat-option>
+    </mat-select>
+    <mat-error
+      *ngIf="form?.get('time')?.hasError('required')">
+      Time is required
+    </mat-error>
+  </mat-form-field>
+</form>

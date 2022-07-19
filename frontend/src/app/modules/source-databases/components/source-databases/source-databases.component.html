@@ -1,0 +1,142 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="container">
+  <div class="container-header border-bottom">
+      <div class="section-header">Source databases</div>
+      <div>
+          Next steps: <a routerLink="/inventorymanager" class="link">Discover Targets (BMS)</a>
+      </div>
+  </div>
+  <div class="container-content">
+    <h3 class="custom-sub-title">MigVisor Assessment</h3>
+    <div class="note">
+      Please upload the DB assessment output file from MigVisor tool (Using the MigVisor web interface click
+      “Export” button to exporting the database migration insights to an Excel file).
+     <br><br>
+      Exporting data provides additional options including:
+      <ul>
+        <li>Exporting selected databases only. </li>
+        <li>Exporting displayed databases, which are all databases currently viewable in the dashboard, after any filtering has been applied. </li>
+        <li>Exporting all databases loaded into MigVisor.</li>
+      </ul>
+      Learn more by visiting official MigVisor documentation pages: <br/>
+      <a href="https://doc.migvisor.com/mdoc/index.html" class="link" target="_blank">https://doc.migvisor.com/mdoc/index.html</a>  <br>
+      <a href="https://epammarketplace.a.bigcontent.io/v1/static/migVisor_Getting_Started" class="link" target="_blank">https://epammarketplace.a.bigcontent.io/v1/static/migVisor_Getting_Started</a>
+    </div>
+   <div class="mrg2em-top" *ngIf="showDataTable">
+      <mat-checkbox class="custom-checkbox source-db-overwrite-checkbox" [(ngModel)]="overrideDatabase" ngDefaultControl>Overwrite existing databases</mat-checkbox>
+      <br>
+      <sub>not including deployed databases; related configurations will be removed</sub>
+    </div>
+    <input type="file" #fileUpload hidden>
+    <button
+      mat-flat-button
+      matRipple
+      class="custom-button mt-8"
+      [matRippleDisabled]="true"
+      (click)="uploadFile()"
+    >Upload assessment file</button>
+
+    <!--This container disappear when you have no registered database-->
+      <div class="container-table mrg2em-top" [hidden]="!showDataTable">
+        <app-base-material-table class="custom-table">
+          <div class="filter-wrapper mt-4 mb-5">
+            <div class="filter">
+              <mat-icon class="mr-2">sort</mat-icon>
+              <mat-label class="mr-4">Filter</mat-label>
+              <mat-form-field appearance="outline" class="custom-select">
+                <mat-label>Filted by label:</mat-label>
+                <mat-select [(value)]="labelFilter" multiple class="custom-select" panelClass="filter-select">
+                  <mat-option (click)="resetLabelFilter()">Reset</mat-option>
+                  <mat-option (click)="selectNoLabel()" [value]="'no_label'">No Label</mat-option>
+                  <mat-option #matOption *ngFor="let label of labelsList" (click)="setCurrentElement()" [value]="label.value">{{ label.value }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <mat-icon
+              class="custom-icon black"
+              aria-hidden="false"
+              aria-label="Help icon"
+            >help</mat-icon>
+          </div>
+          <table mat-table [dataSource]="dataSource" matSort>
+
+            <!-- server name Column -->
+            <ng-container matColumnDef="server">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Server Name </th>
+              <td mat-cell *matCellDef="let row">{{row.server}}</td>
+            </ng-container>
+
+            <!-- Database Column -->
+            <ng-container matColumnDef="db_name">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Database </th>
+              <td mat-cell *matCellDef="let row">{{row.db_name}}</td>
+            </ng-container>
+
+            <!-- Version Column -->
+            <ng-container matColumnDef="oracle_version">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Version </th>
+              <td mat-cell *matCellDef="let row">{{row.oracle_version}}</td>
+            </ng-container>
+
+            <!-- Type Column -->
+            <ng-container matColumnDef="db_type">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+              <td mat-cell *matCellDef="let row">{{row.db_type}}</td>
+            </ng-container>
+
+            <!-- Type Column -->
+            <ng-container matColumnDef="label">
+              <th mat-header-cell *matHeaderCellDef> Label
+                <a mat-button color="primary" class="ml-1 mr-1" (click)="manageLabels($event)" class="manage-label"><mat-icon class="manage-label-icon">edit</mat-icon></a>
+              </th>
+              <td mat-cell *matCellDef="let row">
+                <app-label
+                  [labels]="labels"
+                  [databaseLabels]="row.labels"
+                  [projectId]="currentProjectId"
+                  [databaseId]="row.id"
+                ></app-label>
+              </td>
+            </ng-container>
+
+
+            <!-- TODO: Tmp remove actions column. -->
+            <!--<ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef > Actions </th>
+              <td mat-cell *matCellDef="let row"> <a [routerLink]="'/configeditor/'+row.id">Exclude</a> </td>
+            </ng-container>-->
+
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            <!-- Row shown when there is no matching data. -->
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell" colspan="5">No data matching the filter</td>
+            </tr>
+          </table>
+
+          <mat-paginator
+            [pageSize]="pageSize"
+            [pageSizeOptions]="[5, 10, 25, 100]"
+            aria-label="Select page of projects"
+          ></mat-paginator>
+        </app-base-material-table>
+      </div>
+  </div>
+</div>

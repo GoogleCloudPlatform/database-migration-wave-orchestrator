@@ -1,0 +1,149 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="custom-tooltip" @tooltip [ngSwitch]="description">
+    <ng-container *ngSwitchCase="'ntp-preferred'">
+     <p>
+        Preferred NTP serverb to use in /etc/ntp.conf.
+         Optional: set only if you need to manually define an NTP server, instead of relying on the OS defaults.<br>
+        Read about ntp_preferred parameter for <br> <a href="https://docs.oracle.com/en/operating-systems/oracle-linux/7/network/ol7-nettime.html">Oracle Linux 7</a>
+     </p>
+    </ng-container>
+    <ng-container *ngSwitchCase="'role-separation'">
+       <p>
+        Role separation means that the Grid Infrastructure is owned by the OS user "grid" instead of the OS user "oracle".
+        Read more about Role separation parameter for <a href="https://docs.oracle.com/database/121/CWLIN/usrgrps.htm#CWLIN179">12.1 version</a>
+        and <a href="https://docs.oracle.com/en/database/oracle/oracle-database/12.2/ostmg/diskgroup-compatibility.html#GUID-FBB5AA72-5208-48E1-BD8D-0FD4C6876F34">19c version</a>.
+       </p> 
+    </ng-container>
+    <ng-container *ngSwitchCase="'asm-compatible-asm'">
+        <p>
+         The minimum software version for an Oracle ASM instance that can use the disk group.
+         <a href="https://docs.oracle.com/en/database/oracle/oracle-database/12.2/ladbi/configuring-storage-device-path-persistence-using-oracle-asmlib.html#GUID-BBD347D1-17D2-422A-879F-07FD189A4A2D">Learn more</a>
+        </p> 
+     </ng-container>
+     <ng-container *ngSwitchCase="'asm-compatible-rdbms'">
+        <p>
+        The minimum compatible database initialization parameter setting for any database instance that is allowed to use the disk group.
+        <a href="https://docs.oracle.com/en/database/oracle/oracle-database/12.2/ladbi/configuring-storage-device-path-persistence-using-oracle-asmlib.html#GUID-BBD347D1-17D2-422A-879F-07FD189A4A2D">Learn more</a>
+        </p> 
+     </ng-container>
+     <ng-container *ngSwitchCase="'asm-disk-management'">
+         <a href="https://docs.oracle.com/en/database/oracle/oracle-database/12.2/ladbi/configuring-storage-device-path-persistence-using-oracle-asmlib.html#GUID-BBD347D1-17D2-422A-879F-07FD189A4A2D">ASM disk management description:</a>
+         <ul>
+            <li>ASMlib option is applicable to Oracle Linux as RHEL implementation requires Red Hat support. See MOS Doc ID: 1089399.1</li>
+            <li>udev - Configuring Storage Device Path Persistence Manually</li>
+         </ul> 
+     </ng-container>
+     <ng-container *ngSwitchCase="'oracle-user'">
+        <p>
+          Oracle software owner user accounts require resource settings and other environment configuration. 
+          To protect against accidents, Oracle recommends that you create one software installation owner account for each Oracle software program you install.
+        </p> 
+     </ng-container>
+     <ng-container *ngSwitchCase="'oracle-group'">
+        <p>
+          Oracle software owner group accounts require resource settings and other environment configuration.
+       </p> 
+     </ng-container>
+     <ng-container *ngSwitchCase="'oracle-root'">
+        <p>
+         Software Location. Full path to an Oracle home. The Oracle home location is the directory where products are installed.
+          <br>Data files may or may not be installed within an Oracle home.
+       </p> 
+     </ng-container>
+     <ng-container *ngSwitchCase="'home-name'">
+        <p>
+          Name for the Oracle home. This name identifies the program group associated with a particular home and the Oracle services installed on this home. 
+          The Oracle home name must be between 1 to 127 characters long, and can include only alphanumeric characters and underscores.
+          Up to 8 characters. Must start with a letter. Other 7 characters can include alphanumeric characters, underscore, number sign, and dollar sign
+        </p> 
+     </ng-container>
+     <ng-container *ngSwitchCase="'grid-user'">
+        <p>
+          Oracle Home user associated with the Oracle Grid home.
+          <br><b>grid_user + grid_group only available when Role Separation is ON</b>
+         </p> 
+     </ng-container>
+     <ng-container *ngSwitchCase="'grid-group'">
+        <p>
+          The Oracle home for Oracle Grid Infrastructure software (Grid home) should be located in a path that is different from the Oracle home.
+          <br><b>grid_user + grid_group only available when Role Separation is ON</b>
+        </p> 
+     </ng-container>
+     <ng-container *ngSwitchCase="'db-name'">
+      <p>
+         Specifies a database identifier of up to 8 characters
+     </p> 
+   </ng-container>
+   <ng-container *ngSwitchCase="'cluster-name'">
+      <p>
+         The cluster name in Oracle RAC. The cluster name is case-insensitive, must be unique across your enterprise, must be at least one character long and no more than 15 characters in length, must be alphanumeric and may contain hyphens (-). Underscore characters (_) are not allowed.
+         <br>Note: <br>Select your cluster name carefully. After installation, you can only change the cluster name by reinstalling Oracle Grid Infrastructure.
+      </p> 
+   </ng-container>
+   <ng-container *ngSwitchCase="'cluster-domain'">
+      <p>
+         Cluster domain name (corporate DNS)
+     </p> 
+   </ng-container>
+   <ng-container *ngSwitchCase="'scan-name'">
+      <p>
+         The SCAN (Single Client Access Name) is a domain name registered to at least one and up to three IP addresses, either in Domain Naming Service (DNS) or Grid Naming Service (GNS).
+          When you use GNS and Dynamic Host Configuration Protocol (DHCP), Oracle Clusterware configures the Virtual IP (VIP) addresses for the SCAN name that is provided during cluster configuration.
+         The node VIP and the three SCAN VIPs are obtained from the DHCP server when you use GNS.
+     </p> 
+   </ng-container>
+   <ng-container *ngSwitchCase="'scan-ip1'">
+      <p>
+         IP address for SCAN. For high availability and scalability, Oracle recommends that you configure the SCAN name so that it resolves to three IP addresses. At a minimum, the SCAN must resolve to at least one address
+     </p> 
+   </ng-container>
+   <ng-container *ngSwitchCase="'scan-ip-optional'">
+      <p>
+         Optional IP address for SCAN
+     </p> 
+   </ng-container>
+   <ng-container *ngSwitchCase="'public-net'">
+      <p>
+         Network interface for Public network. The public IP address is assigned dynamically using Dynamic Host Configuration Protocol (DHCP), or defined statically in a Domain Name System (DNS) or in a hosts file.
+     </p> 
+   </ng-container>
+   <ng-container *ngSwitchCase="'private-net'">
+      <p>
+         Network interface for Private network. Oracle Clusterware uses interfaces marked as private for internode communication.
+     </p> 
+   </ng-container>
+   <ng-container *ngSwitchCase="'dg-name'">
+      <p>
+         Default disk group for DB files for initial database.
+     </p> 
+   </ng-container>
+   <ng-container *ngSwitchCase="'swap-checkbox'">
+      <p>
+         For Oracle database, the following is the recommendation from Oracle in terms of how much space space you should add <br>
+         Swap space allocation relative: <br>
+         -to RAM (Oracle Restart) Between 8 GB and 16 GB: Equal to the size of the RAM <br>
+         -More than 16 GB: 16 GB <br>
+         Note: If you enable HugePages for your Linux servers, then you should deduct the memory allocated to HugePages from the available RAM before calculating swap space.
+     </p> 
+   </ng-container>
+   <ng-container *ngSwitchCase="'swap-checkbox-error'">
+      <p>
+         Swap is already cofigured
+     </p> 
+   </ng-container>
+</div>

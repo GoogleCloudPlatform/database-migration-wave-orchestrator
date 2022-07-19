@@ -1,0 +1,55 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<mat-drawer-container class="custom-drawer-container" autosize>
+  <mat-drawer #drawer class="sidenav" mode="side" opened="{{shouldShowSidebar}}">
+    <ng-container *ngIf="
+      !isDeploymentDetailsPage &&
+      !isMigrationRoadmapPage &&
+      !isMigrationWaveHistoryPage &&
+      !isConfigEditorPage &&
+      !isDataTransferConfigEditorPage &&
+      !isMigrationListPage"
+    >
+
+      <span class="title-side-menu"> BMS Migration </span>
+      <nav class="navigation">
+        <a
+          class="navigation-link {{link.href}}"
+          [class.highlighted]="routeUrl.includes(link.href)"
+          [class.disabled]="isCreateMigrationPage || !utilService.currentProjectName"
+          [routerLink]="link.href"
+          *ngFor="let link of projectLinks"
+        >{{ link.name }}
+        <span class="sub-info" *ngIf="link.name === 'Migration Projects' && !isCreateMigrationPage">{{ utilService.currentProjectName }}</span>
+        </a>
+      </nav>
+    </ng-container>
+
+    <app-deployment-details-sidebar *ngIf="isDeploymentDetailsPage"></app-deployment-details-sidebar>
+    <app-migration-roadmap-sidebar *ngIf="isMigrationRoadmapPage"></app-migration-roadmap-sidebar>
+    <app-migration-wave-history-sidebar *ngIf="isMigrationWaveHistoryPage"></app-migration-wave-history-sidebar>
+    <app-config-editor-sidebar *ngIf="isConfigEditorPage || isDataTransferConfigEditorPage"
+      [panelTitle]="isDataTransferConfigEditorPage ? 'Data Transfer Config Editor' : 'Config Editor'"></app-config-editor-sidebar>
+    <app-migration-listing-sidebar *ngIf="isMigrationListPage"></app-migration-listing-sidebar>
+
+  </mat-drawer>
+
+  <div class="sidenav-content">
+    <router-outlet></router-outlet>
+  </div>
+
+</mat-drawer-container>

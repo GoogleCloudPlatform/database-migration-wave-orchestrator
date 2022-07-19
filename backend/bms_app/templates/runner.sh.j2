@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Check previous start
+if [[ -f /etc/startup_script_completed ]]; then exit 0; fi
+
+# Templated variables
+OPERATION_ID={{ operation_id }}
+BUCKET_NAME={{ bucket_name }}
+CONFIG_FILES_PATH={{ gcs_config_dir }}
+PUBSUB_TOPIC={{ pubsub_topic }}
+PROJECT_NAME={{ gcp_project_name }}
+OPERATION_TYPE={{ operation_type | lower}}
+WAVE_ID={{ wave_id | default(0) }}  # deployment/rollback only
+
+GCS_REPO_NAME="bms-epam-source-dev"
+ANSIBLE_USER="customeradmin"
+
+#
+WORK_DIR="/opt/bms"
+BMS_TOOLKIT_DIR="${WORK_DIR}/${GCS_REPO_NAME}"
+
+# Install git
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    VER=${VERSION_ID::1}
+    if [ $VER == 7 ]; then
+      echo "CentOS ${VER} -- add Git 2 repo"
+      yum -y install https://repo.ius.io/ius-release-el7.rpm
+      yum -y install git236
+    else
+      yum -y install git
+    fi
+fi
+#
+[[ -d ${WORK_DIR} ]] || mkdir -p ${WORK_DIR} && cd ${WORK_DIR}
+
+gcloud source repos clone ${GCS_REPO_NAME} --project=${PROJECT_NAME}
+
+cd ${BMS_TOOLKIT_DIR}
+chmod u+x ${BMS_TOOLKIT_DIR}/*.sh ${BMS_TOOLKIT_DIR}/startup/*.sh
+
+# Starting main script
+. start.sh \
+    --wave-id ${WAVE_ID} \
+    --operation-id ${OPERATION_ID} \
+    --pubsub ${PUBSUB_TOPIC} \
+    --bucket ${BUCKET_NAME} \
+    --project ${PROJECT_NAME} \
+    --gcs-repo ${GCS_REPO_NAME} \
+    --ansible-user ${ANSIBLE_USER} \
+    --operation-type ${OPERATION_TYPE} \
+    --configs-path ${CONFIG_FILES_PATH} {% if backup_type %}\
+    --backup-type {{ backup_type | lower }} {% endif %}
+
+# send  msg to pubsub
+gcloud pubsub topics publish ${PUBSUB_TOPIC} \
+  --message="{\"wave_id\": $WAVE_ID, \"operation_id\": $OPERATION_ID, \"timestamp\": $(date +%s), \"status\": \"TERMINATED\"}" \
+  --ordering-key="${WAVE_ID}-${OPERATION_ID}"
+
+# self deleting GCE instance
+INSTANCE_NAME=$(curl http://metadata.google.internal/computeMetadata/v1/instance/hostname -H Metadata-Flavor:Google | cut -d . -f1)
+ZONE_NAME=$(curl http://metadata.google.internal/computeMetadata/v1/instance/zone -H Metadata-Flavor:Google | cut -d/ -f4)
+gcloud compute instances delete ${INSTANCE_NAME} --zone ${ZONE_NAME} --quiet

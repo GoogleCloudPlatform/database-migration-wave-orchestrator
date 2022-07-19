@@ -1,0 +1,265 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div>
+  <div class="wave-details py-3">
+    <app-banner>
+      <div>Migration Wave Details: <b>{{wave?.name}}</b></div>
+      <div *ngIf="wave?.curr_operation else completeInfo">Started At: <b>{{wave.curr_operation.started_at}}</b></div>
+      <ng-template #completeInfo>
+        <div>Last Deployment Date: <b>{{wave?.last_deployment? wave.last_deployment.started_at: 'Not deployed yet'}}</b></div>
+      </ng-template>
+      <div>Total Number of Mappings: <b>{{wave?.mappings ? wave.mappings?.length : 0 }}</b></div>
+    </app-banner>
+
+  </div>
+  <div *ngIf="!wave?.is_running else currentOperation">
+    <div class="wave-actions">
+      <span *ngIf="wave?.mappings.length else addMapping">
+        <button
+          mat-button
+          class="custom-button start-deployment"
+          aria-label="start deployment"
+          [disabled]="selection.isEmpty()"
+          (click)="startDeployment()"
+        >
+          <mat-icon>power_settings_new</mat-icon>Start Deployment
+        </button>
+        <button
+          mat-button
+          class="custom-button start-cleanup"
+          aria-label="start cleanup"
+          [disabled]="selection.isEmpty()"
+          (click)="startCleanUp()"
+        >
+          <mat-icon class="custom-icon warning">offline_bolt</mat-icon>Cleanup
+        </button>
+      </span>
+      <ng-template #addMapping>
+        <button
+          mat-button
+          class="custom-button add-mappings"
+          aria-label="add mapping"
+          [routerLink]="'/migrationmapper'"
+        >
+          <mat-icon>access_alarms</mat-icon>Add Mapping
+        </button>
+      </ng-template>
+      <button
+        mat-button
+        class="custom-button edit-wave"
+        aria-label="edit wave"
+        (click)="editWave()"
+      >
+        <mat-icon>edit</mat-icon>Edit
+      </button>
+      <button
+        mat-button
+        class="custom-button delete-wave"
+        aria-label="delete wave"
+        [disabled]="!!wave?.mappings.length"
+        (click)=deleteWave()
+        title="{{!!wave?.mappings.length ? 'Wave is not empty' : ''}}"
+      >
+        <mat-icon>delete</mat-icon>Delete
+      </button>
+    </div>
+    <div class="py-3">
+      <span *ngIf="wave?.mappings.length else addMappingNote">
+        Before starting deployment or cleanup, please select mapping.<br/>
+        If previous deployment failed, please cleanup before next deployment.<br/>
+        During deployment or cleanup operations the whole wave will be locked.<br/>
+      </span>
+      <ng-template #addMappingNote>
+        Please create mappings (associations) between a source database and relevant target BMS machine.
+      </ng-template>
+    </div>
+
+  </div>
+  <ng-template #currentOperation>
+    <app-migration-step-progress [processType]="wave.curr_operation.operation_type" [currentStep]="wave.step.curr_step"></app-migration-step-progress>
+  </ng-template>
+  <div class="wave-operations pt-3" [hidden]="!showTable">
+    <app-base-material-table class="custom-table">
+      <div class="filter-wrapper mt-4 mb-5" *ngIf="!wave?.is_running">
+        <div class="filter">
+          <mat-icon class="mr-2">sort</mat-icon>
+          <mat-label class="mr-4">Filter</mat-label>
+          <mat-form-field appearance="outline" class="status-filter mrg1em-right">
+            <mat-label>Select Mapping Deployable Status</mat-label>
+            <mat-select [(value)]="statusFilter" (selectionChange)="applyStatusFilter($event)">
+              <mat-option value="all">All mappings</mat-option>
+              <mat-option value="true">Deployable</mat-option>
+              <mat-option value="false">Non-deployable</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-checkbox [(ngModel)]="showConfiguredOnly" class="configured-only custom-checkbox" (change)="applyStatusFilter()">
+            Show only Configured Mappings
+          </mat-checkbox>
+        </div>
+      </div>
+      <table mat-table [dataSource]="dataSource" matSort>
+
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              *ngIf="hasConfiguredMappings"
+              class="custom-checkbox"
+              (change)="$event ? masterToggle() : null"
+              [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()"
+              [aria-label]="checkboxLabel()"
+              [disabled] = "!hasConfiguredMappings"
+            ></mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row" [class.selected-row]="selection.isSelected(row)">
+            <mat-checkbox
+              *ngIf="row.is_configured && row.has_secret_name"
+              class="custom-checkbox"
+              (click)="$event.stopPropagation()"
+              (change)="$event ? selection.toggle(row) : null"
+              [checked]="selection.isSelected(row)"
+              [aria-label]="checkboxLabel(row)"
+            ></mat-checkbox>
+            <mat-icon
+              *ngIf="!row.is_configured || !row.has_secret_name"
+              class="custom-icon warning cursor-pointer"
+              aria-hidden="false"
+              aria-label="Warning icon"
+              [matTooltipPosition]="'left'"
+              [matTooltip]="getWarningTooltip(row)"
+            >warning</mat-icon>
+          </td>
+        </ng-container>
+
+        <!-- Server Name Column -->
+        <ng-container matColumnDef="server">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Source Hostname </th>
+          <td mat-cell *matCellDef="let row" [class.selected-row]="selection.isSelected(row)"> {{row.server}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="is_configured">
+          <th mat-header-cell *matHeaderCellDef> Configuration </th>
+          <td mat-cell *matCellDef="let row" [class.selected-row]="selection.isSelected(row)">
+            <div class="config-info">
+              <mat-icon class="custom-icon"
+                [ngClass]="{'info': !row.is_configured, 'primary': row.is_configured}"
+                title="{{row.is_configured ? 'Configured': 'Not configured'}}">settings</mat-icon>
+              <a class="link" [routerLink]="['/configeditor']" [queryParams]="{databaseId: row.db_id}">
+                Open Config Editor
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- DB Name Column -->
+        <ng-container matColumnDef="db_name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Database </th>
+          <td mat-cell *matCellDef="let row" [class.selected-row]="selection.isSelected(row)">{{row.db_name}} </td>
+        </ng-container>
+
+        <!-- Deployable Status Column -->
+        <ng-container matColumnDef="deployable_status">
+          <th mat-header-cell *matHeaderCellDef>  Deployable Status </th>
+          <td mat-cell *matCellDef="let row" [class.selected-row]="selection.isSelected(row)"> {{row.is_deployable}} </td>
+        </ng-container>
+        <!-- Type Column -->
+        <ng-container matColumnDef="db_type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+          <td mat-cell *matCellDef="let row" [class.selected-row]="selection.isSelected(row)"> {{row.db_type}} </td>
+        </ng-container>
+
+        <!-- Target Host Column -->
+        <ng-container matColumnDef="target_hostname">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Target Hostname </th>
+          <td mat-cell *matCellDef="let row" [class.selected-row]="selection.isSelected(row)">
+            <ng-container *ngIf="row.db_type === 'SI'">
+              {{ row.bms[0].bms_name }}
+            </ng-container>
+            <ng-container *ngIf="row.db_type === 'RAC'">
+              <a (click)="toggle(row)" class="d-inline-block link">{{ row.bms.showTargets ? 'Hide targets' : 'Show targets' }}</a>
+              <ng-container *ngIf="row.bms.showTargets">
+                <div class="pt-1" *ngFor="let bms of row.bms">
+                  {{ bms.bms_name }}
+                </div>
+              </ng-container>
+            </ng-container>
+          </td>
+        </ng-container>
+
+        <!-- Operation Type Column -->
+        <ng-container matColumnDef="operation_type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Operation</th>
+          <td mat-cell *matCellDef="let row" [class.selected-row]="selection.isSelected(row)">{{row.operation_type}}</td>
+        </ng-container>
+
+        <!-- Operation Status Column -->
+        <ng-container matColumnDef="operation_status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Status</th>
+          <td mat-cell *matCellDef="let row" [class.selected-row]="selection.isSelected(row)">{{row.operation_status}}</td>
+        </ng-container>
+
+        <!-- View Details Column -->
+        <ng-container matColumnDef="details">
+          <th mat-header-cell *matHeaderCellDef>{{wave.is_running ? 'Logs' : 'History'}}</th>
+          <td mat-cell *matCellDef="let row" [class.selected-row]="selection.isSelected(row)">
+            <a
+              class="link show-history"
+              [routerLink]="['history']"
+              [queryParams]="{wave: wave.id, operation: row.operation_id, databaseId: row.db_id}"
+              [state]="row.bms"
+              *ngIf="row.operation_status && !wave.is_running">
+              Show History
+            </a>
+            <ng-container *ngIf="row.db_type === 'SI'">
+              <a
+                class="link show-log"
+                [attr.href]="row.bms[0].logs_url"
+                target="_blank"
+                *ngIf="wave.is_running && row.bms[0].logs_url"
+              >Show Log</a>
+            </ng-container>
+            <ng-container *ngIf="row.bms.showTargets">
+              <div *ngFor="let bms of row.bms" class="show-log-container">
+                <a
+                  class="link show-log"
+                  [attr.href]="bms.logs_url"
+                  target="_blank"
+                  *ngIf="wave.is_running && bms.logs_url"
+                  [matTooltip]="bms.bms_name"
+                  [matTooltopPosition]="'right'"
+                >Show Log</a>
+              </div>
+          </ng-container>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        aria-label="Select page of projects"
+      ></mat-paginator>
+
+    </app-base-material-table>
+  </div>
+</div>
+
+

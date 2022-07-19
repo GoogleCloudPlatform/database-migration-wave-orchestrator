@@ -1,0 +1,142 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="container">
+  <div class="container-header border-bottom">
+    <div class="section-header">Data Transfer Manager</div>
+  </div>
+  <div class="container-content">
+    <p>
+      Specify data transfer approach for each mapping. Create/Edit data migration configuration. Start data transfer <br/>
+      Track data transfer progress. View logs. Clean up the target after failed attempts
+    </p>
+
+    <div class="mt-8">
+      <app-base-material-table class="custom-table" [hidden]="!showDataTable">
+        <table mat-table [dataSource]="dataSource" matSort>
+
+          <!-- source hostname Column -->
+          <ng-container matColumnDef="server">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef >Source Hostname</th>
+            <td mat-cell *matCellDef="let row">{{row.server}}</td>
+          </ng-container>
+
+          <!-- DB Column -->
+          <ng-container matColumnDef="db_name">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef >DB</th>
+            <td mat-cell *matCellDef="let row">{{row.db_name}}</td>
+          </ng-container>
+
+          <!-- target hostname Column -->
+          <ng-container matColumnDef="target_hostname">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef >Target Hostname</th>
+            <td mat-cell *matCellDef="let row">
+              <p *ngFor="let b of row.bms" class="transfer-hostname mb-0">{{b.name}}</p>
+            </td>
+          </ng-container>
+
+          <!-- installation type Column -->
+          <ng-container matColumnDef="db_type">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef >Installation Type</th>
+            <td mat-cell *matCellDef="let row">{{row.db_type}}</td>
+          </ng-container>
+
+          <!-- configuration Column -->
+          <ng-container matColumnDef="configuration">
+            <th mat-header-cell *matHeaderCellDef >Configuration</th>
+            <td mat-cell *matCellDef="let row">
+              <ng-template [ngIf]="row.last_operation === 'DEPLOYMENT'" [ngIfElse]="openConfig">
+                <a
+                  class="link"
+                  target="_blank"
+                >Start Backup/restore</a>
+              </ng-template>
+              <ng-template #openConfig>
+                <a
+                  [routerLink]="['/datatransferconfigeditor']" [queryParams]="{databaseId: row.id}"
+                  class="link"
+                >Open config</a>
+              </ng-template>
+            </td>
+          </ng-container>
+
+          <!-- last operation Column -->
+          <ng-container matColumnDef="operation_type">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef >Last Operation</th>
+            <td mat-cell *matCellDef="let row">{{row.operation_type}}</td>
+          </ng-container>
+
+          <!-- last status Column -->
+          <ng-container matColumnDef="operation_status">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef >Last Status</th>
+            <td mat-cell *matCellDef="let row">
+              <span *ngIf="row.scheduled_task?.schedule_time; else showOperationStatus">SCHEDULED <span class="schedule-time">to {{row.scheduled_task.schedule_time | date: 'short'}}</span></span>
+              <ng-template #showOperationStatus>
+                <span [ngClass]="{'text-danger': row.errors}">{{row.operation_status}}
+                  <a *ngIf="row.errors" class="text-danger errors-link"
+                  title="See errors" (click)="showErrors(row.operation_id)">{{row.errors}} errors</a>
+                </span>
+              </ng-template>
+            </td>
+          </ng-container>
+
+          <!--action Column -->
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef >Action</th>
+            <td mat-cell *matCellDef="let row" class="action_btns">
+              <button *ngIf="canPreRestore(row)" mat-button color="primary" (click)="startPreRestore(row.id)">Pre-restore</button>
+              <button *ngIf="canRestore(row)" mat-button [matMenuTriggerFor]="menu" color="primary">Restore</button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="run(row.id)">Run</button>
+                <button mat-menu-item (click)="scheduleRestore(row)">Schedule</button>
+              </mat-menu>
+              <button *ngIf="canRollback(row)" mat-button color="primary" (click)="startRollback(row.id)">Rollback</button>
+              <button mat-button *ngIf="canFailOver(row)" color="primary" (click)="startFailOver(row.id)">Failover</button>
+            </td>
+          </ng-container>
+
+          <!-- log cloud link Column -->
+          <ng-container matColumnDef="logs_url">
+            <th mat-header-cell *matHeaderCellDef >Logs link to cloud logging</th>
+            <td mat-cell *matCellDef="let row">
+              <ng-container *ngFor="let b of row.bms">
+                <a
+                  *ngIf="b.logs_url"
+                  class="link d-block w-40 transfer-link"
+                  [attr.href]="b.logs_url"
+                  target="_blank"
+                  [matTooltip]="b.name"
+                  [matTooltipPosition]="'right'"
+                >Show Log</a>
+              </ng-container>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        </table>
+
+        <mat-paginator
+          [pageSize]="pageSize"
+          [pageSizeOptions]="[5, 10, 25, 100]"
+          aria-label="Select page of projects"
+        ></mat-paginator>
+
+      </app-base-material-table>
+    </div>
+  </div>
+</div>

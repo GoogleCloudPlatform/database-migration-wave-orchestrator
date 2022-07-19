@@ -1,0 +1,140 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<app-notification *ngIf="this.formHasErrors" (actionEmitt)="focusErrorField()"></app-notification>
+
+<form [formGroup]="migrationForm" (ngSubmit)="onSubmit()">
+  <div class="container">
+    <div class="container-header back-option border-bottom">
+        <mat-icon (click)="goBack()">arrow_back</mat-icon> &nbsp;&nbsp;
+        <p (click)="goBack()" class="section-header">{{ isEditing || isViewing ? 'Migration Project: '+ this.migrationForm.value.name : 'Create a migration project'}}</p>
+        <div class="container-buttons mr10-left" *ngIf="isViewing">
+          <button 
+            mat-button 
+            type="button" 
+            class="custom-button mr-3"
+            aria-label="edit migration project"
+            (click)="editForm()"
+          >
+            <mat-icon>edit</mat-icon>Edit
+          </button>
+          <button 
+            mat-button
+            type="button"
+            class="custom-button"
+            aria-label="delete migration project"
+            (click)="deleteProject()"
+          >
+            <mat-icon>delete</mat-icon>Delete
+          </button>
+      </div>
+    </div>
+    <div class="container-content">
+      <div class="project-form">
+        <p *ngIf="!isEditing && !isViewing" qa-data="create-migration-project-description">
+          To start planning/deploying your migration, please create a migration project - an entity that represents the general scope of database migration. It can be used for separating database migrations by different departments, environments, periods, and applications, etc. <br>
+          At least one migration project must be created at the very beginning of the project.
+        </p>
+        <p qa-data="fill-the-form-description">To start planning/deploying your migration project, please fill the form below: </p>
+        <mat-form-field class="custom-width-form-field" appearance="outline" style="display: none">
+          <mat-label>Migration Project Id *</mat-label>
+          <input matInput type="number" formControlName="id">
+          <button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
+            <mat-icon aria-hidden="true">close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <mat-form-field class="custom-width-form-field custom-input" appearance="outline">
+          <mat-label>Migration Project Name *</mat-label>
+          <input  matInput type="text" formControlName="name" >
+          <mat-error *ngIf="migrationForm.controls['name'].hasError('required')">
+            Name is required
+          </mat-error>
+          <mat-error *ngIf="migrationForm.controls['name'].hasError('maxlength')">
+            Exceed the number of characters allowed
+          </mat-error>
+          <button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
+            <mat-icon aria-hidden="true">close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <mat-form-field class="text-area-form-field custom-input" appearance="outline">
+          <mat-label>Project Description</mat-label>
+          <textarea matInput type="text" formControlName="description" ></textarea>
+          <mat-error *ngIf="migrationForm.controls['description'].hasError('maxlength')">
+            Exceed the number of characters allowed
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="custom-width-form-select custom-input" appearance="outline">
+          <mat-label>Choose Network (VPC)*</mat-label>
+          <input type="text" matInput formControlName="vpc" [matAutocomplete]="network" (blur)="getSubnet()">
+          <mat-autocomplete #network="matAutocomplete">
+            <mat-option *ngFor="let network of filteredNetworks | async" [value]="network"
+              [matTooltip]="network"
+              matTooltipPosition="right"
+              matTooltipHideDelay="0">{{network}}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="migrationForm.controls['vpc'].hasError('required')">
+            Network is required
+          </mat-error>
+          <mat-error *ngIf="migrationForm.controls['vpc'].hasError('maxlength')">
+            Exceed the number of characters allowed
+          </mat-error>
+       </mat-form-field>
+
+        <mat-form-field appearance="outline" class="custom-width-form-select custom-input">
+          <mat-label>Choose Subnet*</mat-label>
+          <input matInput autocomplete="off" [matAutocomplete]="subNetwork" formControlName="subnet">
+          <mat-autocomplete #subNetwork="matAutocomplete">
+            <mat-option *ngFor="let subnet of filteredSubNetworks | async" [value]="subnet"
+              [matTooltip]="subnet"
+              matTooltipPosition="right"
+              matTooltipHideDelay="0">{{subnet}}
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="migrationForm.controls['subnet'].hasError('required')">
+            Subnet is required
+          </mat-error>
+          <mat-error *ngIf="migrationForm.controls['subnet'].hasError('maxlength')">
+            Exceed the number of characters allowed
+          </mat-error>
+        </mat-form-field>
+
+        <button
+          *ngIf="!isViewing"
+          mat-flat-button
+          matRipple
+          class="custom-button"
+          [matRippleDisabled]="true"
+          aria-label="save or create migration"
+          qa-data="create-migration-button"
+        >{{isEditing ? 'Save' : 'CREATE MIGRATION'}}</button>
+        <button
+          *ngIf="isEditing"
+          mat-flat-button
+          matRipple
+          class="custom-button ml-2"
+          [matRippleDisabled]="true"
+          aria-label="cancel edit migration"
+          (click)="goBack()" 
+          qa-data="cancel-migration-button"
+        >Cancel</button>
+      </div>
+    </div>
+  </div>
+</form>

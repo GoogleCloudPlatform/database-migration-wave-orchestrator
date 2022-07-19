@@ -1,0 +1,50 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="container">
+    <div class="container-header border-bottom">
+        <div class="section-header">Migration Wave Manager</div>
+    </div>
+    <div class="container-content">
+        <p>Migration Wave Manager allows to view, execute, and track currently running operations (deployment or cleanup).</p>
+        <div class="migration-wave-tabs">
+          <mat-tab-group dynamicHeight (selectedIndexChange)="onTabChange($event)">
+            <mat-tab>
+                <ng-template mat-tab-label>
+                  <a (click)="createWave()" class="add-wave">
+                    <span class="add-wave-icon">+</span>
+                    <span class="add-wave-text">Add Wave</span>
+                  </a>
+                </ng-template>
+            </mat-tab>
+            <mat-tab *ngFor="let wave of waves" animationDuration="0ms">
+                <ng-template mat-tab-label>
+                    <div class="wave-tab">
+                        <div class="wave-tab-name">{{wave.name}}</div>
+                        <app-migration-wave-chart
+                            [waveProgress]="wave.status_rate"
+                            [waveIsRunning]="wave.is_running"
+                            [waveSteps]="wave.step"></app-migration-wave-chart>
+                    </div>
+                </ng-template>
+                <app-view-migration-wave [wave_id]="wave.id" (waveChanged)="refreshWaveList()"></app-view-migration-wave>
+            </mat-tab>
+        </mat-tab-group>
+        </div>
+
+    </div>
+</div>
+

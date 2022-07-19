@@ -1,0 +1,116 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.custom-button {
+  &.mat-button-base {
+    min-width: 93px;
+    color: $text-primary-color;
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-root;
+    letter-spacing: $letter-spacing;
+    text-transform: uppercase;
+
+    &:hover {
+      background-color: $bg-secondary3;
+    }
+
+    &.mat-button-disabled.mat-button-disabled {
+      color: $text-secondary-color;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
+
+  &.mat-button-base.mat-flat-button {
+    background: $bg-primary1;
+    color: $text-white-color;
+
+    &:hover {
+      background-color: $bg-primary2;
+      box-shadow: $shadow-small;
+    }
+
+    &:focus {
+      background-color: $bg-primary3;
+      box-shadow: $shadow-regular;
+    }
+
+    &.mat-button-disabled.mat-button-disabled {
+      background-color: $bg-info;
+      color: $text-white-60;
+      box-shadow: none;
+
+      &:hover {
+        background-color: $bg-info;
+      }
+    }
+  }
+
+  &.mat-raised-button {
+    background: $bg-secondary1;
+    color: $text-primary-color;
+
+    &:hover {
+      background: $bg-secondary2;
+      box-shadow: $shadow-small;
+    }
+
+    &:focus {
+      background: $bg-secondary3;
+      box-shadow: $shadow-regular;
+    }
+
+    &.mat-button-disabled.mat-button-disabled {
+      background: $bg-light;
+      color: $text-secondary-color;
+    }
+  }
+
+  &.mat-icon-button {
+    padding: 0 16px;
+    border-radius: 4px;
+    color: $text-primary-color;
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-root;
+    letter-spacing: $letter-spacing;
+    text-transform: uppercase;
+    width: auto;
+    padding: 0 16px 0 4px;
+
+    .mat-icon {
+      line-height: 22px;
+      width: 36px;
+    }
+
+    &:hover {
+      background: $bg-secondary3;
+    }
+
+    &:focus {
+      background: $bg-secondary2;
+    }
+
+    &.mat-button-disabled.mat-button-disabled {
+      color: $text-secondary-color;
+
+      &:hover {
+        background: transparent;
+      }
+    }
+  }
+}

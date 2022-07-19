@@ -1,0 +1,38 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="container">
+  <div class="container-header border-bottom">
+    <div class="section-header">Software Library</div>
+    <div>
+      Next steps: <a [routerLink]="'/sourcedatabases'" class="link">Discover Source Databases</a>
+    </div>
+  </div>
+  <div class="container-content">    
+    <div class="container-content-help">
+      <p>Upload software files to the local repository containing Oracle software installation files (binaries). It is the user's responsibility to acquire Oracle installation files using your Oracle support account.</p>
+      <div class="mrg1em-top">Here you can view <a href=" https://www.oracle.com/database/technologies/oracle-database-software-downloads.html" target="_blank" class="link">Required Oracle Software - Download Summary</a></div>
+      <div class="mrg1em-top">
+        And you can download last <a href="https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=305499011230522&id=854428.1&_afrWindowMode=0&_adf.ctrl-state=105geludry_79" target="_blank" class="link">PSU</a> (Patch Set Updates for Oracle Products (Doc ID 854428.1))
+      </div>
+      <div class="mrg1em-top">
+        <b>Please upload installation files here: </b>
+        <a [attr.href]="uploadUrl" target="_blank" class="link">{{uploadUrl}}</a>
+      </div>
+    </div>
+  </div>
+</div>
+

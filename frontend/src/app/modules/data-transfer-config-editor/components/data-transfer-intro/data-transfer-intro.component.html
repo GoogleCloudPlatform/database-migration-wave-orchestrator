@@ -1,0 +1,88 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<h5>Complete the following steps to create a new storage bucket.</h5>
+<div class="pt-4">
+  Using Cloud Console:
+  <ol>
+    <li>In the Google Cloud Console, go to the Cloud Storage Browser page.</li>
+    <li>Click Create bucket.</li>
+    <li>On the Create a bucket page, enter your bucket information.</li>
+    <ul>
+      <li>For Name your bucket, enter a globally unique name. For example:
+        <app-code-clipboard 
+          text="&#123;PROJECT_ID&#125;-rman-backup"
+          [accent]="['&#123;PROJECT_ID&#125;']">
+        </app-code-clipboard>
+      </li>
+      <li>For Choose where to store your data, select a Location type and Location where the bms servers created.</li>
+    </ul>
+    <li>Click Create</li>
+    <li>In the list of buckets, click on the name of the bucket that you created in previous steps.</li>
+    <li>In the Objects tab for the bucket, either:</li>
+    <ul>
+      <li>Drag and drop the desired files from your desktop or file manager to the main pane in the Cloud Console.</li>
+      <li>Click the Upload Files button, select the files you want to upload in the dialog that appears, and click Open.</li>
+    </ul>
+  </ol>
+  Using gsutil:
+  
+  <app-code-clipboard
+    text="export PROJECT_ID=&#123;PROJECT_ID where bucket will be created&#125;"
+    [accent]="['&#123;project_id where bucket will be created&#125;']">
+  </app-code-clipboard>
+  <app-code-clipboard 
+    text="export LOCATION=&#123;location where bucket will be created&#125;"
+    [accent]="['&#123;location where bucket will be created&#125;']">
+  </app-code-clipboard>
+  <app-code-clipboard 
+    text="export SOURCE=&#123;source directory&#125;"
+    [accent]="['&#123;source directory&#125;']">
+  </app-code-clipboard>
+
+  <app-code-clipboard 
+    text="gsutil mb -p $PROJECT_ID -l $LOCATION gs://$&#123;PROJECT_ID&#125;-rman-backup"
+    [accent]="['$PROJECT_ID', '$LOCATION', '$&#123;PROJECT_ID&#125;']">
+  </app-code-clipboard>
+  <app-code-clipboard 
+    text="gsutil -m cp -n -r $SOURCE gs://$&#123;PROJECT_ID&#125;-rman-backup"
+    [accent]="['$SOURCE', '$&#123;PROJECT_ID&#125;']">
+</app-code-clipboard>
+
+  Notes:<br>
+  <ul>
+    <li>You cannot upload more than 5TiB per upload request</li>
+    <li>Consider using of resumable upload, it can save your time if network failure occurs</li>
+  </ul>
+  <a href="https://cloud.google.com/storage/docs/creating-buckets" target="_blank">https://cloud.google.com/storage/docs/creating-buckets</a><br>
+  <a href="https://cloud.google.com/storage/docs/uploading-objects" target="_blank">https://cloud.google.com/storage/docs/uploading-objects</a><br>
+  <a href="https://cloud.google.com/storage/quotas#objects" target="_blank">https://cloud.google.com/storage/quotas#objects</a>
+
+  <button
+    mat-flat-button
+    matRipple
+    class="custom-button mb-8 mt-8"
+    [matRippleDisabled]="true"
+    aria-label="Confirm my backup is ready"
+    (click)="readyBackup()"
+  >Confirm my backup is ready</button>
+
+  <mat-checkbox
+    class="custom-checkbox"
+    [(ngModel)]="hidePage"
+  >Don't show me this page again.</mat-checkbox>
+</div>
+

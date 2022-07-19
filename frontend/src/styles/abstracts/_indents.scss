@@ -1,0 +1,76 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Spacing
+$spacing-interval: 4px;
+
+.m {
+  @each $i in (auto, 0, 1, 2, 3, 4, 5, 6, 7, 8) {
+    $val: if(type_of($i) == number, $i * $spacing-interval, $i);
+    &-#{$i} {
+      margin: $val !important;
+    }
+    &x-#{$i} {
+      margin-right: $val !important;
+      margin-left: $val !important;
+    }
+    &y-#{$i} {
+      margin-top: $val !important;
+      margin-bottom: $val !important;
+    }
+    &r-#{$i} {
+      margin-right: $val !important;
+    }
+    &b-#{$i} {
+      margin-bottom: $val !important;
+    }
+    &l-#{$i} {
+      margin-left: $val !important;
+    }
+    &t-#{$i} {
+      margin-top: $val !important;
+    }
+  }
+}
+
+.p {
+  @each $i in (auto, 0, 1, 2, 3, 4, 5, 6, 7, 8) {
+    $val: if(type_of($i) == number, $i * $spacing-interval, $i);
+    &-#{$i} {
+      padding: $val !important;
+    }
+    &x-#{$i} {
+      padding-right: $val !important;
+      padding-left: $val !important;
+    }
+    &y-#{$i} {
+      padding-top: $val !important;
+      padding-bottom: $val !important;
+    }
+    &r-#{$i} {
+      padding-right: $val !important;
+    }
+    &b-#{$i} {
+      padding-bottom: $val !important;
+    }
+    &l-#{$i} {
+      padding-left: $val !important;
+    }
+    &t-#{$i} {
+      padding-top: $val !important;
+    }
+  }
+}

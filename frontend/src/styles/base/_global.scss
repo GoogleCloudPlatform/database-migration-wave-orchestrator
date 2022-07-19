@@ -1,0 +1,111 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// =======================================================================
+// Base styles
+// =======================================================================
+
+
+/**
+ * Better practice for box-sizing reset
+ *
+ * See: https://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/
+ */
+ html {
+  box-sizing: border-box;
+  font-size: $font-size-root;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+*:focus {
+  outline: none;
+}
+
+body {
+  background-color: $body-bg;
+  color: $body-color;
+  font-family: $font-family-base!important;
+  font-size: $font-size-base!important;
+  font-weight: $font-weight-base!important;
+  line-height: $line-height-base!important;
+  min-width: $body-min-width;
+  margin: 0;
+}
+
+span,
+td,
+label,
+button,
+div {
+  word-break: break-word;
+}
+
+textarea {
+  font-family: $font-family-base;
+}
+
+/*
+ * Remove the gap between audio, canvas, iframes,
+ * images, videos and the bottom of their containers:
+ *
+ * See: https://github.com/h5bp/html5-boilerplate/issues/440
+ */
+audio,
+canvas,
+iframe,
+img,
+svg,
+video {
+  vertical-align: middle;
+}
+
+/**
+ * Responsive embedable
+ *
+ * See: https://css-tricks.com/rundown-of-handling-flexible-media/
+ */
+img,
+video {
+  height: auto;
+  max-width: 100%;
+}
+
+audio {
+  width: 100%;
+}
+
+// Reset margin for figure
+figure {
+  margin: 0 0 1rem;
+}
+
+
+// Avoid 300ms click delay on touch devices
+a,
+area,
+button,
+[role="button"],
+input,
+label,
+select,
+summary,
+textarea {
+  touch-action: manipulation;
+}

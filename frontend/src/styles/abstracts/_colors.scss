@@ -1,0 +1,87 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// =======================================================================
+// Colors
+// =======================================================================
+
+// Borders
+$border-primary-color: #1c3aa9;
+$border-secondary-color: #a1c2fa;
+$border-success-color: #055524;
+$border-danger-color: #a52714;
+$border-warning-color: #bf5900;
+$border-info-color: #5c5c5c;
+$border-light-color: #e0e0e0;
+$border-dark-color: #000;
+$border-white-color: #fff;
+
+// background
+$bg-primary1: #2962ff;
+$bg-primary2: #2979ff;
+$bg-primary3: #448aff;
+$bg-secondary1: #a1c2fa;
+$bg-secondary2: #c6dafc;
+$bg-secondary3: #e8f0fe;
+$bg-success: #0f9d58;
+$bg-success-secondary: #f7fff5;
+$bg-danger: #d50000;
+$bg-danger-secondary: #fffafa;
+$bg-warning: #edab46;
+$bg-warning-secondary: #fffbf3;
+$bg-info: #5c5c5c;
+$bg-info-secondary: #979797;
+$bg-info-light: #f1f3f4;
+$bg-surface: #e0e0e0;
+$bg-light: #fafafa;
+$bg-dark: #000;
+$bg-white: #fff;
+$bg-grey: #323232;
+$bg-tooltip: rgba(97,97,97,.9);
+
+// shadows
+$shadow-small: 0px 1px 5px rgba(0, 0, 0, 0.2), 0px 3px 4px rgba(0, 0, 0, 0.12), 0px 2px 4px rgba(0, 0, 0, 0.14);
+$shadow-regular: 0px 3px 5px rgba(0, 0, 0, 0.2), 0px 1px 18px rgba(0, 0, 0, 0.12), 0px 6px 10px rgba(0, 0, 0, 0.14);
+$shadow-larger: 0px 5px 6px rgba(0, 0, 0, 0.2), 0px 3px 16px rgba(0, 0, 0, 0.12), 0px 9px 12px rgba(0, 0, 0, 0.14);
+$side-bar: 0px 9px 18px rgba(0, 0, 0, 0.18), 0px 5.5px 5px rgba(0, 0, 0, 0.24);
+
+// text color
+$text-primary-color: #1c3aa9;
+$text-secondary-color: #5c5c5c;
+$text-success-color: #055524;
+$text-danger-color: #a52714;
+$text-warning-color: #e65100;
+$text-info-color: #055524;
+$text-light-color: #fff;
+$text-dark-color: #000;
+$text-white-color: #fff;
+$text-white-60: rgba(255, 255, 255, 0.6);
+$text-black-60: rgba(0, 0, 0, 0.6);
+
+.text-black {
+  color: $text-dark-color;
+  opacity: .6;
+}
+
+.text-white {
+  color: $text-white-color;
+  opacity: .6;
+}
+
+.text-danger {
+  color: $text-danger-color;
+}
+

@@ -1,0 +1,99 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.custom-dialog {
+  mat-dialog-container {
+    padding: 0;
+    overflow: unset;
+    border-radius: 2px;
+  }
+
+  .schedule-restore {
+    position: relative;
+
+    .dialog-title {
+      display: flex;
+      justify-content: center;
+
+      h2 {
+        font-weight: 400!important;
+        font-size: 24px!important;
+        line-height: 150%!important;
+        width: 300px;
+        text-align: center;
+      }
+
+      button {
+        position: absolute;
+        top: -22px;
+        right: 10px;
+      }
+    }
+
+    .mat-dialog-actions {
+      margin-bottom: 0;
+      min-height: 36px;
+      padding: 0;
+    }
+  }
+
+  .warning {
+    h2 {
+      color: $text-white-color!important;
+      background-color: $bg-danger;
+      padding: 10px 20px;
+    }
+
+    p {
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-top: 15px;
+    }
+
+    .mat-dialog-content {
+      overflow: unset;
+    }
+
+    .mat-checkbox {
+      padding-left: 20px;
+    }
+
+    .mat-dialog-actions {
+      margin: 0;
+      padding: 0 15px;
+    }
+  }
+
+  .info {
+    h2 {
+      color: $text-white-color!important;
+      background-color: $bg-primary2;
+      padding: 10px 20px;
+    }
+
+    .mat-dialog-content {
+      overflow: unset;
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-top: 15px;
+    }
+
+    .mat-dialog-actions {
+      margin: 0;
+      padding: 0 15px;
+    }
+  }
+}

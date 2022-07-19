@@ -1,0 +1,47 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<mat-form-field class="custom-input custom-label mb-2" appearance="outline">
+  <input matInput class="label-input" autocomplete="off" [matAutocomplete]="labels" [formControl]="labelControl" (keyup.enter)="addLabel()">
+  <mat-autocomplete #labels="matAutocomplete" (optionSelected)="selectLabel()">
+    <mat-option *ngFor="let label of filteredLabels | async" [value]="label.name">
+      {{label.name}}
+    </mat-option>
+  </mat-autocomplete>
+  <div class="label-error">
+    <mat-error *ngIf="labelControl.hasError('pattern')">
+      Must start with letter. Can contain letters, numbers, dash and underscore
+    </mat-error>
+    <mat-error *ngIf="labelControl.hasError('maxlength')  && !labelControl.hasError('pattern')">
+      Max length is 15 symbols
+    </mat-error>
+  </div>
+</mat-form-field>
+<mat-chip-list class="custom-chips" #chipList aria-label="Database labels">
+  <mat-chip *ngFor="let databaseLabel of databaseLabels | slice: 0 : labelQuantityShown" (removed)="deleteLabel(databaseLabel)">
+    {{databaseLabel.name}}
+    <button matChipRemove>
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-chip>
+
+  <button class="toggle-btn" *ngIf="databaseLabels.length > 3" (click)="toggleLabelShown()">
+    <span *ngIf="!allLabelsShown; else allLabels">+ {{databaseLabels.length - 3}}</span>
+    <ng-template #allLabels>
+      <mat-icon>keyboard_arrow_up</mat-icon>
+    </ng-template>
+  </button>
+</mat-chip-list>

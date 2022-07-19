@@ -1,0 +1,76 @@
+/**
+ * Copyright 2022 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import "../../../../../styles/colors.scss";
+
+:host {
+  width: 100%;
+
+  .pad-back-opt {
+    padding: 1em 2em;
+  }
+
+  .step-header {
+    padding: 2em 2em 1em;
+
+    .step-header-item {
+      height: 45px;
+      width: 25%;
+      margin: 1%;
+      border: 1px solid #909090;
+      border-right: 0;
+      position: relative;
+    }
+  }
+
+  .step-content {
+    padding: 2em 0 1em;
+    display: flex;
+
+    .step-content-item {
+      width: 25%;
+      margin: 1%;
+      border: 1px solid #909090;
+      padding: 1em;
+      background: #e0f3ff;
+
+      .content-title {
+        font-style: normal;
+        font-weight: bold;
+        font-size: 14px;
+        line-height: 16px;
+        letter-spacing: -0.02em;
+      }
+
+      li {
+        font-style: normal;
+        font-weight: 300;
+        font-size: 13px;
+        line-height: 16px;
+        letter-spacing: -0.02em;
+        color: $font-base;
+      }
+    }
+
+    .step-content-item:first-child {
+      margin-left: 0;
+    }
+
+    .step-content-item:last-child {
+      margin-right: 0;
+    }
+  }
+}

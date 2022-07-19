@@ -1,0 +1,58 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="flex-center">
+  <h1 class="center-title mt-4">Migrate your on-premises databases to Google Cloud</h1>
+  <h2 class="center-sub-title">Deploy and configure enterprise Oracle workloads on Bare Metal Solutions. <a href="https://cloud.google.com/bare-metal">Learn more</a></h2>
+  <button 
+    mat-raised-button
+    matRipple
+    class="custom-button create-migration-btn"
+    [matRippleDisabled]="true"
+    (click)="redirect('mymigrationprojects/create')"
+  >Create migration</button>
+  <br>
+  <div class="flex-left block-title">Begin with basics</div>
+
+  <div class="content-board border pad1em">
+    <div class="column">
+      <p>
+        <span>Get up and running quickly by checking off common tasks</span>
+      </p>
+      <button 
+        mat-raised-button
+        matRipple
+        class="custom-button mt-4"
+        [matRippleDisabled]="true"
+        (click)="redirect('mymigrationprojects/roadmap')"
+      >Open roadmap</button>
+      <p class="p-custom mrg1em-top pad1em-top">
+        Setting up automation workflows for migrating databases to the Google Cloud?
+        Use the <a [routerLink]="'/mymigrationprojects/roadmap'" class="link">Migration Process Roadmap</a> designed for management, DBA, infrastructure cloud administrators, automation engineers.
+      </p>
+    </div>
+    <div class="column">
+      <h3>What´s covered</h3>
+      <ul class="p-custom">
+        <li>Create and manage migration projects</li>
+        <li>Check Inventory of source and target databases</li>
+        <li>Create and manage migration waves</li>
+        <li>View deployment history</li>
+        <li>Track migration progress</li>
+      </ul>
+    </div>
+  </div>
+</div>

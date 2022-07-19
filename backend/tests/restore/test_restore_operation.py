@@ -1,0 +1,291 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import os
+from unittest.mock import patch
+
+import pytest
+from marshmallow import ValidationError
+
+from bms_app import settings
+from bms_app.models import (
+    Operation, OperationDetails, OperationStatus, ScheduledTask, SourceDB,
+    SourceDBStatus, db
+)
+from bms_app.services.operations.objects import DbMapping
+from bms_app.services.operations.restore import RestoreOperation
+
+from tests.factories import (
+    BMSServerFactory, ConfigFactory, MappingFactory, ProjectFactory,
+    RestoreConfigFactory, ScheduledTaskFactory, SourceDBFactory
+)
+
+
+@patch('bms_app.operation.views.RestoreOperation.run')
+def test_restore_operation_api(mock, client):
+    db_1 = SourceDBFactory(status=SourceDBStatus.PRE_RESTORE_COMPLETE)
+    RestoreConfigFactory(source_db=db_1, is_configured=True)
+
+    req = client.post('/api/operations/restores', json={'db_id': db_1.id})
+
+    assert req.status_code == 201
+
+    mock.assert_called_with(db_id=db_1.id)
+
+
+@patch('bms_app.services.operations.restore.RestoreControlNodeService.run')
+@patch('bms_app.services.operations.base.BaseOperation._get_gcs_config_dir')
+@patch('bms_app.services.operations.restore.AnsibleRestoreConfigService.run')
+@patch('bms_app.services.operations.restore.AnsibleRestoreConfigService.__init__', return_value=None)
+def test_run_restore_operation(ansible_init_mock, ansible_run_mock, gcs_mock, node_mock, client):
+    """Test running restore operation"""
+    pr = ProjectFactory()
+    db_1 = SourceDBFactory(project=pr, status='DT_COMPLETE')
+    ConfigFactory(source_db=db_1)
+    RestoreConfigFactory(source_db=db_1, is_configured=True)
+    map_1 = MappingFactory(source_db=db_1)
+
+    RestoreOperation().run(db_1.id)
+
+    assert db_1.status == SourceDBStatus.DT
+
+    operation = db.session.query(Operation) \
+        .filter(Operation.status == 'STARTING') \
+        .first()
+    assert operation
+    assert operation.status == OperationStatus.STARTING
+
+    operation_details = db.session.query(OperationDetails) \
+        .filter(OperationDetails.operation_id == operation.id) \
+        .first()
+    assert operation_details
+    assert operation_details.status == OperationStatus.STARTING
+
+    gcs_mock.assert_called_with(
+        operation_id=operation.id
+    )
+
+    db_mappings_objects = DbMapping(db_1, [map_1])
+
+    total_targets = sum([len(obj.mappings) for obj in [db_mappings_objects]])
+
+    ansible_init_mock.assert_called_with(
+        db_mappings_objects,
+        gcs_mock.return_value
+    )
+    ansible_run_mock.assert_called_with()
+
+    node_mock.assert_called_with(
+        project=db_1.project,
+        operation=operation,
+        gcs_config_dir=gcs_mock.return_value,
+        total_targets=total_targets,
+        source_db=db_1
+    )
+
+
+@patch('bms_app.services.operations.restore.BaseRestoreOperation._start_pre_deployment')
+def test_run_restore_operation_with_deployed_db(pre_deployment_mock, client):
+    """Test running restore operation when db is DEPLOYED and run_pre_restore is False"""
+    pr = ProjectFactory()
+    db_1 = SourceDBFactory(project=pr, status='DEPLOYED')
+    ConfigFactory(source_db=db_1)
+    RestoreConfigFactory(source_db=db_1, is_configured=True, run_pre_restore=False)
+    map_1 = MappingFactory(source_db=db_1)
+
+    RestoreOperation().run(db_1.id)
+
+
+@patch('bms_app.services.operations.restore.BaseRestoreOperation._start_pre_deployment')
+def test_run_restore_operation_with_pre_restore_complete_db(pre_deployment_mock, client):
+    """Test running restore operation when db is PRE_RESTORE_COMPLETE and run_pre_restore is True"""
+    pr = ProjectFactory()
+    db_1 = SourceDBFactory(project=pr, status='PRE_RESTORE_COMPLETE')
+    ConfigFactory(source_db=db_1)
+    RestoreConfigFactory(source_db=db_1, is_configured=True, run_pre_restore=True)
+    map_1 = MappingFactory(source_db=db_1)
+
+    RestoreOperation().run(db_1.id)
+
+
+def test_validate_source_db_status(client):
+    """Test validate source db status"""
+    pr = ProjectFactory()
+    db_1 = SourceDBFactory(project=pr, status='DT')
+    MappingFactory(source_db=db_1)
+    RestoreConfigFactory(source_db=db_1)
+
+    with pytest.raises(ValidationError):
+        RestoreOperation().run(db_1.id)
+
+
+@patch('bms_app.services.scheduled_tasks.delete_task')
+def test_delete_scheduled_task_by_new_request(delete_task_mock, client):
+    """Test delete scheduled task if user wants to start restore operation immediately"""
+    pr = ProjectFactory()
+    db_1 = SourceDBFactory(project=pr, status='DT_COMPLETE')
+    MappingFactory(source_db=db_1)
+    task = ScheduledTaskFactory(source_db=db_1, completed=False)
+    RestoreConfigFactory(source_db=db_1, is_configured=True)
+
+    add_data = {
+        'db_id': db_1.id
+    }
+
+    req = client.post(f'/api/operations/restores', json=add_data)
+
+    assert req.status_code == 201
+
+    assert not db.session.query(ScheduledTask).get(task.id)
+
+
+@patch('bms_app.services.operations.restore.BaseRestoreOperation._start_pre_deployment', side_effect=Exception())
+def test_restore_operation_exception(pre_deploy_mock, client):
+    """Test restore operation failure"""
+    pr = ProjectFactory()
+    db_1 = SourceDBFactory(project=pr, status='DT_COMPLETE')
+    MappingFactory(source_db=db_1)
+    RestoreConfigFactory(source_db=db_1, is_configured=True)
+
+    RestoreOperation().run(db_1.id)
+
+    source_db = db.session.query(SourceDB).get(db_1.id)
+    assert source_db.status == SourceDBStatus.DT_FAILED
+
+    op = db.session.query(Operation).first()
+    assert op.status == OperationStatus.FAILED
+
+    op_det = db.session.query(OperationDetails) \
+        .filter(OperationDetails.operation_id == op.id) \
+        .first()
+    assert op_det.status == OperationStatus.FAILED
+
+
+@patch('bms_app.services.operations.restore.RestoreControlNodeService.run')
+@patch('bms_app.services.operations.base.BaseOperation._get_gcs_config_dir')
+@patch('bms_app.services.ansible.restore.upload_blob_from_string')
+@patch('bms_app.services.ansible.restore.copy_blob')
+@patch('bms_app.services.ansible.restore.AnsibleRestoreConfigService._upload_yaml')
+def test_uploading_files_for_restore(upload_yaml_mock, copy_blob_mock, blob_from_string, gcs_mock, node_mock, client):
+    pr = ProjectFactory()
+    db_1 = SourceDBFactory(project=pr, status='DT_COMPLETE')
+    bms = BMSServerFactory()
+    MappingFactory(source_db=db_1, bms=bms)
+    ConfigFactory(source_db=db_1)
+    res_conf_1 = RestoreConfigFactory(
+        source_db=db_1,
+        is_configured=True,
+        backup_location='oracle-bms-go3-inv/backup',
+        pfile_file='restore_configs/1/pfile.ora',
+        pwd_file='restore_configs/1/pwd_file.ora',
+        backup_type='full',
+    )
+
+    RestoreOperation().run(db_1.id)
+
+    upload_yaml_mock.assert_called_with(
+        data={
+            'all':
+                {'children':
+                    {'dbasm':
+                        {'hosts':
+                            {bms.name:
+                                {'ansible_ssh_host': '172.25.9.8',
+                                 'ansible_ssh_user': 'customeradmin',
+                                 'ansible_ssh_private_key_file': '/root/.ssh/id_rsa_bms_toolkit',
+                                 'ansible_ssh_extra_args': '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o IdentityAgent=no',
+                                 'oracle_ver': db_1.oracle_version,
+                                 'oracle_edition': db_1.oracle_edition,
+                                 'db_name': 'ORCL',
+                                 'compatible_rdbms': 'a',
+                                 'oracle_user': 'oracle',
+                                 'oracle_group': 'oinstall',
+                                 'oracle_root': '/u01/app',
+                                 'home_name': 'db_home19c',
+                                 'sm_token': bms.secret_name,
+                                 'swap_blk_device': '/dev/sda',
+                                 'backup_bucket': res_conf_1.backup_location.split('/')[0],
+                                 'pfile_file': 'pfile.ora',
+                                 'fuse_direct': True,
+                                 'restore_type': res_conf_1.backup_type.value.lower(),
+                                 'gcs_backup_folder': res_conf_1.backup_location.split('/')[1],
+                                 'psw_file': res_conf_1.pwd_file,
+                                 'control_file': res_conf_1.control_file,
+                                 }
+                             }
+                         }
+                     }
+                 }
+        },
+        file_name='inventory')
+
+    assert copy_blob_mock.call_args_list[0].args == (
+        settings.GCS_BUCKET,
+        res_conf_1.pfile_file,
+        settings.GCS_BUCKET,
+        os.path.join(gcs_mock.return_value, 'pfile.ora')
+    )
+
+    blob_from_string.assert_called_with(
+        settings.GCS_BUCKET,
+        os.path.join(gcs_mock.return_value, 'rman_restore_db.cmd.j2'),
+        res_conf_1.rman_cmd
+
+    )
+
+    copy_blob_mock.assert_called_with(
+        settings.GCS_BUCKET,
+        res_conf_1.pwd_file,
+        settings.GCS_BUCKET,
+        os.path.join(gcs_mock.return_value, 'orapw.file')
+    )
+
+
+@pytest.mark.parametrize(
+    'backup_type,template_name',
+    [
+        ('full', 'rman_restore_db.cmd.j2'),
+        ('incremental', 'rman_restore_inc.cmd.j2'),
+        ('archivelogs', 'rman_restore_inc.cmd.j2'),
+    ]
+)
+@patch('bms_app.services.operations.restore.RestoreControlNodeService.run')
+@patch('bms_app.services.operations.base.BaseOperation._get_gcs_config_dir')
+@patch('bms_app.services.ansible.restore.upload_blob_from_string')
+@patch('bms_app.services.ansible.restore.copy_blob')
+@patch('bms_app.services.ansible.restore.AnsibleRestoreConfigService._upload_yaml')
+def test_rman_template_name(upload_yaml_mock, copy_blob_mock, blob_from_string,
+                            gcs_mock, node_mock, backup_type, template_name, client):
+    pr = ProjectFactory()
+    db_1 = SourceDBFactory(project=pr, status='DT_COMPLETE')
+    bms = BMSServerFactory()
+    MappingFactory(source_db=db_1, bms=bms)
+    ConfigFactory(source_db=db_1)
+    res_conf_1 = RestoreConfigFactory(
+        source_db=db_1,
+        is_configured=True,
+        backup_location='oracle-bms-go3-inv/backup',
+        pfile_file='restore_configs/1/pfile.ora',
+        pwd_file='restore_configs/1/pwd_file.ora',
+        backup_type=backup_type,
+    )
+
+    RestoreOperation().run(db_1.id)
+
+    blob_from_string.assert_called_with(
+        settings.GCS_BUCKET,
+        os.path.join(gcs_mock.return_value, template_name),
+        res_conf_1.rman_cmd
+
+    )

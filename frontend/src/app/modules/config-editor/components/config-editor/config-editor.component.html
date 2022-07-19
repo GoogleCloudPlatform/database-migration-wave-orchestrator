@@ -1,0 +1,776 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="container container-row">
+  <div class="container">
+    <div class="container-header border-bottom">
+      <div class="section-header">{{mappings?.db_name}} Configuration
+        <mat-icon class="custom-icon black ml-2" matTooltip="On this page you can view and edit the set of software installation and database configuration parameters applied to mapping.
+           Any changes that can be applied to configurations are allowed only for existing mappings."
+          [matTooltipPosition]="'right'" aria-label="Configuration page functionality description">help</mat-icon>
+      </div>
+    </div>
+    <div class="pad2em">
+      <form [formGroup]="configEditorForm" (ngSubmit)="onSubmit()">
+        <!-- Global parameters table -->
+        <table class="custom-table-form w-100">
+          <caption>
+            <h3 class="subtitle">Miscellaneous Parameters</h3>
+            <p>Please review and validate miscellaneous parameters.</p>
+          </caption>
+          <tr>
+            <th class="w-40">Parameter Name</th>
+            <th>Value</th>
+            <th></th>
+          </tr>
+          <tr class="row-with-switcher" formGroupName="misc_config_values">
+            <td>Role separation</td>
+            <td>
+              <mat-slide-toggle class="custom-switcher" formControlName="role_separation" name="role_separation"
+                (click)="changeRol()">On/off</mat-slide-toggle>
+            </td>
+            <td>
+              <mat-icon appTooltip="role-separation" aria-label="Parameter 'Role separation' description">help
+              </mat-icon>
+            </td>
+          </tr>
+          <tr formGroupName="misc_config_values">
+            <td>ASM compatible.asm</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-select">
+                <mat-label>Select:</mat-label>
+                <mat-select formControlName="compatible_asm">
+                  <mat-option *ngFor="let asm of compatible | keyvalue" [value]="asm.key">
+                    {{asm.key}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="asm-compatible-asm" aria-label="Parameter 'ASM compatible.asm' description">help
+              </mat-icon>
+            </td>
+          </tr>
+          <tr formGroupName="misc_config_values">
+            <td>ASM compatible.rdbms</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-select">
+                <mat-label>Select:</mat-label>
+                <mat-select formControlName="compatible_rdbms">
+                  <mat-option *ngFor="let rdbms of rdbmsValues" [value]="rdbms">
+                    {{rdbms}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="asm-compatible-rdbms" aria-label="Parameter 'ASM compatible.rdbms' description">
+                help</mat-icon>
+            </td>
+          </tr>
+          <tr formGroupName="misc_config_values">
+            <td>ASM Disk Management</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-select">
+                <mat-label>Select Target:</mat-label>
+                <mat-select formControlName="asm_disk_management" formArrayName="asm_disk_management">
+                  <mat-option *ngFor="let option of asmDiskOptionSelect" [value]="option.value">{{option.text}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="asm-disk-management" aria-label="Parameter 'ASM Disk Management' description">
+                help
+              </mat-icon>
+            </td>
+          </tr>
+          <tr formGroupName="misc_config_values">
+            <td>Preferred NTP server</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-input">
+                <input matInput id="ntp-preferred" placeholder="Enter value" formControlName="ntp_preferred" name="ntp_preferred"
+                  autocomplete="no">
+                  <mat-error
+                  *ngIf="configEditorForm?.get('misc_config_values')?.get('ntp_preferred')?.hasError('invalidFormat')">
+                  Format must be either of IP address or domain.com(domain.gov.com) type
+                  </mat-error>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="ntp-preferred" aria-label="Parameter 'ntp-preferred' description"
+                data-testid="icon-help">help</mat-icon>
+            </td>
+          </tr>
+        </table>
+
+        <!--local data storage parameters table-->
+        <table class="custom-table-form w-100 mrg2em-top">
+          <caption>
+            <h3 class="subtitle">Local data storage parameters</h3>
+            <p>
+              Local storage implies that the storage devices are either installed on the system or directly attached to
+              the system.
+            </p>
+            <app-banner [type]="'warning'"
+              [text]="'Warning: all existing data on selected devices will be deleted prior to the installation without ability to recover!'">
+            </app-banner>
+          </caption>
+          <tr>
+            <th>Device</th>
+            <th>Purpose</th>
+            <th>Name</th>
+            <th>Mount Point</th>
+            <th>Actions</th>
+          </tr>
+          <tr formArrayName="data_mounts_values" *ngFor="let item of ldspFaDevices?.controls; let i = index;">
+            <td [formGroupName]="i">
+              <mat-form-field appearance="outline" class="custom-select">
+                <mat-label>Select Value:</mat-label>
+                <mat-select formControlName="blk_device" formArrayName="blk_device" class="blk-device">
+                  <mat-option [value]="''"></mat-option>
+                  <mat-option [disabled]="selectedLuns.includes(iss)"
+                    *ngFor="let option of lunsOptions; let iss = index" [value]="option.text">
+                    {{option.text}} ({{option.value}} gb)</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+            <td [formGroupName]="i">
+              <mat-form-field appearance="outline" class="custom-select">
+                <mat-label>Select Value:</mat-label>
+                <input matInput autocomplete="off" [matAutocomplete]="purpose" id="purpose" formControlName="purpose">
+                <mat-autocomplete #purpose="matAutocomplete" (optionSelected)="validatePurposeOptions($event , i)">
+                  <mat-option *ngFor="let option of dataMountPurposeOptions" [value]="option.value">{{option.text}}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error
+                  *ngIf="ldspFaDevices?.controls[i]?.get('purpose')?.hasError('incorrectSwap')"
+                >Swap device could be used only in addition to diag/software/other tipe device.</mat-error>
+              </mat-form-field>
+            </td>
+            <td [formGroupName]="i">
+              <mat-form-field  [ngClass]="{'custom-input': true, 'invalid': isInvalid}" appearance="outline"
+                *ngIf="this.ldspFaDevices?.controls[i]?.value?.purpose !== 'swap'">
+                <input matInput id="local-storage-name" placeholder="Enter name" formControlName="name" name="name" autocomplete="no">
+                <mat-error
+                  *ngIf="(ldspFaDevices?.controls[i]?.get('name')?.hasError('pattern')) &&
+                  (ldspFaDevices?.controls[i]?.get('name')?.dirty ||
+                  ldspFaDevices?.controls[i]?.get('name')?.touched)"
+                >
+                Can`t start with space.
+                </mat-error>
+                <mat-error
+                  *ngIf="ldspFaDevices?.controls[i]?.get('name')?.hasError('required') &&
+                  (ldspFaDevices?.controls[i]?.get('name')?.dirty ||
+                    ldspFaDevices?.controls[i]?.get('name')?.touched)"
+                >
+                Name is required.
+                </mat-error>
+              </mat-form-field>
+            </td>
+            <td [formGroupName]="i">
+              <mat-form-field [ngClass]="{'custom-input': true, 'invalid': isInvalid}" appearance="outline"
+                *ngIf="this.ldspFaDevices?.controls[i]?.value?.purpose !== 'swap'">
+                <input matInput id="mount-point" placeholder="Must start with '/' " formControlName="mount_point"
+                  name="mount_point" autocomplete="no">
+                  <mat-error
+                    *ngIf="ldspFaDevices?.controls[i]?.get('mount_point')?.hasError('required') &&
+                    (ldspFaDevices?.controls[i]?.get('mount_point')?.dirty ||
+                    ldspFaDevices?.controls[i]?.get('mount_point')?.touched)"
+                  >
+                  Mount point is required.
+                  </mat-error>
+                  <mat-error
+                    *ngIf="ldspFaDevices?.controls[i]?.get('mount_point')?.hasError('pattern') &&
+                    (ldspFaDevices?.controls[i]?.get('mount_point')?.dirty ||
+                    ldspFaDevices?.controls[i]?.get('mount_point')?.touched)"
+                  >
+                  Must start with '/'.
+                  </mat-error>
+                  <mat-error
+                    *ngIf="ldspFaDevices?.controls[i]?.get('mount_point')?.hasError('notUnique') &&
+                    (ldspFaDevices?.controls[i]?.get('mount_point')?.dirty ||
+                    ldspFaDevices?.controls[i]?.get('mount_point')?.touched)"
+                  >
+                  Mount point must be unique.
+                  </mat-error>
+              </mat-form-field>
+            </td>
+            <td class="link"><span *ngIf="ldspFaDevices?.controls?.length > 1" (click)="removeDevice(i)">Remove</span>
+            </td>
+          </tr>
+          <tr class="row-with-button" (click)="addDevice()">
+            <td colspan="5">
+              <mat-icon>add</mat-icon>add device
+            </td>
+          </tr>
+        </table>
+
+        <div class="mt-6" formGroupName="misc_config_values">
+          <app-banner *ngIf="isSwapWarningShown" [type]="'warning'" [smallText]="true"
+          [text]="'Warning: Oracle is highly recommended for normal database operation to configure swap'">
+          </app-banner>
+          <div class="d-flex align-items-center mt-4">
+            <mat-checkbox
+              class="custom-checkbox"
+              formControlName="is_swap_configured"
+              (change)="validateSwapCheckbox()"
+            >Swap is configured on server</mat-checkbox>
+            <mat-icon
+              class="custom-icon black ml-3"
+              aria-hidden="false"
+              aria-label="Help icon for swap checkbox"
+              appTooltip="swap-checkbox"
+            >help</mat-icon>
+            <mat-icon
+              *ngIf="configEditorForm?.get('misc_config_values')?.get('is_swap_configured')?.hasError('swapIsAlreadyConfigured')"
+              class="custom-icon danger ml-2"
+              aria-hidden="false"
+              aria-label="Error icon for swap checkbox"
+              appTooltip="swap-checkbox-error"
+            >error</mat-icon>
+          </div>
+        </div>
+
+        <!--ASM Configuration table-->
+        <table class="custom-table-form custom-table-form-asm mrg2em-top">
+          <caption>
+            <h3 class="subtitle">ASM Configuration</h3>
+            <p>
+              <a href="https://support.oracle.com/epmos/faces/DocumentDisplay?_afrLoop=104934948217685&id=337737.1&_afrWindowMode=0&_adf.ctrl-state=11hnnpmypz_317,"
+                target="_blank" class="link">Automatic Storage Management (ASM)</a>,
+              a feature of the Oracle Database, provides Oracle customers with simplified storage management that is
+              consistent across all server and storage platforms.
+              <br><a href="https://docs.oracle.com/en/database/oracle/oracle-database/12.2/ostmg/asm-intro.html"
+                class="link">for Oracle 12c</a>,
+              <a href="https://docs.oracle.com/en/database/oracle/oracle-database/18/ostmg/index.html"
+                class="link">Oracle
+                18c</a>,
+              <a href="https://docs.oracle.com/en/database/oracle/oracle-database/19/ostmg/index.html"
+                class="link">Oracle
+                19c</a>
+            </p>
+            <app-banner [type]="'warning'"
+              [text]="'Warning: all existing data on selected devices will be deleted prior to the installation without ability to recover!'">
+            </app-banner>
+          </caption>
+          <tr>
+            <th>Diskgroup</th>
+            <th>
+              Allocation Unit
+              <mat-icon
+                matTooltip="When you create a disk group, you can set the Oracle ASM allocation unit size with the AU_SIZE disk group attribute.
+                    The values can be 1, 2, 4, 8, 16, 32, or 64 MB, depending on the specific disk group compatibility level.
+                    Larger AU sizes typically provide performance advantages for data warehouse applications that use large sequential reads."
+                [matTooltipPosition]="'right'" aria-label="Allocation Unit Info">help</mat-icon>
+            </th>
+            <th>
+              Redundancy
+              <mat-icon matTooltip="If you specify mirroring for a file, then Oracle ASM automatically stores redundant copies of the file extents in separate failure groups.
+                    Failure groups apply to normal, high, flex, and extended redundancy disk groups.
+                    You can define the failure groups for each disk group when you create or alter the disk group."
+                [matTooltipPosition]="'right'" aria-label="Redundancy Info">help</mat-icon>
+            </th>
+            <th>Device</th>
+            <th>Size</th>
+            <th>Name</th>
+          </tr>
+          <tr formArrayName="asm_config_values" *ngFor="let item of asmFaData?.controls; let j = index;">
+            <td [formGroupName]="j">
+              <mat-form-field appearance="outline" [ngClass]="{'custom-input': true, 'invalid': isInvalid}">
+                <input matInput placeholder="Enter value" formControlName="diskgroup" name="diskgroup"
+                  autocomplete="no">
+              </mat-form-field>
+              <span class="remove-link d-inline-block mt-4" *ngIf="asmFaData?.controls.length > 1"
+                (click)="removeDiskGroup(j)">Remove</span>
+            </td>
+            <td [formGroupName]="j" class="row-with-decrease">
+              <mat-form-field appearance="outline" class="custom-select">
+                <mat-label>Select Value:</mat-label>
+                <mat-select formControlName="au_size">
+                  <mat-option *ngFor="let option of auSizeOptions" [value]="option.value">{{option.text}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+            <td [formGroupName]="j" class="row-with-decrease redundancy">
+              <mat-form-field appearance="outline" class="custom-select">
+                <mat-label>Select Value:</mat-label>
+                <mat-select formControlName="redundancy">
+                  <mat-option *ngFor="let option of redundancyOptions" [value]="option.value"
+                    [disabled]="asmFaDevices(j)?.controls.length < option.disks_number">{{option.text}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+            <td class="pad0" colspan="3" [formGroupName]="j">
+              <table class="devices-list">
+                <tr formArrayName="disks" *ngFor="let disks of asmFaDevices(j)?.controls; let k = index">
+                  <td [formGroupName]="k">
+                    <mat-form-field appearance="outline" class="custom-select">
+                      <mat-label>Select Value:</mat-label>
+                      <mat-select formControlName="blk_device">
+                        <mat-option [value]="''" (click)="assignSize(j , k , '')"></mat-option>
+                        <mat-option *ngFor="let option of lunsOptions ; let iss = index" [value]="option.text"
+                          [disabled]="selectedLuns.includes(iss)" (click)="assignSize(j , k , option.size_gb)">
+                          {{option.text}} ({{option.value}} gb)
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-icon *ngIf="asmFaDevices(j).length > 1" class="mat-icon pointer mt-4"
+                      (click)="removeAsmDisk(j , k)">delete</mat-icon>
+                  </td>
+                  <td [formGroupName]="k" class="row-with-decrease">
+                    <!--TODO read the size from api > luns > size_gb-->
+                    <mat-form-field appearance="outline" class="custom-input">
+                      <input matInput formControlName="size" name="size" autocomplete="no" readonly>
+                    </mat-form-field>
+                  </td>
+                  <td [formGroupName]="k">
+                    <mat-form-field appearance="outline" [ngClass]="{'custom-input': true, 'invalid': isInvalid}">
+                      <input matInput placeholder="Enter value" formControlName="name" name="name" autocomplete="no">
+                    </mat-form-field>
+                  </td>
+                </tr>
+
+                <tr class="add-device" (click)="addDeviceAsmConf(j)">
+                  <td colspan="3">
+                    <mat-icon>add</mat-icon> add device
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr class="row-with-button" (click)="addAsmData()">
+            <td colspan="6">
+              <mat-icon>add</mat-icon>add diskgroup
+            </td>
+          </tr>
+        </table>
+
+        <table class="custom-table-form w-100 mrg2em-top">
+          <caption>
+            <h3 class="subtitle">Installation parameters</h3>
+            <p>Oracle software installation parameters</p>
+          </caption>
+          <tr>
+            <th class="w-40">Parameter Name</th>
+            <th>Value</th>
+            <th></th>
+          </tr>
+          <tr formGroupName="install_config_values">
+            <td>Oracle User</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-input">
+                <input matInput id="oracle-user" placeholder="Enter value" formControlName="oracle_user" name="oracle_user"
+                  autocomplete="no">
+                <mat-error
+                  *ngIf="configEditorForm?.get('install_config_values')?.get('oracle_user')?.hasError('required')">
+                  Oracle User is required
+                </mat-error>
+                <mat-error
+                  *ngIf="configEditorForm?.get('install_config_values')?.get('oracle_user')?.hasError('maxlength')">
+                  Exceed the number of characters allowed
+                </mat-error>
+                <mat-error
+                  *ngIf="configEditorForm?.get('install_config_values')?.get('oracle_user')?.hasError('pattern')">
+                  May contain alphanumeric value, underscore and dot, spaces are not allowed.
+                </mat-error>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="oracle-user" aria-label="Parameter 'oracle_user' description">help</mat-icon>
+            </td>
+          </tr>
+          <tr formGroupName="install_config_values">
+            <td>Oracle Group</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-input">
+                <input matInput id="oracle-group" placeholder="Enter value" formControlName="oracle_group" name="oracle_group"
+                  autocomplete="no">
+                <mat-error
+                  *ngIf="configEditorForm?.get('install_config_values')?.get('oracle_group')?.hasError('required')">
+                  Oracle Group is required
+                </mat-error>
+                <mat-error
+                  *ngIf="configEditorForm?.get('install_config_values')?.get('oracle_group')?.hasError('maxlength')">
+                  Exceed the number of characters allowed
+                </mat-error>
+                <mat-error
+                  *ngIf="configEditorForm?.get('install_config_values')?.get('oracle_group')?.hasError('pattern')">
+                  May contain alphanumeric value, underscore and dot, spaces are not allowed.
+                </mat-error>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="oracle-group" aria-label="Parameter 'oracle_group' description">help</mat-icon>
+            </td>
+          </tr>
+          <tr formGroupName="misc_config_values">
+            <td>Software Location</td>
+            <!--TODO implement the value whit purpose from local data storage table-->
+            <td>
+              <mat-form-field appearance="outline" class="custom-input">
+                <input matInput placeholder="Enter value" formControlName="oracle_root" name="oracle_root"
+                  autocomplete="no">
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="oracle-root" aria-label="Parameter 'oracle_root' description">help</mat-icon>
+            </td>
+          </tr>
+          <tr formGroupName="install_config_values">
+            <td>Oracle Home name</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-input">
+                <input matInput placeholder="Enter value" formControlName="home_name" name="home_name"
+                  autocomplete="no">
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="home-name" aria-label="Parameter 'home_name' description">help</mat-icon>
+            </td>
+          </tr>
+          <tr formGroupName="install_config_values" [ngClass]="{'disabled': !getRolValue()}">
+            <td>Grid User</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-input">
+                <input matInput id="grid-user" placeholder="Enter value" formControlName="grid_user" name="grid_user"
+                  autocomplete="no">
+                <mat-error
+                  *ngIf="configEditorForm?.get('install_config_values')?.get('grid_user')?.hasError('required')">
+                  Grid User is required
+                </mat-error>
+                <mat-error
+                  *ngIf="configEditorForm?.get('install_config_values')?.get('grid_user')?.hasError('maxlength')">
+                  Exceed the number of characters allowed
+                </mat-error>
+                <mat-error
+                  *ngIf="configEditorForm?.get('install_config_values')?.get('grid_user')?.hasError('pattern')">
+                  May contain alphanumeric value, underscore and dot, spaces are not allowed.
+                </mat-error>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="grid-user" aria-label="Parameter 'grid_user' description">help</mat-icon>
+            </td>
+          </tr>
+          <tr formGroupName="install_config_values" [ngClass]="{'disabled': !getRolValue()}">
+            <td>Grid Group</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-input">
+                <input matInput id="grid-group" placeholder="Enter value" formControlName="grid_group" name="grid_group"
+                  autocomplete="no">
+                <mat-error
+                  *ngIf="configEditorForm?.get('install_config_values')?.get('grid_group')?.hasError('required')">
+                  Grid Group is required
+                </mat-error>
+                <mat-error
+                  *ngIf="configEditorForm?.get('install_config_values')?.get('grid_group')?.hasError('maxlength')">
+                  Exceed the number of characters allowed
+                </mat-error>
+                <mat-error
+                  *ngIf="configEditorForm?.get('install_config_values')?.get('grid_group')?.hasError('pattern')">
+                  May contain alphanumeric value, underscore and dot, spaces are not allowed.
+                </mat-error>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="grid-group" aria-label="Parameter 'grid_group' description">help</mat-icon>
+            </td>
+          </tr>
+        </table>
+
+        <table class="custom-table-form w-100 mrg2em-top">
+          <caption>
+            <h3 class="subtitle">Database Parameters</h3>
+          </caption>
+          <tr>
+            <th class="w-40">Parameter Name</th>
+            <th>Value</th>
+            <th></th>
+          </tr>
+          <tr formGroupName="db_params_values">
+            <td>Database Name</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-input">
+                <input matInput placeholder="Enter value" formControlName="db_name" name="db_name" autocomplete="no" readonly>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="db-name" aria-label="Parameter 'db_name' description">help</mat-icon>
+            </td>
+          </tr>
+        </table>
+
+        <!-- RAC Configuration -->
+        <ng-container *ngIf="mappings?.db_type === 'RAC'" formGroupName="rac_config_values">
+          <table class="custom-table-form w-100 mrg2em-top">
+            <caption>
+              <h3 class="subtitle">RAC Configuration</h3>
+            </caption>
+            <tr>
+              <th class="w-40">Parameter Name</th>
+              <th>Value</th>
+              <th></th>
+            </tr>
+            <tr>
+              <td>Cluster Name</td>
+              <td>
+                <mat-form-field appearance="outline" [ngClass]="{'custom-input': true, 'invalid': isInvalid}">
+                  <input matInput id="cluster-name" placeholder="Enter value" formControlName="cluster_name"
+                    name="cluster_name" autocomplete="no" />
+                  <mat-error
+                    *ngIf="configEditorForm?.get('rac_config_values')?.get('cluster_name')?.hasError('required')">
+                    Name is required
+                  </mat-error>
+                  <mat-error
+                    *ngIf="configEditorForm?.get('rac_config_values')?.get('cluster_name')?.hasError('maxlength')">
+                    Exceed the number of characters allowed
+                  </mat-error>
+                  <mat-error
+                    *ngIf="configEditorForm?.get('rac_config_values')?.get('cluster_name')?.hasError('pattern')">
+                    May contain hyphens, underscore characters (_) are not allowed.
+                  </mat-error>
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-icon appTooltip="cluster-name" aria-label="Parameter 'cluster_name' description">help
+                </mat-icon>
+              </td>
+            </tr>
+            <tr>
+              <td>Cluster Domain</td>
+              <td>
+                <mat-form-field appearance="outline" [ngClass]="{'custom-input': true, 'invalid': isInvalid}">
+                  <input matInput placeholder="Enter value" formControlName="cluster_domain" name="cluster_domain"
+                    autocomplete="no">
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-icon appTooltip="cluster-domain" aria-label="Parameter 'cluster-domain' description">help
+                </mat-icon>
+              </td>
+            </tr>
+            <tr>
+              <td>SCAN name</td>
+              <td>
+                <mat-form-field appearance="outline" [ngClass]="{'custom-input': true, 'invalid': isInvalid}">
+                  <input matInput placeholder="Enter value" formControlName="scan_name" name="scan_name"
+                    autocomplete="no" />
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-icon appTooltip="scan-name" aria-label="Parameter 'scan-name' description">help</mat-icon>
+              </td>
+            </tr>
+            <tr>
+              <td>SCAN port</td>
+              <td>
+                <mat-form-field appearance="outline" [ngClass]="{'custom-input': true, 'invalid': isInvalid}">
+                  <input matInput id="scan-port" type="number" placeholder="Enter value" formControlName="scan_port" name="scan_port"
+                    autocomplete="no" />
+                  <mat-error *ngIf="configEditorForm?.get('rac_config_values')?.get('scan_port')?.hasError('required')">
+                    Name is required
+                  </mat-error>
+                  <mat-error *ngIf="configEditorForm?.get('rac_config_values')?.get('scan_port')?.hasError('min')">
+                    The min value is 1
+                  </mat-error>
+                  <mat-error *ngIf="configEditorForm?.get('rac_config_values')?.get('scan_port')?.hasError('max')">
+                    The max value is 65535
+                  </mat-error>
+                </mat-form-field>
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>SCAN IP-Address 1</td>
+              <td>
+                <mat-form-field appearance="outline" [ngClass]="{'custom-input': true, 'invalid': isInvalid}">
+                  <input matInput id="scan-ip1" [showMaskTyped]="true" mask="IP" [dropSpecialCharacters]="false" placeholder="Enter value" formControlName="scan_ip1" name="scan_ip1"
+                    autocomplete="no" />
+                  <mat-error *ngIf="configEditorForm?.get('rac_config_values')?.get('scan_ip1')?.hasError('required')">
+                    Name is required
+                  </mat-error>
+                  <mat-error *ngIf="configEditorForm?.get('rac_config_values')?.get('scan_ip1')?.hasError('pattern')">
+                    Can include only IP address (digits and periods only, each octet can be in a range of 1 - 255)
+                  </mat-error>
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-icon appTooltip="scan-ip1" aria-label="Parameter 'scan-ip1' description">help</mat-icon>
+              </td>
+            </tr>
+            <tr>
+              <td>SCAN IP-Address 2</td>
+              <td>
+                <mat-form-field appearance="outline" class="custom-input">
+                  <input matInput id="scan-ip2" [showMaskTyped]="true" mask="IP" [dropSpecialCharacters]="false" placeholder="Enter value" formControlName="scan_ip2" name="scan_ip2"
+                    autocomplete="no" />
+                  <mat-error *ngIf="configEditorForm?.get('rac_config_values')?.get('scan_ip2')?.hasError('pattern')">
+                    Can include only IP address (digits and periods only, each octet can be in a range of 1 - 255)
+                  </mat-error>
+
+                  <mat-error *ngIf="configEditorForm?.get('rac_config_values')?.get('scan_ip2')?.hasError('notUnique')">
+                    Scan IP adresses 1,2,3 should be unique
+                  </mat-error>
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-icon appTooltip="scan-ip-optional" aria-label="Parameter 'scan-ip2' description">help
+                </mat-icon>
+              </td>
+            </tr>
+            <tr>
+              <td>SCAN IP-Address 3</td>
+              <td>
+                <mat-form-field appearance="outline" class="custom-input">
+                  <input matInput id="scan-ip3" [showMaskTyped]="true" mask="IP" [dropSpecialCharacters]="false" placeholder="Enter value" formControlName="scan_ip3" name="scan_ip3"
+                    autocomplete="no" />
+                  <mat-error *ngIf="configEditorForm?.get('rac_config_values')?.get('scan_ip3')?.hasError('pattern')">
+                    Can include only IP address (digits and periods only, each octet can be in a range of 1 - 255)
+                  </mat-error>
+
+                  <mat-error *ngIf="configEditorForm?.get('rac_config_values')?.get('scan_ip3')?.hasError('notUnique')">
+                    Scan IP adresses 1,2,3 should be unique
+                  </mat-error>
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-icon appTooltip="scan-ip-optional" aria-label="Parameter 'scan-ip3' description">help
+                </mat-icon>
+              </td>
+            </tr>
+            <tr>
+              <td>Public Network Interface Name</td>
+              <td>
+                <mat-form-field appearance="outline" [ngClass]="{'custom-input': true, 'invalid': isInvalid}">
+                  <input matInput placeholder="Enter value" formControlName="public_net" name="public_net"
+                    autocomplete="no">
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-icon appTooltip="public-net" aria-label="Parameter 'public_net' description">help</mat-icon>
+              </td>
+            </tr>
+            <tr>
+              <td>Private Network Interface Name</td>
+              <td>
+                <mat-form-field appearance="outline" [ngClass]="{'custom-input': true, 'invalid': isInvalid}">
+                  <input matInput placeholder="Enter value" formControlName="private_net" name="private_net"
+                    autocomplete="no">
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-icon appTooltip="private-net" aria-label="Parameter 'private_net' description">help</mat-icon>
+              </td>
+            </tr>
+            <tr>
+              <td>Default Diskgroup Name</td>
+              <td>
+                <mat-form-field appearance="outline" [ngClass]="{'custom-input': true, 'invalid': isInvalid}">
+                  <input matInput placeholder="Enter value" formControlName="dg_name" name="dg_name" autocomplete="no">
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-icon appTooltip="dg-name" aria-label="Parameter 'dg_name' description">help</mat-icon>
+              </td>
+            </tr>
+          </table>
+
+          <table class="custom-table-form w-100 mrg2em-top" formArrayName="rac_nodes">
+            <caption>
+              <h3 class="subtitle">RAC Nodes</h3>
+              <p>You can initiate a new migration mapping from <a routerLink="/migrationmapper" class="link">Migration
+                  Mapper</a>.
+                RAC nodes are available only when the installation type is RAC.
+                Original number of nodes is set according to the DB assessment output, however you are allowed to
+                add/remove nodes*.
+                * It is not possible to remove all nodes. At least one node has to be in place.
+              </p>
+            </caption>
+            <tr>
+              <th>Node Hostname</th>
+              <th>VIP Name</th>
+              <th>VIP IP</th>
+              <th>Actions</th>
+            </tr>
+            <tr *ngFor="let rac of racNodes?.controls; index as i" class="rac-node">
+              <ng-container [formGroupName]="i">
+                <td>
+                  <mat-form-field appearance="outline" class="custom-select">
+                    <mat-label>Select:</mat-label>
+                    <mat-select formControlName="node_id">
+                      <mat-option [value]="''"></mat-option>
+                      <mat-option *ngFor="let target of targets" [value]="target.id" [disabled]="target.isMapped">
+                        {{target.name}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field appearance="outline" [ngClass]="{'custom-input': true, 'invalid': isInvalid}">
+                    <input matInput placeholder="Enter value" formControlName="vip_name" name="vip_name"
+                      autocomplete="no">
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field appearance="outline" [ngClass]="{'custom-input': true, 'invalid': isInvalid}">
+                    <input matInput id="vip-ip" [showMaskTyped]="true" mask="IP" [dropSpecialCharacters]="false" placeholder="Enter value" formControlName="vip_ip" name="vip_ip"
+                      autocomplete="no" />
+
+                    <mat-error *ngIf="racNodes?.controls[i]?.get('vip_ip')?.hasError('required')">
+                      Name is required
+                    </mat-error>
+                    <mat-error *ngIf="racNodes?.controls[i]?.get('vip_ip')?.hasError('pattern')">
+                      Can include only IP address
+                    </mat-error>
+
+                    <mat-error *ngIf="racNodes?.controls[i]?.get('vip_ip')?.hasError('notUnique')">
+                      VIP IP adresses should be unique
+                    </mat-error>
+                  </mat-form-field>
+                </td>
+                <td class="link">
+                  <span *ngIf="racNodes?.controls.length > 1" (click)="removeNode(i)">Remove</span>
+                </td>
+              </ng-container>
+            </tr>
+            <tr class="row-with-button" (click)="addNode()">
+              <td colspan="5">
+                <mat-icon>add</mat-icon>add node
+              </td>
+            </tr>
+          </table>
+        </ng-container>
+        <button
+          mat-raised-button
+          matRipple
+          type="button"
+          class="custom-button draft-btn mt-8 mr-4"
+          [matRippleDisabled]="true"
+          (click)="saveDraft()"
+          [disabled]="isFormDisabled"
+        >Save Draft</button>
+        <button
+          mat-raised-button
+          matRipple
+          type="submit"
+          class="custom-button mt-8"
+          [matRippleDisabled]="true"
+          aria-label="submit form"
+          [disabled]="isFormDisabled"
+        >Submit</button>
+      </form>
+    </div>
+  </div>
+</div>

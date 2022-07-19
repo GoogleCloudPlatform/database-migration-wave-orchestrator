@@ -1,0 +1,185 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+
+<div class="container">
+  <div class="container-header border-bottom">
+    <div class="section-header">Target (BMS) inventory</div>
+    <div>
+      Next steps: <a routerLink="/migrationmapper" class="link">Migration Mapper</a>
+    </div>
+  </div>
+  <div class="container-content">
+    <div *ngIf="!showDataTable else noteDataTable">
+      <div class="note">
+        Please initiate the discovery process to obtain a list of BMS targets.
+        <br><br>
+        There are two ways to load target BMS servers:
+        <ul>
+          <li>Using “Discovery” button </li>
+          <li>Using “Import Inventory File” button</li>
+        </ul>
+      </div>
+    </div>
+    <ng-template #noteDataTable>
+      <div class="note">
+        Once the list of BMS targets has been discovered or imported, it is important to specify the secret name* where the “first time connect” user password is saved.
+
+        <div class="mrg2em-top target-bms-overwrite" *ngIf="showDataTable">
+          <mat-checkbox class="custom-checkbox target-bms-overwrite-checkbox" [(ngModel)]="overrideTargets" ngDefaultControl>Overwrite existing BMS target</mat-checkbox>
+          <br>
+          <sub class="target-bms-overwrite-description">By marking the “Overwrite existing BMS targets” we allow all non-deployed targets to be overwritten, which means all existing configurations that might have been done, will be destroyed.
+          </sub>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="mt-4 mb-8">
+      <mat-checkbox
+        class="custom-checkbox"
+        [(ngModel)]="showAvailableProjects"
+        ngDefaultControl
+        (ngModelChange)="getTargets()"
+      >Show available and assigned to current projects</mat-checkbox>
+    </div>
+
+    <div class="mt-6">
+      <button
+        mat-flat-button
+        matRipple
+        class="custom-button"
+        [matRippleDisabled]="true"
+        aria-label="start discovery"
+        (click)="startDiscovery()"
+      >Discovery</button>
+      <button
+        mat-icon-button
+        matRipple
+        [matRippleDisabled]="true"
+        class="custom-button ml-3 upload-file"
+        aria-label="import inventory files"
+        (click)="uploadFile()"
+      >
+        <input type="file" #fileUpload hidden>
+        <mat-icon aria-hidden="true">add</mat-icon>Import inventory files
+      </button>
+    </div>
+
+    <!--This container disappear when you have no registered database-->
+    <div class="container-list-sdb" [hidden]="!showDataTable">
+      <app-base-material-table class="custom-table">
+        <div class="filter-wrapper mt-6 mb-5">
+          <div class="filter">
+            <mat-icon class="mr-2">sort</mat-icon>
+            <mat-label class="mr-4">Filter</mat-label>
+            <mat-form-field appearance="none">
+              <input
+                matInput
+                (keyup)="applyFilter($event)"
+                placeholder="Enter property name or value"
+                #input
+              />
+            </mat-form-field>
+          </div>
+          <mat-icon
+            class="custom-icon black"
+            aria-hidden="false"
+            aria-label="Help icon"
+          >help</mat-icon>
+        </div>
+        <table mat-table class="target-bms" [dataSource]="dataSource" matSort [matSortActive]="sortState.active" [matSortDirection]="sortState.direction">
+
+          <!-- name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> Target Hostname </th>
+            <td mat-cell *matCellDef="let row" class="target-bms-name">{{row.name}}</td>
+          </ng-container>
+
+          <!-- cpu cores Column -->
+          <ng-container matColumnDef="cpu">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> CPU Cores </th>
+            <td mat-cell *matCellDef="let row" class="target-bms-cpu">{{row.cpu}}</td>
+          </ng-container>
+
+          <!-- socket Column -->
+          <ng-container matColumnDef="socket">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> Sockets </th>
+            <td mat-cell *matCellDef="let row" class="target-bms-socket">{{row.socket}}</td>
+          </ng-container>
+
+          <!-- ram Column -->
+          <ng-container matColumnDef="ram">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> RAM </th>
+            <td mat-cell *matCellDef="let row" class="target-bms-ram">{{row.ram}}</td>
+          </ng-container>
+
+          <!-- client_ip Column -->
+          <ng-container matColumnDef="client_ip">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef > IP Address </th>
+            <td mat-cell *matCellDef="let row" class="target-bms-client-ip">{{row.client_ip}}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="location">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> Location </th>
+            <td mat-cell *matCellDef="let row" class="target-bms-location">{{row.location}}</td>
+          </ng-container>
+
+          <!-- secret_name Column -->
+          <ng-container matColumnDef="secret_name">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> Secret Name </th>
+            <td mat-cell *matCellDef="let row" class="target-bms-secret">
+              <mat-form-field appearance="outline" class="float-left">
+                <mat-label>Secret name</mat-label>
+                <input
+                  id="sname"
+                  matInput
+                  placeholder="Enter secret name"
+                  [pattern]="patternForSecretName"
+                  #sname="ngModel"
+                  autocomplete="false"
+                  matTooltip="Enter key or leave the field to save automatically"
+                  [(ngModel)]="row.secret_name"
+                  (blur)="updateSecretName(row, sname.errors?.pattern)"
+                  (keyup.enter)="updateSecretName(row, sname.errors?.pattern)"
+                />
+                <mat-error
+                  id="sname-error"
+                  *ngIf="sname.errors?.pattern"
+                >Should be projects/project_number/secrets/secret_name</mat-error>
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="target-bms-row"></tr>
+
+          <!-- Row shown when there is no matching data. -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="7">No data matching the filter "{{input.value}}"</td>
+          </tr>
+        </table>
+
+        <mat-paginator
+          [pageSize]="pageSize"
+          [pageSizeOptions]="[5, 10, 25, 100]"
+          aria-label="Select page of projects"
+        ></mat-paginator>
+
+      </app-base-material-table>
+    </div>
+  </div>
+</div>
+

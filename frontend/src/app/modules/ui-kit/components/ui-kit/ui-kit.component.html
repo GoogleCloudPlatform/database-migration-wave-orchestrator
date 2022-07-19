@@ -1,0 +1,764 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="ui-kit">
+  <h1>UI Kit</h1>
+
+  <section h2>
+    <h2>Buttons</h2>
+
+    <div>
+      <section h3>
+        <h3>Date-time picker</h3>
+
+        <app-date-time></app-date-time>
+
+      </section>
+    </div>
+
+  </section>
+
+
+  <section h2>
+    <h2>Buttons</h2>
+
+    <div>
+      <section h3>
+        <h3>Basic</h3>
+
+        <div>
+          <button
+            mat-button
+            class="custom-button"
+            aria-label="button"
+          >Button</button>
+          <button
+            mat-button
+            class="custom-button"
+            aria-label="button"
+            disabled
+          >Button disabled</button>
+        </div>
+      </section>
+      <section h3>
+        <h3>Flat</h3>
+
+        <div>
+          <button
+            mat-flat-button
+            matRipple
+            class="custom-button"
+            [matRippleDisabled]="true"
+            aria-label="button"
+          >Button</button>
+          <button
+            mat-flat-button
+            class="custom-button"
+            aria-label="button"
+            disabled
+          >Button disabled</button>
+        </div>
+      </section>
+      <section h3>
+        <h3>Raised</h3>
+
+        <div>
+          <button
+            mat-raised-button
+            matRipple
+            class="custom-button"
+            [matRippleDisabled]="true"
+            aria-label="button"
+          >Button</button>
+          <button
+            mat-raised-button
+            class="custom-button"
+            aria-label="button"
+            disabled
+          >Button disabled</button>
+        </div>
+      </section>
+      <section h3>
+        <h3>Icon</h3>
+
+        <div>
+          <button
+            mat-icon-button
+            matRipple
+            [matRippleDisabled]="true"
+            class="custom-button"
+            aria-label="button"
+          >
+            <mat-icon aria-hidden="true">add</mat-icon>Button
+          </button>
+          <button
+            mat-icon-button
+            class="custom-button"
+            aria-label="button"
+            disabled
+          >
+            <mat-icon aria-hidden="true">add</mat-icon>Button
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+  </section>
+
+
+  <section h2>
+    <h2>Checkbox</h2>
+
+    <div>
+      <section h3>
+        <mat-checkbox
+          class="custom-checkbox"
+          [checked]="true"
+        >Selected</mat-checkbox>
+        <mat-checkbox class="custom-checkbox">Deselected</mat-checkbox>
+        <mat-checkbox
+          class="custom-checkbox"
+          [checked]="true"
+          [disabled]="true"
+        >Selected and disabled</mat-checkbox>
+        <mat-checkbox
+          class="custom-checkbox"
+          [disabled]="true"
+        >Deselected and disabled</mat-checkbox>
+      </section>
+    </div>
+  </section>
+
+  <section h2>
+    <h2>Radio button (Value: {{ radiobuttonValue }})</h2>
+
+    <div>
+      <section h3>
+        <mat-radio-group
+          [(ngModel)]="radiobuttonValue"
+          aria-label="Select an option"
+          class="custom-radio-group"
+        >
+          <mat-radio-button [value]="1">Option 1</mat-radio-button>
+          <mat-radio-button [value]="2">Option 2</mat-radio-button>
+          <mat-radio-button [value]="3">Option 3</mat-radio-button>
+          <mat-radio-button [value]="4" [disabled]="true">Option 4</mat-radio-button>
+        </mat-radio-group>
+      </section>
+    </div>
+  </section>
+
+  <section h2>
+    <h2>Switches</h2>
+
+    <div>
+      <section h3>
+        <mat-slide-toggle
+          class="custom-switcher"
+          [checked]="true"
+          [disabled]="false"
+        >Checked</mat-slide-toggle>
+        <mat-slide-toggle
+          class="custom-switcher"
+          [checked]="true"
+          [disabled]="true"
+        >Checked and disabled</mat-slide-toggle>
+        <mat-slide-toggle
+          class="custom-switcher"
+          [checked]="false"
+          [disabled]="true"
+        >Disabled</mat-slide-toggle>
+      </section>
+    </div>
+  </section>
+
+  <section h2>
+    <h2>Icons 24x24</h2>
+
+    <div>
+      <section h3>
+        <mat-icon
+          class="custom-icon black"
+          aria-hidden="false"
+          aria-label="Example icon arrow drop down"
+        >arrow_drop_down</mat-icon>
+        <mat-icon
+          class="custom-icon primary"
+          aria-hidden="false"
+          aria-label="Example icon location_on"
+        >location_on</mat-icon>
+        <mat-icon
+          class="custom-icon primary"
+          aria-hidden="false"
+          aria-label="Example icon help"
+        >help</mat-icon>
+        <mat-icon
+          class="custom-icon primary"
+          aria-hidden="false"
+          aria-label="Example icon menu"
+        >menu</mat-icon>
+        <mat-icon
+          class="custom-icon dark"
+          aria-hidden="false"
+          aria-label="Example icon arrow_back"
+        >arrow_back</mat-icon>
+        <mat-icon
+          class="custom-icon success"
+          aria-hidden="false"
+          aria-label="Example icon check_circle"
+        >check_circle</mat-icon>
+        <mat-icon
+          class="custom-icon danger"
+          aria-hidden="false"
+          aria-label="Example icon error"
+        >error</mat-icon>
+        <mat-icon
+          class="custom-icon grey"
+          aria-hidden="false"
+          aria-label="Example icon add"
+        >add</mat-icon>
+        <mat-icon
+          class="custom-icon grey"
+          aria-hidden="false"
+          aria-label="Example icon edit"
+        >edit</mat-icon>
+        <mat-icon
+          class="custom-icon grey"
+          aria-hidden="false"
+          aria-label="Example icon delete"
+        >delete</mat-icon>
+        <mat-icon
+          class="custom-icon grey"
+          aria-hidden="false"
+          aria-label="Example icon remove_red_eye"
+        >remove_red_eye</mat-icon>
+        <mat-icon
+          class="custom-icon grey"
+          aria-hidden="false"
+          aria-label="Example icon visibility_off"
+        >visibility_off</mat-icon>
+        <mat-icon
+          class="custom-icon primary"
+          aria-hidden="false"
+          aria-label="Example icon power_settings_new"
+        >power_settings_new</mat-icon>
+        <mat-icon
+          class="custom-icon danger"
+          aria-hidden="false"
+          aria-label="Example icon offline_bolt"
+        >offline_bolt</mat-icon>
+        <mat-icon
+          class="custom-icon warning"
+          aria-hidden="false"
+          aria-label="Example icon warning"
+        >warning</mat-icon>
+        <mat-icon
+          class="custom-icon info"
+          aria-hidden="false"
+          aria-label="Example icon info"
+        >info</mat-icon>
+        <mat-icon
+          class="custom-icon info"
+          aria-hidden="false"
+          aria-label="Example icon close"
+        >close</mat-icon>
+      </section>
+    </div>
+  </section>
+
+  <section h2>
+    <h2>Forms</h2>
+
+    <div>
+      <section h3>
+
+        <form [formGroup]="form">
+          <h3>Dropdowns</h3>
+          <mat-form-field class="custom-select mb-4" appearance="outline">
+            <mat-label>Select:</mat-label>
+            <mat-select formControlName="toppingList">
+              <mat-option [value]="''"></mat-option>
+              <mat-option *ngFor="let topping of toppingList" [value]="topping">{{ topping }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field class="custom-select mb-4" appearance="outline">
+            <mat-label>Select:</mat-label>
+            <mat-select [disabled]="true">
+              <mat-option [value]="''"></mat-option>
+              <mat-option *ngFor="let topping of toppingList" [value]="topping">{{ topping }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <h3>Imputs</h3>
+          <mat-form-field class="custom-input mb-4" appearance="outline">
+            <mat-label>Input:</mat-label>
+            <input matInput formControlName="name" name="name" autocomplete="no">
+          </mat-form-field>
+          <mat-form-field class="custom-input mb-4" appearance="outline">
+            <mat-label>Input:</mat-label>
+            <input matInput disabled name="description" autocomplete="no">
+          </mat-form-field>
+        </form>
+      </section>
+    </div>
+  </section>
+
+  <section h2>
+    <h2>Banners</h2>
+
+    <div>
+      <section h3>
+        <h3>Error</h3>
+        <app-banner
+          [type]="'error'"
+          [text]="'Text field'"
+        ></app-banner>
+        <h3>Warning</h3>
+        <app-banner
+          [type]="'warning'"
+          [text]="'Text field'"
+        ></app-banner>
+        <h3>Success</h3>
+        <app-banner
+          [type]="'success'"
+          [text]="'Text field'"
+        ></app-banner>
+        <h3>Info</h3>
+        <app-banner
+          [type]="'info'"
+          [text]="'Text field'"
+        ></app-banner>
+      </section>
+    </div>
+  </section>
+
+  <section h2>
+    <h2>Snack-bar</h2>
+
+    <div>
+      <section h3>
+        <h3>Error snack-bar with button</h3>
+        <button
+          mat-button
+          class="custom-button"
+          aria-label="button"
+          (click)="openErrorSnackBar()"
+        >Click me!</button>
+        <ng-template #error>
+          <div class="banner error">
+            <mat-icon
+              class="custom-icon danger"
+              aria-hidden="false"
+              aria-label="Example icon"
+            >error</mat-icon>
+            <span class="text">Some text</span>
+            <button
+              mat-icon-button
+              matRipple
+              [matRippleDisabled]="true"
+              class="custom-button banner-button"
+              aria-label="button"
+              (click)=snackBarDismiss()
+            >
+              <mat-icon aria-hidden="true">close</mat-icon>
+            </button>
+          </div>
+        </ng-template>
+
+        <h3>Warning snack-bar dismiss after 1s</h3>
+        <button
+          mat-button
+          class="custom-button"
+          aria-label="button"
+          (click)="openWarningSnackBar()"
+        >Click me!</button>
+        <ng-template #warning>
+          <div class="banner warning">
+            <mat-icon
+              class="custom-icon warning"
+              aria-hidden="false"
+              aria-label="Example icon"
+            >warning</mat-icon>
+            <span class="text">Some text</span>
+          </div>
+        </ng-template>
+
+        <h3>Success snack-bar dismiss after 1s</h3>
+        <button
+          mat-button
+          class="custom-button"
+          aria-label="button"
+          (click)="openSuccessSnackBar()"
+        >Click me!</button>
+        <ng-template #success>
+          <div class="banner success">
+            <mat-icon
+              class="custom-icon success"
+              aria-hidden="false"
+              aria-label="Example icon"
+            >success</mat-icon>
+            <span class="text">Some text</span>
+          </div>
+        </ng-template>
+
+        <h3>Info snack-bar dismiss after 1s</h3>
+        <button
+          mat-button
+          class="custom-button"
+          aria-label="button"
+          (click)="openInfoSnackBar()"
+        >Click me!</button>
+        <ng-template #info>
+          <div class="banner info">
+            <mat-icon
+              class="custom-icon info"
+              aria-hidden="false"
+              aria-label="Example icon"
+            >info</mat-icon>
+            <span class="text">Some text</span>
+          </div>
+        </ng-template>
+      </section>
+    </div>
+  </section>
+
+  <section h2>
+    <h2>Tables</h2>
+
+    <app-base-material-table class="custom-table">
+      <table mat-table [dataSource]="dataSource">
+
+        <!-- Select Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              class="custom-checkbox"
+              (change)="$event ? masterToggle() : null"
+              [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()"
+              [aria-label]="checkboxLabel()"
+            ></mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)">
+            <mat-checkbox
+              class="custom-checkbox"
+              (click)="$event.stopPropagation()"
+              (change)="$event ? selection.toggle(element) : null"
+              [checked]="selection.isSelected(element)"
+              [aria-label]="checkboxLabel(element)"
+            ></mat-checkbox>
+          </td>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef> Name </th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)"> {{element.name}} </td>
+        </ng-container>
+
+        <!-- Weight Column -->
+        <ng-container matColumnDef="weight">
+          <th mat-header-cell *matHeaderCellDef> Weight </th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)"> {{element.weight}} </td>
+        </ng-container>
+
+        <!-- Symbol Column -->
+        <ng-container matColumnDef="symbol">
+          <th mat-header-cell *matHeaderCellDef> Symbol </th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)"> {{element.symbol}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)">
+
+            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item> Action1 </button>
+              <button mat-menu-item> Action2 </button>
+              <button mat-menu-item> Action3 </button>
+            </mat-menu>
+
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </app-base-material-table>
+
+    <app-base-material-table class="custom-table">
+      <table mat-table [dataSource]="dataSource">
+
+        <!-- Select Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>No.</th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)">
+            {{ element.position }}
+          </td>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef> Name </th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)"> {{element.name}} </td>
+        </ng-container>
+
+        <!-- Weight Column -->
+        <ng-container matColumnDef="weight">
+          <th mat-header-cell *matHeaderCellDef> Weight </th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)"> {{element.weight}} </td>
+        </ng-container>
+
+        <!-- Symbol Column -->
+        <ng-container matColumnDef="symbol">
+          <th mat-header-cell *matHeaderCellDef> Symbol </th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)"> {{element.symbol}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let element">
+            <a class="link">Actions</a>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        aria-label="Select page of projects"
+      ></mat-paginator>
+    </app-base-material-table>
+
+
+    <app-base-material-table class="custom-table table-with-input">
+      <table mat-table [dataSource]="dataSource">
+
+        <!-- Select Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>No.</th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)">
+            {{ element.position }}
+          </td>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef> Name </th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)">
+            <!-- {{element.name}} -->
+            <mat-form-field class="custom-input" appearance="outline">
+              <mat-label>Input:</mat-label>
+              <input matInput formControlName="name" name="name" autocomplete="no">
+            </mat-form-field>
+
+
+
+          </td>
+        </ng-container>
+
+        <!-- Weight Column -->
+        <ng-container matColumnDef="weight">
+          <th mat-header-cell *matHeaderCellDef> Weight </th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)"> {{element.weight}} </td>
+        </ng-container>
+
+        <!-- Symbol Column -->
+        <ng-container matColumnDef="symbol">
+          <th mat-header-cell *matHeaderCellDef> Symbol </th>
+          <td mat-cell *matCellDef="let element" [class.selected-row]="selection.isSelected(element)"> {{element.symbol}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let element">
+            <a class="link">Actions</a>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        aria-label="Select page of projects"
+      ></mat-paginator>
+    </app-base-material-table>
+
+  </section>
+
+  <section h2>
+    <h2>Layout</h2>
+
+    <mat-toolbar color="primary" class="custom-toolbar">
+      <button
+        mat-icon-button
+        matRipple
+        [matRippleDisabled]="true"
+        aria-label="Example icon-button with menu icon"
+        class="example-icon"
+        (click)="drawer.toggle()"
+      >
+        <mat-icon aria-hidden="true">menu</mat-icon>
+      </button>
+      <p>
+        <button
+          mat-icon-button
+          matRipple
+          [matRippleDisabled]="true"
+          class="example-icon"
+          aria-label="Example icon-button with share icon"
+        >
+          <mat-icon aria-hidden="true">location_on</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matRipple
+          [matRippleDisabled]="true"
+          class="example-icon"
+          aria-label="Example icon-button with share icon"
+        >
+          <mat-icon aria-hidden="true">help</mat-icon>
+        </button>
+      </p>
+    </mat-toolbar>
+
+    <mat-drawer-container class="custom-drawer-container" autosize>
+      <mat-drawer #drawer class="sidenav" mode="side">
+        <span class="title-side-menu"> BMS Migration </span>
+        <nav class="navigation">
+          <a
+            class="navigation-link"
+            *ngFor="let link of mainLinks">
+            {{ link.name }}
+          </a>
+        </nav>
+      </mat-drawer>
+
+      <div class="sidenav-content">
+        <p class="title">Migration Projects</p>
+        <div class="ml-8 mr-8">
+          <button
+            mat-flat-button
+            matRipple
+            class="custom-button mt-4 mb-4"
+            [matRippleDisabled]="true"
+            aria-label="button"
+          >Create project</button>
+          <h5 class="mt-4 sub-title">Select Project</h5>
+          <div class="wrapper-cards mt-6">
+            <div class="mb-8 mr-8 ml-0">
+              <div class="card px-6 py-6">
+                <h3 class="mb-2">Project Name</h3>
+                <p class="mb-1">date creation: 00/00/00</p>
+                <p class="mb-1">VPC: aaaa/aaaa/aaaafffffffffffff</p>
+              </div>
+            </div>
+            <div class="mb-8 mr-8 ml-0">
+              <div class="card px-6 py-6">
+                <h3 class="mb-2">Project Name</h3>
+                <p class="mb-1">date creation: 00/00/00</p>
+                <p class="mb-1">VPC: aaaa/aaaa/aaaa/</p>
+              </div>
+            </div>
+            <div class="mb-8 mr-8 ml-0">
+              <div class="card px-6 py-6">
+                <h3 class="mb-2">Project Name</h3>
+                <p class="mb-1">date creation: 00/00/00</p>
+                <p class="mb-1">VPC: aaaa/aaaa/aaaa/</p>
+              </div>
+            </div>
+            <div class="mb-8 mr-8 ml-0">
+              <div class="card px-6 py-6">
+                <h3 class="mb-2">Project Name</h3>
+                <p class="mb-1">date creation: 00/00/00</p>
+                <p class="mb-1">VPC: aaaa/aaaa/aaaa/</p>
+              </div>
+            </div>
+            <div class="mb-8 mr-8 ml-0">
+              <div class="card px-6 py-6">
+                <h3 class="mb-2">Project Name</h3>
+                <p class="mb-1">date creation: 00/00/00</p>
+                <p class="mb-1">VPC: aaaa/aaaa/aaaa/</p>
+              </div>
+            </div>
+            <div class="mb-8 mr-8 ml-0">
+              <div class="card px-6 py-6">
+                <h3 class="mb-2">Project Name</h3>
+                <p class="mb-1">date creation: 00/00/00</p>
+                <p class="mb-1">VPC: aaaa/aaaa/aaaa/</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-drawer-container>
+
+  </section>
+
+  <section h2>
+    <h2>Form with table</h2>
+
+    <form [formGroup]="form">
+      <h3>Caption</h3>
+      <table class="custom-table-form">
+        <caption>
+          <h3 class="subtitle">Miscellaneous Parameters</h3>
+          <p>Please review and validate miscellaneous parameters.</p>
+         </caption>
+      </table>
+
+      <h3>Caption with warning</h3>
+      <table class="custom-table-form">
+        <caption>
+          <h3 class="subtitle">Miscellaneous Parameters</h3>
+          <p>Please review and validate miscellaneous parameters.</p>
+          <app-banner [type]="'warning'"
+          [text]="'Warning: all existing data on selected devices will be deleted prior to the installation without ability to recover!'">
+          </app-banner>
+        </caption>
+      </table>
+
+      <h3>Table with switcher</h3>
+      <table class="custom-table-form">
+        <tr class="row-with-switcher">
+          <td>
+            <mat-slide-toggle class="custom-switcher">On/off</mat-slide-toggle>
+          </td>
+        </tr>
+      </table>
+
+      <h3>Table with add row button</h3>
+      <table class="custom-table-form">
+         <tr class="row-with-button">
+          <td colspan="5">
+            <mat-icon>add</mat-icon> ADD DEVICE
+          </td>
+        </tr>
+      </table>
+    </form>
+  </section>
+</div>

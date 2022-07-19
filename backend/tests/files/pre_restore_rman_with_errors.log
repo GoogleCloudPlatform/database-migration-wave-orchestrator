@@ -1,0 +1,190 @@
+
+Spooling started in log file: /home/oracle/pre-restore_rman.log
+
+Recovery Manager19.3.0.0.0
+
+RMAN> crosscheck backup;
+
+allocated channel: ORA_DISK_1
+channel ORA_DISK_1: SID=130 device type=DISK
+crosschecked backup piece: found to be 'AVAILABLE'
+backup piece handle=/home/oracle/backup/fulldb19-FINDB-821921943-20220202-1095588121-1f0kqm8p_1_1.bkp RECID=50 STAMP=1101891679
+crosschecked backup piece: found to be 'AVAILABLE'
+backup piece handle=/home/oracle/backup/fulldb19-FINDB-821921943-20220202-1095588121-1e0kqm8p_1_1.bkp RECID=49 STAMP=1101891679
+crosschecked backup piece: found to be 'AVAILABLE'
+backup piece handle=/home/oracle/backup/archivelog-FINDB-821921943-20220202-1095588157-1h0kqm9t_1_1.bkp RECID=46 STAMP=1101891679
+crosschecked backup piece: found to be 'AVAILABLE'
+backup piece handle=/home/oracle/backup/archivelog-FINDB-821921943-20220202-1095588158-1i0kqm9u_1_1.bkp RECID=47 STAMP=1101891679
+crosschecked backup piece: found to be 'AVAILABLE'
+backup piece handle=/home/oracle/backup/archivelog-FINDB-821921943-20220202-1095588157-1g0kqm9t_1_1.bkp RECID=45 STAMP=1101891679
+crosschecked backup piece: found to be 'EXPIRED'
+backup piece handle=/home/oracle/backup/spfile_821921943-20220202-1095588176-1k0kqmag_1_1.bkp RECID=51 STAMP=1101891679
+crosschecked backup piece: found to be 'AVAILABLE'
+backup piece handle=/home/oracle/backup/controlfile-FINDB-821921943-20220202-1095588177-1l0kqmah_1_1.bkp RECID=48 STAMP=1101891679
+Crosschecked 7 objects
+
+
+RMAN> list backup;
+
+List of Backup Sets
+===================
+
+
+BS Key  Type LV Size       Device Type Elapsed Time Completion Time
+------- ---- -- ---------- ----------- ------------ ---------------
+38      Full    59.66M     DISK        00:00:15     02-FEB-22      
+        BP Key: 50   Status: AVAILABLE  Compressed: YES  Tag: FULL_DATABASE_BACKUP
+        Piece Name: /home/oracle/backup/fulldb19-FINDB-821921943-20220202-1095588121-1f0kqm8p_1_1.bkp
+  List of Datafiles in backup set 38
+  File LV Type Ckp SCN    Ckp Time  Abs Fuz SCN Sparse Name
+  ---- -- ---- ---------- --------- ----------- ------ ----
+  3       Full 2063350    02-FEB-22              NO    +DATA/FINDB/DATAFILE/sysaux.257.1095521477
+  4       Full 2063350    02-FEB-22              NO    +DATA/FINDB/DATAFILE/undotbs1.258.1095521503
+
+BS Key  Type LV Size       Device Type Elapsed Time Completion Time
+------- ---- -- ---------- ----------- ------------ ---------------
+39      Full    227.48M    DISK        00:00:33     02-FEB-22      
+        BP Key: 49   Status: EXPIRED  Compressed: YES  Tag: FULL_DATABASE_BACKUP
+        Piece Name: /home/oracle/backup/fulldb19-FINDB-821921943-20220202-1095588121-1e0kqm8p_1_1.bkp
+  List of Datafiles in backup set 39
+  File LV Type Ckp SCN    Ckp Time  Abs Fuz SCN Sparse Name
+  ---- -- ---- ---------- --------- ----------- ------ ----
+  1       Full 2063349    02-FEB-22              NO    +DATA/FINDB/DATAFILE/system.256.1095521433
+  7       Full 2063349    02-FEB-22              NO    +DATA/FINDB/DATAFILE/users.259.1095521503
+
+BS Key  Size       Device Type Elapsed Time Completion Time
+------- ---------- ----------- ------------ ---------------
+40      2.28M      DISK        00:00:01     02-FEB-22      
+        BP Key: 46   Status: AVAILABLE  Compressed: YES  Tag: ARCHIVELOG-BACKUP
+        Piece Name: /home/oracle/backup/archivelog-FINDB-821921943-20220202-1095588157-1h0kqm9t_1_1.bkp
+
+  List of Archived Logs in backup set 40
+  Thrd Seq     Low SCN    Low Time  Next SCN   Next Time
+  ---- ------- ---------- --------- ---------- ---------
+  1    21      2058075    01-FEB-22 2058107    01-FEB-22
+  1    22      2058107    01-FEB-22 2059288    01-FEB-22
+  1    23      2059288    01-FEB-22 2059298    01-FEB-22
+  1    24      2059298    01-FEB-22 2059318    01-FEB-22
+  1    25      2059318    01-FEB-22 2059491    01-FEB-22
+  1    26      2059491    01-FEB-22 2059515    01-FEB-22
+  1    27      2059515    01-FEB-22 2062550    02-FEB-22
+  1    28      2062550    02-FEB-22 2062560    02-FEB-22
+  1    29      2062560    02-FEB-22 2062606    02-FEB-22
+  1    30      2062606    02-FEB-22 2062644    02-FEB-22
+  1    31      2062644    02-FEB-22 2063050    02-FEB-22
+  1    32      2063050    02-FEB-22 2063060    02-FEB-22
+  1    33      2063060    02-FEB-22 2063108    02-FEB-22
+  1    34      2063108    02-FEB-22 2063142    02-FEB-22
+  1    35      2063142    02-FEB-22 2063318    02-FEB-22
+  1    36      2063318    02-FEB-22 2063328    02-FEB-22
+  1    37      2063328    02-FEB-22 2063377    02-FEB-22
+
+BS Key  Size       Device Type Elapsed Time Completion Time
+------- ---------- ----------- ------------ ---------------
+41      1.69M      DISK        00:00:01     02-FEB-22      
+        BP Key: 47   Status: AVAILABLE  Compressed: YES  Tag: ARCHIVELOG-BACKUP
+        Piece Name: /home/oracle/backup/archivelog-FINDB-821921943-20220202-1095588158-1i0kqm9u_1_1.bkp
+
+  List of Archived Logs in backup set 41
+  Thrd Seq     Low SCN    Low Time  Next SCN   Next Time
+  ---- ------- ---------- --------- ---------- ---------
+  1    3       2056134    01-FEB-22 2056326    01-FEB-22
+  1    4       2056326    01-FEB-22 2056336    01-FEB-22
+  1    5       2056336    01-FEB-22 2056356    01-FEB-22
+  1    6       2056356    01-FEB-22 2056484    01-FEB-22
+  1    7       2056484    01-FEB-22 2056494    01-FEB-22
+  1    8       2056494    01-FEB-22 2056512    01-FEB-22
+  1    9       2056512    01-FEB-22 2056569    01-FEB-22
+  1    10      2056569    01-FEB-22 2056579    01-FEB-22
+  1    11      2056579    01-FEB-22 2056599    01-FEB-22
+  1    12      2056599    01-FEB-22 2057420    01-FEB-22
+  1    13      2057420    01-FEB-22 2057430    01-FEB-22
+  1    14      2057430    01-FEB-22 2057445    01-FEB-22
+  1    15      2057445    01-FEB-22 2057953    01-FEB-22
+  1    16      2057953    01-FEB-22 2057963    01-FEB-22
+  1    17      2057963    01-FEB-22 2057978    01-FEB-22
+  1    18      2057978    01-FEB-22 2058050    01-FEB-22
+  1    19      2058050    01-FEB-22 2058060    01-FEB-22
+  1    20      2058060    01-FEB-22 2058075    01-FEB-22
+
+BS Key  Size       Device Type Elapsed Time Completion Time
+------- ---------- ----------- ------------ ---------------
+42      121.16M    DISK        00:00:14     02-FEB-22      
+        BP Key: 45   Status: AVAILABLE  Compressed: YES  Tag: ARCHIVELOG-BACKUP
+        Piece Name: /home/oracle/backup/archivelog-FINDB-821921943-20220202-1095588157-1g0kqm9t_1_1.bkp
+
+  List of Archived Logs in backup set 42
+  Thrd Seq     Low SCN    Low Time  Next SCN   Next Time
+  ---- ------- ---------- --------- ---------- ---------
+  1    2       1966548    01-FEB-22 2056134    01-FEB-22
+
+BS Key  Type LV Size       Device Type Elapsed Time Completion Time
+------- ---- -- ---------- ----------- ------------ ---------------
+44      Full    96.00K     DISK        00:00:00     02-FEB-22      
+        BP Key: 51   Status: AVAILABLE  Compressed: NO  Tag: SPFILE
+        Piece Name: /home/oracle/backup/spfile_821921943-20220202-1095588176-1k0kqmag_1_1.bkp
+  SPFILE Included: Modification time: 02-FEB-22
+  SPFILE db_unique_name: FINDB
+
+BS Key  Type LV Size       Device Type Elapsed Time Completion Time
+------- ---- -- ---------- ----------- ------------ ---------------
+45      Full    10.45M     DISK        00:00:01     02-FEB-22      
+        BP Key: 48   Status: AVAILABLE  Compressed: NO  Tag: CONTROLFILE
+        Piece Name: /home/oracle/backup/controlfile-FINDB-821921943-20220202-1095588177-1l0kqmah_1_1.bkp
+  Control File Included: Ckp SCN: 2063426      Ckp time: 02-FEB-22
+
+RMAN> restore database preview;
+
+Starting restore at 20-APR-22
+using channel ORA_DISK_1
+
+RMAN-00571: ===========================================================
+RMAN-00569: =============== ERROR MESSAGE STACK FOLLOWS ===============
+RMAN-00571: ===========================================================
+RMAN-03002: failure of restore command at 04/20/2022 10:09:32
+RMAN-06026: some targets not found - aborting restore
+RMAN-06023: no backup or copy of datafile 7 found to restore
+RMAN-06023: no backup or copy of datafile 1 found to restore
+
+
+RMAN> report need backup;
+RMAN retention policy will be applied to the command
+RMAN retention policy is set to redundancy 1
+Report of files with less than 1 redundant backups
+File #bkps Name
+---- ----- -----------------------------------------------------
+1    0     +DATA/FINDB/DATAFILE/system.256.1095521433
+7    0     +DATA/FINDB/DATAFILE/users.259.1095521503
+
+RMAN> report unrecoverable;
+Report of files that need backup due to unrecoverable operations
+File Type of Backup Required Name
+---- ----------------------- -----------------------------------
+1    0000     +DATA/FINDB/DATAFILE/system.256.1095521433
+7    0000     +DATA/FINDB/DATAFILE/users.259.1095521503
+
+RMAN> restore database validate;
+Starting restore at 20-APR-22
+using channel ORA_DISK_1
+
+RMAN-00571: ===========================================================
+RMAN-00569: =============== ERROR MESSAGE STACK FOLLOWS ===============
+RMAN-00571: ===========================================================
+RMAN-03002: failure of restore command at 04/20/2022 10:09:54
+RMAN-06026: some targets not found - aborting restore
+RMAN-06023: no backup or copy of datafile 7 found to restore
+RMAN-06023: no backup or copy of datafile 1 found to restore
+
+RMAN> restore database validate check logical;
+Starting restore at 20-APR-22
+using channel ORA_DISK_1
+
+RMAN-00571: ===========================================================
+RMAN-00569: =============== ERROR MESSAGE STACK FOLLOWS ===============
+RMAN-00571: ===========================================================
+RMAN-03002: failure of restore command at 04/20/2022 10:10:01
+RMAN-06026: some targets not found - aborting restore
+RMAN-06023: no backup or copy of datafile 7 found to restore
+RMAN-06023: no backup or copy of datafile 1 found to restore
+
+RMAN> 

@@ -1,0 +1,97 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="container container-row">
+  <div class="container-content">
+    <mat-icon
+    class="custom-icon black d-block ml-auto mb-2"
+    aria-hidden="false"
+    aria-label="Help icon"
+    matTooltip="Example pipeline for all projects"
+    [matTooltipPosition]="'left'"
+    >help</mat-icon>
+      <div class="wizard">
+        <a>1. Start</a>
+        <a>2. Create Waves & Deploy</a>
+        <a>3. Discover and Map</a>
+        <a>4. Analyze</a>
+      </div>
+      <div class="step-content">
+        <div class="step-content-item">
+          <h4 class="content-title">1.1 Create and manage migration project</h4>
+          <ul>
+            <li>
+              Specify Migration Project name, Target VPC and Subnet.
+              It can be used to distinguish between different environments, departments, and applications etc.
+            </li>
+            <li>
+              1.2 Manage software library
+              upload software installation files
+              validate software installation files (or make sure they are exist)
+            </li>
+          </ul>
+          <h4 class="content-title">1.2 Manage software library</h4>
+          <ul>
+            <li>
+              upload software installation files
+            </li>
+            <li>
+              validate software installation files (or make sure they are exist)
+            </li>
+          </ul>
+        </div>
+        <div class="step-content-item">
+          <h4 class="content-title">2.1 Manage source databases</h4>
+          <ul>
+            <li>Upload DB assessment output file</li>
+            <li>Configure migration parameters for each database</li>
+          </ul>
+          <h4 class="content-title">2.2 Manage BMS inventory</h4>
+          <ul>
+            <li>Discover targets</li>
+            <li>Specify Credentials Secret Name</li>
+          </ul>
+
+        </div>
+        <div class="step-content-item">
+          <h4 class="content-title">3.1 Migration Wave Planner</h4>
+          <ul>
+            <li>Create or edit migration waves</li>
+            <li>Create and edit mappings</li>
+            <li>Assign mappings to the waves</li>
+            <li>Execute deployments</li>
+            <li>Rerun failed deployments</li>
+            <li>View last deployment status for each wave</li>
+            <li>View deployment history for each wave</li>
+            <li>Remove undeployed waves</li>
+          </ul>
+        </div>
+        <div class="step-content-item">
+          <h4 class="content-title">4.1 Migration Progress Tracker</h4>
+          <ul>
+            <li>Check status of the current deployment</li>
+            <li>Review current step for each mapping</li>
+            <li>Review logs</li>
+          </ul>
+          <h4 class="content-title">4.2 Deployment History</h4>
+          <ul>
+            <li>Review history of all deployments that had been running</li>
+            <li>Filter results by Wave, by Date, by Status</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+</div>

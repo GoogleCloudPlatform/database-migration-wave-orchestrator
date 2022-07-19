@@ -1,0 +1,218 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<h3>Database name: {{db_name}}</h3>
+
+<form class="d-flex flex-column mt-4" [formGroup]="restoreForm" (ngSubmit)="onSubmit()">
+  <mat-form-field appearance="outline" class="custom-select">
+    <mat-label>Restore type<span class="asterisk">*</span></mat-label>
+    <mat-select id="restoreType" formControlName="backup_type"  (selectionChange)="setRMANScriptTemplate()">
+        <mat-option *ngFor="let type of restoreTypes" [value]="type.value">{{type.name}}</mat-option>
+    </mat-select>
+    <mat-error *ngIf="restoreForm?.get('backup_type')?.hasError('required')">
+      Restore type is required
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="custom-input input mt-2"
+  matTooltip="Backup Location format is bucket_name/bucket_folder" [matTooltipPosition]="'right'">
+    <mat-label>Backup Location<span class="asterisk">*</span></mat-label>
+    <input matInput id="backupLocation" formControlName="backup_location" name="backupLocation" placeholder="link/..."
+      autocomplete="no">
+    <mat-error *ngIf="restoreForm?.get('backup_location')?.hasError('required')">
+      Backup Location is required
+    </mat-error>
+    <mat-error *ngIf="restoreForm?.get('backup_location')?.hasError('invalidFormat')">
+      Backup Location format is bucket_name/bucket_folder
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="custom-input textarea mt-2">
+    <mat-label>Input RMAN script<span class="asterisk">*</span></mat-label>
+    <textarea matInput id="rmanScript" formControlName="rman_cmd" type="text" placeholder="<>" (change)="updateRMANScript()"></textarea>
+    <mat-error *ngIf="restoreForm?.get('rman_cmd')?.hasError('required')">
+      RMAN script is required
+    </mat-error>
+  </mat-form-field>
+
+  <div class="d-flex align-items-center mt-4 mb-2">
+    <mat-checkbox
+      class="custom-checkbox"
+      formControlName="run_pre_restore"
+      id="run-pre-restore"
+      ngDefaultControl
+    >Pre-restore</mat-checkbox>
+    <mat-icon
+      class="custom-icon black ml-3"
+      aria-hidden="false"
+      aria-label="Help icon for run pre restore"
+      [matTooltip]="'The pre-restore operation could be used to validate if the current configuration is correct and restore process might be successful. The pre-restore process takes around 15 minutes.'"
+      [matTooltipPosition]="'right'"
+    >help</mat-icon>
+  </div>
+
+  <ng-container *ngIf="runPreRestore">
+    <div formArrayName="validations" *ngFor="let validation of validations?.controls; index as i" class="d-flex align-items-center ml-4">
+      <ng-container [formGroupName]="i">
+        <mat-checkbox
+          class="custom-checkbox"
+          formControlName="enabled"
+          ngDefaultControl
+        >{{ validationDescriptions[i]?.name }}</mat-checkbox>
+        <mat-icon
+          class="custom-icon black ml-3"
+          aria-hidden="false"
+          aria-label="Help icon for validations"
+          [matTooltip]="validationDescriptions[i]?.description"
+          [matTooltipPosition]="'right'"
+        >help</mat-icon>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <mat-form-field appearance="outline" class="custom-input textarea mt-2"
+  matTooltip="File should be located in the same bucket as Backup Location" [matTooltipPosition]="'right'">
+    <mat-label>Control file name<span class="asterisk">*</span></mat-label>
+    <input matInput id="controlFile" formControlName="control_file" placeholder="file name"  (change)="updateRMANScriptTemplate()"
+      autocomplete="no">
+    <mat-error *ngIf="restoreForm?.get('control_file')?.hasError('required')">
+      Control File is required to run Pre-restore operation
+    </mat-error>
+    <mat-error *ngIf="restoreForm?.get('control_file')?.hasError('invalidFormat')">
+      Control File has to be in the format name or name.extension
+    </mat-error>
+  </mat-form-field>
+
+  <div class="d-flex flex-row align-items-center mt-4">
+    <p class="label mb-0">Upload Config File<span class="asterisk">*</span> :</p>
+    <input type="file" #configFileUpload hidden>
+    <button class="link" type="button" *ngIf="!configFileUrl" (click)="uploadConfigFile()">Add file</button>
+    <a *ngIf="configFileUrl" [attr.href]="configFileUrl" target="_blank">{{ configFileUrl }}</a>
+
+    <button
+      type="button"
+      *ngIf="isUploadConfigFile"
+      mat-icon-button
+      aria-hidden="false"
+      class="ml-2"
+      aria-label="delete config file"
+      (click)="deleteConfigFile()"
+    >
+      <mat-icon class="custom-icon grey" aria-hidden="true">delete</mat-icon>
+    </button>
+    <button
+      type="button"
+      *ngIf="isUploadConfigFile"
+      mat-icon-button
+      aria-hidden="false"
+      class="ml-2"
+      aria-label="edit config file"
+      (click)="showEditConfigFile = true"
+    >
+      <mat-icon class="custom-icon grey" aria-hidden="true">edit</mat-icon>
+    </button>
+  </div>
+
+  <mat-form-field [hidden]="!showEditConfigFile" appearance="outline" class="custom-input textarea mt-2">
+    <mat-label>Edit Config file<span class="asterisk">*</span></mat-label>
+    <textarea matInput type="text" rows="10" placeholder="<>" formControlName="uploadConfigFile" id="uploadConfigFile"></textarea>
+  </mat-form-field>
+  <mat-error *ngIf="restoreForm?.get('uploadConfigFile')?.hasError('required') && isClickUpload">
+    Upload config file is required
+  </mat-error>
+
+  <div class="d-flex flex-row align-items-center mt-2">
+    <p class="label mb-0">Password file :</p>
+
+    <input type="file" #passwordFileAdd id="passwordFileAdd" hidden>
+    <button *ngIf="!passwordFileValue; else showPasswordFile" class="link add-password" type="button" (click)="addPasswordFile()">Add File</button>
+    <ng-template #showPasswordFile>
+      <a [attr.href]="passwordFileValue" target="_blank">{{ passwordFileValue }}</a>
+      <button
+      type="button"
+      mat-icon-button
+      aria-hidden="false"
+      class="ml-2"
+      aria-label="delete password file"
+      (click)="deletePasswordFile()"
+    >
+      <mat-icon class="custom-icon grey" aria-hidden="true">delete</mat-icon>
+    </button>
+    </ng-template>
+  </div>
+
+  <div class="d-flex flex-row align-items-center mt-2">
+    <p class="label mb-0">tnsnames.ora :</p>
+
+    <input type="file" #tsnamesFileAdd id="tsnamesFileAdd" hidden>
+    <button *ngIf="!tsnamesFileValue; else showTsnamesFile" class="link add-tsnames" type="button" (click)="addTsnamesFile()">Add File</button>
+    <ng-template #showTsnamesFile>
+      <a [attr.href]="tsnamesFileValue" target="_blank">{{ tsnamesFileValue }}</a>
+      <button
+      type="button"
+      mat-icon-button
+      aria-hidden="false"
+      class="ml-2"
+      aria-label="delete tsnames file"
+      (click)="deleteTsnamesFile()"
+    >
+      <mat-icon class="custom-icon grey" aria-hidden="true">delete</mat-icon>
+    </button>
+    </ng-template>
+  </div>
+
+  <div class="d-flex flex-row align-items-center mt-2">
+    <p class="label mb-0">listener.ora :</p>
+
+    <input type="file" #listenerFileAdd id="listenerFileAdd" hidden>
+    <button *ngIf="!listenerFileValue; else showListenerFile" class="link add-listener" type="button" (click)="addListenerFile()">Add File</button>
+    <ng-template #showListenerFile>
+      <a [attr.href]="listenerFileValue" target="_blank">{{ listenerFileValue }}</a>
+      <button
+      type="button"
+      mat-icon-button
+      aria-hidden="false"
+      class="ml-2"
+      aria-label="delete listener file"
+      (click)="deleteListenerFile()"
+    >
+      <mat-icon class="custom-icon grey" aria-hidden="true">delete</mat-icon>
+    </button>
+    </ng-template>
+  </div>
+
+  <div class="mt-8">
+    <button
+      mat-flat-button
+      matRipple
+      type="submit"
+      class="custom-button"
+      [matRippleDisabled]="true"
+      [disabled]="!restoreForm.valid"
+    >{{ labelForSubmitButton }}</button>
+
+    <button
+      mat-button
+      type="button"
+      class="custom-button save-draft ml-4"
+      (click)="saveDraft()"
+     >Save to Draft</button>
+  </div>
+</form>
+
+<div class="mt-8">
+  <a class="link" (click)="readBackupInstruction()">Read Backup preparation instruction</a>
+</div>

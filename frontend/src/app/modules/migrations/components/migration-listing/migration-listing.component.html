@@ -1,0 +1,227 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="container container-row">
+  <div class="container">
+    <div class="container-header border-bottom">
+      <div class="section-header">My Migration Projects</div>
+    </div>
+    <div class="container-content">
+      <div>Separate migration projects may help to maintain different database migration projects (for example, by department, location, period, etc.) or they may represent different environments (test, staging, production).</div>
+      <div class="mt-4 d-flex align-items-center justify-content-between">
+        <button
+          mat-flat-button
+          matRipple
+          class="custom-button"
+          [matRippleDisabled]="true"
+          (click)="redirect('mymigrationprojects/create')"
+        >Create migration project</button>
+        <div>
+          <button
+            mat-icon-button
+            class="mr-2"
+            aria-label="open table view for projects"
+            (click)="isInlineView=true"
+            [ngClass]="{ 'custom-button': isInlineView }"
+          >
+            <mat-icon aria-hidden="true">view_headline</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            aria-label="open card view for projects"
+            (click)="isInlineView=false"
+            [ngClass]="{ 'custom-button': !isInlineView }"
+          >
+            <mat-icon aria-hidden="true">apps</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <app-base-material-table class="custom-table" *ngIf="isInlineView">
+        <div class="filter-wrapper mt-4 mb-5">
+          <div class="filter">
+            <mat-icon class="mr-2">sort</mat-icon>
+
+            <mat-label class="mr-4">Filter</mat-label>
+
+            <mat-form-field appearance="none">
+              <input matInput (keyup)="applyFilter($event)" placeholder="Enter property name or value" [(ngModel)]="searchQuery"/>
+            </mat-form-field>
+          </div>
+          <mat-icon
+            class="custom-icon black"
+            aria-hidden="false"
+            aria-label="Help icon"
+          >help</mat-icon>
+        </div>
+
+        <table mat-table [dataSource]="dataSource" matSort>
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef> ID </th>
+            <td mat-cell *matCellDef="let row"> {{row.id}} </td>
+          </ng-container>
+
+          <!-- name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef > Project Name </th>
+            <td mat-cell *matCellDef="let row" class="migration-project-name"> <a class="link" (click)="action('open' , row)" [innerHTML]="row.name | highlight: searchQuery"></a></td>
+          </ng-container>
+
+          <!-- description Column -->
+          <ng-container matColumnDef="description">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef > Description </th>
+            <td mat-cell *matCellDef="let row" [innerHTML]="row.description | highlight: searchQuery" class="migration-project-description"></td>
+          </ng-container>
+
+          <!-- vpc Column -->
+          <ng-container matColumnDef="vpc">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef > VPC Network </th>
+            <td mat-cell *matCellDef="let row" [innerHTML]="row.vpc | highlight: searchQuery" class="migration-project-vpc"></td>
+          </ng-container>
+
+          <!-- subnet Column -->
+          <ng-container matColumnDef="subnet">
+            <th mat-header-cell mat-sort-header *matHeaderCellDef > Subnet </th>
+            <td mat-cell *matCellDef="let row" [innerHTML]="row.subnet | highlight: searchQuery" class="migration-project-subnet"></td>
+          </ng-container>
+
+          <!-- actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef > Actions </th>
+            <td mat-cell *matCellDef="let row" class="migration-project-actions">
+
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="menu"
+                aria-label="open actions menu for the project"
+              >
+                <mat-icon aria-hidden="true">more_vert</mat-icon>
+              </button>
+
+              <mat-menu #menu="matMenu" class="migration-projects-actions">
+                <button
+                  mat-menu-item
+                  class="migration-projects-actions--open"
+                  aria-label="open migration project"
+                  (click)="action('open' , row)"
+                >
+                  <mat-icon class="custom-menu-icon" color="primary">open_in_new</mat-icon><span>Open</span>
+                </button>
+                <button
+                  mat-menu-item
+                  class="migration-projects-actions--view"
+                  aria-label="open summary of migration project"
+                  (click)="action('view' , row)"
+                >
+                  <mat-icon class="custom-menu-icon" color="primary">remove_red_eye</mat-icon><span>View Summary</span>
+                </button>
+                <button
+                  mat-menu-item
+                  class="migration-projects-actions--edit"
+                  aria-label="open edit form for migration project"
+                  (click)="action('edit' , row)"
+                >
+                  <mat-icon class="custom-menu-icon" color="primary">edit</mat-icon><span>Edit</span>
+                </button>
+                <button
+                  mat-menu-item
+                  class="migration-projects-actions--delete"
+                  aria-label="delete migration project"
+                  (click)="action('delete' , row)"
+                >
+                  <mat-icon class="custom-menu-icon" color="primary">delete</mat-icon><span>Delete</span>
+                </button>
+              </mat-menu>
+
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="migration-project"></tr>
+
+          <!-- Row shown when there is no matching data. -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="8">No data matching the filter "{{searchQuery}}"</td>
+          </tr>
+        </table>
+
+        <mat-paginator
+          [pageSize]="pageSize"
+          [pageSizeOptions]="[5, 10, 25, 100]"
+          aria-label="Select page of projects"
+        ></mat-paginator>
+
+      </app-base-material-table>
+
+      <div class="wrapper-cards mt-6" *ngIf="!isInlineView">
+        <div class="ml-0" *ngFor="let project of projects">
+          <div class="card px-6 py-6">
+            <div class="d-flex align-items-center justify-content-between">
+              <h3 class="mb-2 pointer" (click)="action('open' , project)">{{ project.name }}</h3>
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="menu"
+                aria-label="open actions menu for the project"
+              >
+                <mat-icon aria-hidden="true">more_vert</mat-icon>
+              </button>
+            </div>
+            <p class="mb-1">Subnet: {{ project.subnet }}</p>
+            <p class="mb-1">VPC: {{ project.vpc }}</p>
+            <p class="mb-1">Description: {{ project.description }}</p>
+          </div>
+          <mat-menu #menu="matMenu" class="migration-projects-actions">
+            <button
+              mat-menu-item
+              class="migration-projects-actions--open"
+              aria-label="open migration project"
+              (click)="action('open', project)"
+            >
+              <mat-icon class="custom-menu-icon" color="primary">open_in_new</mat-icon><span>Open</span>
+            </button>
+            <button
+              mat-menu-item
+              class="migration-projects-actions--view"
+              aria-label="open summary of migration project"
+              (click)="action('view', project)"
+            >
+              <mat-icon class="custom-menu-icon" color="primary">remove_red_eye</mat-icon><span>View Summary</span>
+            </button>
+            <button
+              mat-menu-item
+              class="migration-projects-actions--edit"
+              aria-label="open edit form for migration project"
+              (click)="action('edit', project)"
+            >
+              <mat-icon class="custom-menu-icon" color="primary">edit</mat-icon><span>Edit</span>
+            </button>
+            <button
+              mat-menu-item
+              class="migration-projects-actions--delete"
+              aria-label="delete migration project"
+              (click)="action('delete', project)"
+            >
+              <mat-icon class="custom-menu-icon" color="primary">delete</mat-icon><span>Delete</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
