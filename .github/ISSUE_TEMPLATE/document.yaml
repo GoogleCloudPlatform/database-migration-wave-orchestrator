@@ -1,0 +1,42 @@
+name: "\U0001F4DD Documentation"
+description: Improve Documentation
+title: "DOC: "
+labels: ["documentation"]
+assignees:
+  - smpawar
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this documentation request!
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Documentation change request Details?
+      description: What do you want to change?
+      placeholder: Tell us what you see!
+      value: "Change "
+    validations:
+      required: true
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: Are you using latest code?
+      options:
+        - Latest
+        - Old
+  - type: dropdown
+    id: oracledbversion
+    attributes:
+      label: What database engine are you seeing the problem on?
+      options:
+        - CloudSQL
+        - Oracle
+        - All
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
