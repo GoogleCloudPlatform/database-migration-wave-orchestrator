@@ -1,0 +1,45 @@
+name: "\U00002728 New Feature"
+description: File a New Feature Request
+title: "NF: "
+labels: ["new feature"]
+assignees:
+  - smpawar
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: why-required
+    attributes:
+      label: The expected benefit
+      description: Why current version is insufficent.
+      placeholder: Tell us what you see!
+      value: "As an end user "
+    validations:
+      required: true
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: What version of Waverunner code are you running?
+      options:
+        - latest code
+        - other
+    validations:
+      required: false
+  - type: dropdown
+    id: oracledbversion
+    attributes:
+      label: What database engine is this new feature for?
+      options:
+        - CloudSQL
+        - Oracle
+        - All
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant example
+      description: Please share ideally , what the new feature would look like in the end.
+      render: shell
+

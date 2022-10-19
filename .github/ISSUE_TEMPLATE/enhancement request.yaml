@@ -1,0 +1,44 @@
+name: "\U00002747 Enhancement Request"
+description: File an enhancement request
+title: "ER: "
+labels: ["enhancement"]
+assignees:
+  - smpawar
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this enhancement request!
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Enhancement Request Details
+      description: Description
+      placeholder: Tell us what you see!
+      value: "As a end user I want to "
+    validations:
+      required: true
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: What version of Waverunner code are you running?
+      options:
+        - latest code
+        - other
+    validations:
+      required: false
+  - type: dropdown
+    id: oracledbversion
+    attributes:
+      label: What database engine is this documentation change for?
+      options:
+        - CloudSQL
+        - Oracle
+        - All
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
