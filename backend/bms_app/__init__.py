@@ -28,6 +28,8 @@ from bms_app.handlers import (
 )
 
 
+from flasgger import Swagger
+
 dictConfig(LOGGING_CONFIG)
 
 # list of allowed domains to make cross-domains requests, for local development
@@ -41,8 +43,15 @@ ma = Marshmallow()
 migrate = Migrate()
 
 
+
 def create_app(mode='prod'):
     app = Flask(__name__)
+    app.config['SWAGGER'] = {
+        'title' : 'WaveRunner',
+        'uiversion' : 2
+    }
+    swagger=Swagger(app)
+
     app.config.from_object(CONFIGS[mode.lower()])
     db.init_app(app)
     ma.init_app(app)

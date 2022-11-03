@@ -24,7 +24,19 @@ from bms_app.schema import ProjectSchema
 
 @bp.route('', methods=['GET'])
 def list_projects():
-    """Return all available projects."""
+    """Return all available projects.
+    This is using docstrings for specifications
+    ---
+    parameters:
+    definitions:
+    responses:
+        200:
+            description: The list of available projects 
+            schema:
+                $ref: '#/api/projects'
+            examples:
+                'data': ['test1', 'test', 'test2']
+    """
     all_projects = Project.query.all()
     return {
         'data': ProjectSchema(many=True).dump(all_projects)

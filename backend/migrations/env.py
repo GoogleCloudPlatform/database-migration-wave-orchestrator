@@ -37,7 +37,7 @@ handler = logging.StreamHandler(stream=sys.stdout)
 formatter = logging.Formatter('%(levelname)-5.5s [%(name)s] %(message)s')
 handler.setFormatter(formatter)
 logger.handlers = [handler]
-logger.setLevel('INFO')
+logger.setLevel('DEBUG')
 
 # add your model's MetaData object here
 # for 'autogenerate' support
