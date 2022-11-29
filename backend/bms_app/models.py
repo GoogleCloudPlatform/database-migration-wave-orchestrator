@@ -44,6 +44,15 @@ class Project(db.Model):
     source_dbs = relationship('SourceDB', back_populates='project')
     labels = relationship('Label', back_populates='project')
 
+class DBTool(db.Model):
+    __tablename__ = 'dbtools'
+
+    id = db.Column(db.Integer, primary_key=True)
+    vendor_name = db.Column(db.String, nullable=False)
+    type = db.Column(db.String, nullable=False, index=True)
+
+    #source_dbs = relationship('SourceDB', back_populates='vendor_name')
+
 
 class BMSServer(db.Model):
     __tablename__ = 'bms_servers'
@@ -113,6 +122,10 @@ class SourceDB(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     wave_id = db.Column(db.Integer, db.ForeignKey('waves.id'))
 
+    db_tool_id = db.Column(db.Integer,db.ForeignKey('dbtools.id'),nullable=True)
+    db_version = db.Column(db.String)
+    db_port    = db.Column(db.Numeric)
+
     wave = relationship('Wave', back_populates='source_db', uselist=False)
     config = relationship('Config', back_populates='source_db', uselist=False)
     mappings = relationship('Mapping', back_populates='source_db')
@@ -120,7 +133,12 @@ class SourceDB(db.Model):
     restore_config = relationship('RestoreConfig', back_populates='source_db', uselist=False)
     scheduled_tasks = relationship('ScheduledTask', back_populates='source_db')
 
+    #vendor_name = relationship('vendor_name',back_populates='source_db')
+
+   ## mappings = relationship('Mapping', back_populates='source_db')
+
     labels = db.relationship('Label', secondary=source_db_to_label, back_populates='source_dbs', cascade='save-update, merge')
+
 
     @hybrid_property
     def is_rac(self):
@@ -148,6 +166,7 @@ class Config(db.Model):
     misc_config_values = db.Column(db.JSON)
     created_at = db.Column(db.DateTime)
     is_configured = db.Column(db.Boolean, default=False)
+    network_config_values = db.Column(db.JSON)
 
     source_db = relationship('SourceDB', back_populates='config')
 
