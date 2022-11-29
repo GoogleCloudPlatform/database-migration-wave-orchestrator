@@ -44,6 +44,15 @@ class Project(db.Model):
     source_dbs = relationship('SourceDB', back_populates='project')
     labels = relationship('Label', back_populates='project')
 
+class DBTool(db.Model):
+    __tablename__ = 'dbtools'
+
+    id = db.Column(db.Integer, primary_key=True)
+    vendor_name = db.Column(db.String, nullable=False)
+    type = db.Column(db.String, nullable=False, index=True)
+
+    source_dbs = relationship('SourceDB', back_populates='vendor_name')
+
 
 class BMSServer(db.Model):
     __tablename__ = 'bms_servers'
@@ -124,7 +133,7 @@ class SourceDB(db.Model):
     restore_config = relationship('RestoreConfig', back_populates='source_db', uselist=False)
     scheduled_tasks = relationship('ScheduledTask', back_populates='source_db')
 
-    vendor_name = relationship('vendor_name',back_populates='source_dbs')
+    #vendor_name = relationship('vendor_name',back_populates='source_dbs')
 
    ## mappings = relationship('Mapping', back_populates='source_db')
 
@@ -327,17 +336,6 @@ class Label(db.Model):
 
     project = relationship(Project, back_populates='labels')
     source_dbs = relationship('SourceDB', secondary=source_db_to_label, back_populates='labels', cascade='save-update, merge')
-
-
-class DBTool(db.Model):
-    __tablename__ = 'dbtools'
-
-    id = db.Column(db.Integer, primary_key=True)
-    vendor_name = db.Column(db.String, nullable=False)
-    type = db.Column(db.String, nullable=False, index=True)
-
-    source_dbs = relationship('SourceDB', back_populates='vendor_name')
-
 
 
 # statuses that mean that operation is alredy finished
