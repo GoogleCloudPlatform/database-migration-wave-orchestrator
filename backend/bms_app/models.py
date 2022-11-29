@@ -51,7 +51,7 @@ class DBTool(db.Model):
     vendor_name = db.Column(db.String, nullable=False)
     type = db.Column(db.String, nullable=False, index=True)
 
-    source_dbs = relationship('SourceDB', back_populates='vendor_name')
+    #source_dbs = relationship('SourceDB', back_populates='vendor_name')
 
 
 class BMSServer(db.Model):
@@ -122,7 +122,7 @@ class SourceDB(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     wave_id = db.Column(db.Integer, db.ForeignKey('waves.id'))
 
-    db_tool_id = db.Column(db.String,db.ForeignKey('dbtool.id'),nullable=True)
+    db_tool_id = db.Column(db.Integer,db.ForeignKey('dbtools.id'),nullable=True)
     db_version = db.Column(db.String)
     db_port    = db.Column(db.Numeric)
 
@@ -133,7 +133,7 @@ class SourceDB(db.Model):
     restore_config = relationship('RestoreConfig', back_populates='source_db', uselist=False)
     scheduled_tasks = relationship('ScheduledTask', back_populates='source_db')
 
-    #vendor_name = relationship('vendor_name',back_populates='source_dbs')
+    #vendor_name = relationship('vendor_name',back_populates='source_db')
 
    ## mappings = relationship('Mapping', back_populates='source_db')
 
