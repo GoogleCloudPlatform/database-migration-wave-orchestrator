@@ -18,6 +18,8 @@ import swifter #not performing in parallel
 
 from pandarallel import pandarallel
 
+from bms_app.dms_cloudsql import bp
+
 # Initialization
 pandarallel.initialize()
 
@@ -585,28 +587,16 @@ def run_dms_test(dms_df)-> str:
     #print("------------------------------------------New Ending DMS for job no.:",dms_df["index"],"------------------------------------------")
 
 #Get data from tables to create a dataframe for all the source instances
-source_df = pd.DataFrame({'sp_name': ["ndms1-postgres-profile-new-", "ndms1-postgres-profile-new-","ndms1-postgres-profile-new-", "ndms1-postgres-profile-new-"
-                            , "ndms1-postgres-profile-new-", "ndms1-postgres-profile-new-", "ndms1-postgres-profile-new-", "ndms1-postgres-profile-new-"], 
-                            'tp_name': ["ndmst1-postgres-profile-new-", "ndmst1-1postgres-profile-new-"
-                            , "ndmst1-1postgres-profile-new-", "ndmst1-1postgres-profile-new-", "ndmst1-1postgres-profile-new-"
-                            , "ndmst1-1postgres-profile-new-", "ndmst1-1postgres-profile-new-", "ndmst1-1postgres-profile-new-"], 
-                            'mj_name': ["ndms1-dt1-postgres-mj-new-", "ndms1-dt1-postgres-mj-new-"
-                            , "ndms1-dt1-postgres-mj-new-", "ndms1-dt1-postgres-mj-new-", "ndms1-dt1-postgres-mj-new-"
-                            , "ndms1-dt1-postgres-mj-new-", "ndms1-dt1-postgres-mj-new-", "ndms1-dt1-postgres-mj-new-"], 
-                            'sp_host': ['34.72.187.12', '130.211.120.138'
-                            , '35.202.143.22', '34.134.174.76', '34.72.187.12'
-                            , '34.72.187.12', '34.72.187.12', '34.72.187.12'], 
-                            'sp_username': ['dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig'], 
-                            'sp_pwd': ['dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig'],
-                            'tp_version': ['POSTGRES_12', 'POSTGRES_12','POSTGRES_12', 'POSTGRES_12', 'POSTGRES_12'
-                            , 'POSTGRES_12','POSTGRES_12', 'POSTGRES_12'], 
-                            'tp_tier': ['db-custom-1-3840', 'db-custom-1-3840'
-                            , 'db-custom-1-3840','db-custom-1-3840', 'db-custom-1-3840'
-                            , 'db-custom-1-3840','db-custom-1-3840', 'db-custom-1-3840'],
-                            'tp_version': ['POSTGRES_12', 'POSTGRES_12','POSTGRES_12', 'POSTGRES_12', 'POSTGRES_12'
-                            , 'POSTGRES_12','POSTGRES_12', 'POSTGRES_12'], 
-                            'tp_engine': ['POSTGRESQL', 'POSTGRESQL','POSTGRESQL', 'POSTGRESQL', 'POSTGRESQL'
-                            , 'POSTGRESQL','POSTGRESQL', 'POSTGRESQL']
+source_df = pd.DataFrame({'sp_name': ["wave12-postgres-profile-new-"], 
+                            'tp_name': ["wave1t=2-postgres-profile-new-"], 
+                            'mj_name': ["wave12dt1-postgres-mj-new-",], 
+                            'sp_host': ['34.72.187.12'], 
+                            'sp_username': ['dbmig'], 
+                            'sp_pwd': ['dbmig'],
+                            'tp_version': ['POSTGRES_12'], 
+                            'tp_tier': ['db-custom-1-3840'],
+                            'tp_version': ['POSTGRES_12'], 
+                            'tp_engine': ['POSTGRESQL']
                             })
 
 source_df["index"]= source_df.reset_index().index
@@ -616,13 +606,20 @@ source_df["mj_name"]=source_df["mj_name"] + source_df["index"].map(str)
 source_df=source_df.astype('string')
 
 
-#start_time = datetime.datetime.now()
-#new_df = source_df.apply(run_dms_test, axis=1)
-#
-#end_time = datetime.datetime.now()
-##print("End of pandas apply: ")
-##print(new_df)
-##print("time taken for pandas apply: ", end_time - start_time)
+@bp.route('<int:wave_id>/dms', methods=['POST'])
+def start_dms_migration():
+    """Update Operation and OperationDetails statuses/steps."""
+    start_time = datetime.datetime.now()
+    print("Start pandarallel apply: ")
+    source_df['output'] = source_df.parallel_apply(run_dms_test, axis=1)
+
+    end_time = datetime.datetime.now()
+    pp_total_time = end_time - start_time
+    print("End of pandas and pandarallel apply: ")
+    print(source_df)
+    print("time taken for pandas and pandarallel apply: ", pp_total_time)
+
+    return {source_df}, 201
 
 #commented out temporarily for now:sneha
 ###start_time = datetime.datetime.now()
@@ -636,42 +633,7 @@ source_df=source_df.astype('string')
 ###print("time taken for pandas and pandarallel apply: ", pp_total_time)
 
 
-
-
-####Get data from tables to create a dataframe for all the source instances
-###source_df = pd.DataFrame({'sp_name': ["ds2-postgres-profile-new-", "ds2-postgres-profile-new-", "ds2-postgres-profile-new-", "ds2-postgres-profile-new-"
-###                          , "ds2-postgres-profile-new-", "ds2-postgres-profile-new-", "ds2-postgres-profile-new-"
-###                          , "ds2-postgres-profile-new-", "ds2-postgres-profile-new-", "ds2-postgres-profile-new-"], 
-###                            'tp_name': ["dt2-postgres-profile-new-", "dt2-1postgres-profile-new-", "dt2-1postgres-profile-new-", "dt2-1postgres-profile-new-"
-###                            , "dt2-1postgres-profile-new-", "dt2-1postgres-profile-new-", "dt2-1postgres-profile-new-"
-###                            , "dt2-1postgres-profile-new-", "dt2-1postgres-profile-new-", "dt2-1postgres-profile-new-"], 
-###                            'mj_name': ["ds2-dt2-postgres-mj-new-", "ds2-dt2-postgres-mj-new-", "ds2-dt2-postgres-mj-new-", "ds2-dt2-postgres-mj-new-"
-###                            , "ds2-dt2-postgres-mj-new-", "ds2-dt2-postgres-mj-new-", "ds2-dt2-postgres-mj-new-"
-###                            , "ds2-dt2-postgres-mj-new-", "ds2-dt2-postgres-mj-new-", "ds2-dt2-postgres-mj-new-"], 
-###                             'sp_host': ['34.72.187.12', '34.72.187.12', '34.72.187.12', '34.72.187.12'
-###                            , '34.72.187.12', '34.72.187.12', '34.72.187.12'
-###                            , '34.72.187.12', '34.72.187.12', '34.72.187.12'], 
-###                            'sp_username': ['dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig'], 
-###                            'sp_pwd': ['dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig', 'dbmig'],
-###                            'tp_version': ['POSTGRES_12', 'POSTGRES_12','POSTGRES_12', 'POSTGRES_12', 'POSTGRES_12','POSTGRES_12', 'POSTGRES_12'
-###                            , 'POSTGRES_12','POSTGRES_12', 'POSTGRES_12'], 
-###                            'tp_tier': ['db-custom-1-3840', 'db-custom-1-3840','db-custom-1-3840', 'db-custom-1-3840'
-###                            , 'db-custom-1-3840','db-custom-1-3840', 'db-custom-1-3840'
-###                            , 'db-custom-1-3840','db-custom-1-3840', 'db-custom-1-3840'],
-###                            'tp_version': ['POSTGRES_12', 'POSTGRES_12','POSTGRES_12', 'POSTGRES_12', 'POSTGRES_12','POSTGRES_12', 'POSTGRES_12'
-###                            , 'POSTGRES_12','POSTGRES_12', 'POSTGRES_12'], 
-###                            'tp_engine': ['POSTGRESQL', 'POSTGRESQL','POSTGRESQL', 'POSTGRESQL', 'POSTGRESQL','POSTGRESQL', 'POSTGRESQL'
-###                            , 'POSTGRESQL','POSTGRESQL', 'POSTGRESQL']
-###                            })
-###
-###source_df["index"]= source_df.reset_index().index
-###source_df["sp_name"]=source_df["sp_name"] + source_df["index"].map(str)
-###source_df["tp_name"]=source_df["tp_name"] + source_df["index"].map(str)
-###source_df["mj_name"]=source_df["mj_name"] + source_df["index"].map(str)
-###source_df=source_df.astype('string')
-###
-
-
+"""
 source_df_pl = dd.from_pandas(source_df, npartitions=32)
 start_time = datetime.datetime.now()
 dask_series = source_df_pl.apply(run_dms_test, axis=1, meta='string')  
@@ -683,53 +645,4 @@ end_time = datetime.datetime.now()
 print("End of dask apply: ")
 print(df_new)
 print("time taken for dask apply: ", end_time - start_time)
-###print("time taken for pandas and pandarallel apply: ", pp_total_time)
-
-
-#
-#End of pandas and pandarallel apply: 
-#                       sp_name                      tp_name                 mj_name       sp_host  ...           tp_tier   tp_engine index                                             output
-#0  s111-postgres-profile-new-0  t111-postgres-profile-new-0  postgres-mjob111-new-0  34.72.187.12  ...  db-custom-1-3840  POSTGRESQL     0  SUCCESS:200:projects/my-expproject-sc/location...
-#1  s111-postgres-profile-new-1  t11-1postgres-profile-new-1  postgres-mjob111-new-1  34.72.187.12  ...  db-custom-1-3840  POSTGRESQL     1  SUCCESS:200:projects/my-expproject-sc/location...
-#
-#[2 rows x 11 columns]
-#time taken for pandas and pandarallel apply:  0:07:31.012234
-#
-
-
-#End of pandas and pandarallel apply: 
-#                      sp_name                      tp_name                    mj_name       sp_host  ...           tp_tier   tp_engine index                                             output
-#0  ds1-postgres-profile-new-0   dt1-postgres-profile-new-0  ds1-dt1-postgres-mj-new-0  34.72.187.12  ...  db-custom-1-3840  POSTGRESQL     0  ERROR:9:finished setup replication with errors...
-#1  ds1-postgres-profile-new-1  dt1-1postgres-profile-new-1  ds1-dt1-postgres-mj-new-1  34.72.187.12  ...  db-custom-1-3840  POSTGRESQL     1  SUCCESS:200:projects/my-expproject-sc/location...
-#2  ds1-postgres-profile-new-2  dt1-1postgres-profile-new-2  ds1-dt1-postgres-mj-new-2  34.72.187.12  ...  db-custom-1-3840  POSTGRESQL     2  SUCCESS:200:projects/my-expproject-sc/location...
-#3  ds1-postgres-profile-new-3  dt1-1postgres-profile-new-3  ds1-dt1-postgres-mj-new-3  34.72.187.12  ...  db-custom-1-3840  POSTGRESQL     3  SUCCESS:200:projects/my-expproject-sc/location...
-#
-#[4 rows x 11 columns]
-#time taken for pandas and pandarallel apply:  0:07:40.072054
-
-
-
-#End of dask apply: 
-#                       sp_name                      tp_name                 mj_name       sp_host  ...           tp_tier   tp_engine index                                             output
-#0  s122-postgres-profile-new-0  t122-postgres-profile-new-0  postgres-mjob1-22new-0  34.72.187.12  ...  db-custom-1-3840  POSTGRESQL     0  SUCCESS:200:projects/my-expproject-sc/location...
-#1  s122-postgres-profile-new-1  t122-postgres-profile-new-1  postgres-mjob122-new-1  34.72.187.12  ...  db-custom-1-3840  POSTGRESQL     1  SUCCESS:200:projects/my-expproject-sc/location...
-#
-#[2 rows x 11 columns]
-#time taken for dask apply:  0:07:50.809218
-
-
-#End of dask apply: 
-#                      sp_name                      tp_name                    mj_name       sp_host  ...           tp_tier   tp_engine index                                             output
-#0  ds2-postgres-profile-new-0   dt2-postgres-profile-new-0  ds2-dt2-postgres-mj-new-0  34.72.187.12  ...  db-custom-1-3840  POSTGRESQL     0  ERROR:9:finished setup replication with errors...
-#1  ds2-postgres-profile-new-1  dt2-1postgres-profile-new-1  ds2-dt2-postgres-mj-new-1  34.72.187.12  ...  db-custom-1-3840  POSTGRESQL     1  SUCCESS:200:projects/my-expproject-sc/location...
-#2  ds2-postgres-profile-new-2  dt2-1postgres-profile-new-2  ds2-dt2-postgres-mj-new-2  34.72.187.12  ...  db-custom-1-3840  POSTGRESQL     2  SUCCESS:200:projects/my-expproject-sc/location...
-#3  ds2-postgres-profile-new-3  dt2-1postgres-profile-new-3  ds2-dt2-postgres-mj-new-3  34.72.187.12  ...  db-custom-1-3840  POSTGRESQL     3  SUCCESS:200:projects/my-expproject-sc/location...
-#
-#[4 rows x 11 columns]
-#time taken for dask apply:  0:07:42.730540
-
-
-#for dms_job in range(4,6):
-#    #print("Started run no. ", dms_job, ", at:", datetime.datetime.now())
-#    resp_run_dms = run_dms(dms_job)
-#    #print("Final response for run. ",  dms_job, ", received at:", datetime.datetime.now(), ". Response: ", resp_run_dms)#
+"""
