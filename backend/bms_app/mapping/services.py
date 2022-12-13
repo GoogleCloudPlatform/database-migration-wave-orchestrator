@@ -16,12 +16,13 @@ from marshmallow import ValidationError
 
 from bms_app.models import (
     DEPLOYED_STATUSES, BMSServer, Config, Mapping, SourceDB, SourceDBType,
-    Wave, db
+    Wave, db , DBTool
 )
 from bms_app.services.source_db import (
     clear_bms_target_params, does_db_have_operation
 )
 
+import sys
 
 def validate_db(db_id):
     """Check if db can be mapped.
@@ -62,11 +63,11 @@ class GetMappingsService:
         query = cls._generate_query(project_id, db_id)
 
         data = {}
-
+        print(query,file=sys.stdout)
         for mapping, source_db, bms_server, config in query:
             if mapping.db_id not in data:
                 data[mapping.db_id] = cls._add_main_data(
-                    mapping, source_db, config
+                    mapping, source_db, bms_server, config
                 )
 
                 for label in source_db.labels:
@@ -99,7 +100,7 @@ class GetMappingsService:
         return query.all()
 
     @classmethod
-    def _add_main_data(cls, mapping, source_db, config):
+    def _add_main_data(cls, mapping, source_db,bms_server,  config):
         return {
             'id': mapping.id,
             'db_id': mapping.db_id,
@@ -116,6 +117,7 @@ class GetMappingsService:
             'is_deployed': cls._check_if_deployed(source_db),
             'labels': [],
             'editable': not does_db_have_operation(source_db.id),
+            'target_db_tool_id': bms_server.db_tool_id,
         }
 
     @staticmethod
