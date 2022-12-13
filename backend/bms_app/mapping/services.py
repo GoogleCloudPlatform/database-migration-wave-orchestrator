@@ -63,7 +63,6 @@ class GetMappingsService:
         query = cls._generate_query(project_id, db_id)
 
         data = {}
-        print(query,file=sys.stdout)
         for mapping, source_db, bms_server, config in query:
             if mapping.db_id not in data:
                 data[mapping.db_id] = cls._add_main_data(
