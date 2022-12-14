@@ -48,10 +48,12 @@ class DBTool(db.Model):
     __tablename__ = 'dbtools'
 
     id = db.Column(db.Integer, primary_key=True)
-    vendor_name = db.Column(db.String, nullable=False)
-    type = db.Column(db.String, nullable=False, index=True)
+    db_engine = db.Column(db.String, nullable=False)
+    type = db.Column(db.String, nullable=True, index=True)
 
-    #source_dbs = relationship('SourceDB', back_populates='vendor_name')
+    #source_dbs = relationship('SourceDB', back_populates='db_engine')
+    source_db = relationship('SourceDB', back_populates='dbtools')
+    bms = relationship('BMSServer', back_populates='dbtools')
 
 
 class BMSServer(db.Model):
@@ -71,7 +73,13 @@ class BMSServer(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now)
     location = db.Column(db.String)
 
+    db_tool_id = db.Column(db.Integer,db.ForeignKey('dbtools.id'),nullable=True)
+    db_version = db.Column(db.String)
+    db_port    = db.Column(db.Numeric)
+
+
     mapping = relationship('Mapping', back_populates='bms')
+    dbtools = relationship('DBTool', back_populates='bms')
 
 
 class SourceDBType(Enum):
@@ -106,13 +114,13 @@ class SourceDB(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     server = db.Column(db.String, nullable=False)
-    oracle_version = db.Column(db.String, nullable=False)
+    oracle_version = db.Column(db.String, nullable=True)
     oracle_release = db.Column(db.String)
     oracle_edition = db.Column(db.String, default='EE')
     db_type = db.Column(ChoiceType(SourceDBType, impl=db.String(10)), default=SourceDBType.SI)
     rac_nodes = db.Column(db.Integer, default=0)  # value parsed from assessment file
     fe_rac_nodes = db.Column(db.Integer)
-    arch = db.Column(db.String, nullable=False)
+    arch = db.Column(db.String, nullable=True)
     cores = db.Column(db.Integer, nullable=False)
     ram = db.Column(db.Integer, nullable=False)
     allocated_memory = db.Column(db.Integer, nullable=False)
@@ -133,7 +141,7 @@ class SourceDB(db.Model):
     restore_config = relationship('RestoreConfig', back_populates='source_db', uselist=False)
     scheduled_tasks = relationship('ScheduledTask', back_populates='source_db')
 
-    #vendor_name = relationship('vendor_name',back_populates='source_db')
+    dbtools = relationship('DBTool', back_populates='source_db')
 
    ## mappings = relationship('Mapping', back_populates='source_db')
 
