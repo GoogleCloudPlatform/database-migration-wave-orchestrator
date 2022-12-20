@@ -175,7 +175,8 @@ class Config(db.Model):
     created_at = db.Column(db.DateTime)
     is_configured = db.Column(db.Boolean, default=False)
     network_config_values = db.Column(db.JSON)
-
+    cloud_dms_values = db.Column(db.JSON)
+    
     source_db = relationship('SourceDB', back_populates='config')
 
 
