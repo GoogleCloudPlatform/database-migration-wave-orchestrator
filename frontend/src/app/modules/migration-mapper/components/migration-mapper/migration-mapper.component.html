@@ -65,7 +65,7 @@
                       matTooltipPosition="left"
                       matTooltipClass="custom-tooltip multiline"
                     >help</mat-icon>
-                  </div>                  
+                  </div>
                 </div>
 
                 <table mat-table [dataSource]="dataSource" matSort>
@@ -155,7 +155,7 @@
                     <th mat-header-cell *matHeaderCellDef > Configuration </th>
                     <td mat-cell *matCellDef="let row">
                       <div *ngIf="row.bms?.length">
-                        <a class="link" *ngIf="!isWaveRunning(row.wave_id)  else waveRuning" [routerLink]="['/configeditor']" [queryParams]="{databaseId: row.db_id}">
+                        <a class="link" *ngIf="!isWaveRunning(row.wave_id)  else waveRuning" [routerLink]= "isDms(row.target_db_tool_id) ? ['/configeditordms'] : ['/configeditor']" [queryParams]="{databaseId: row.db_id}">
                           Open Config Editor
                         </a>
                       </div>
@@ -172,10 +172,10 @@
                     <th mat-header-cell *matHeaderCellDef> Wave </th>
                     <td mat-cell *matCellDef="let row">
                       <div *ngIf="row.bms?.length">
-                        <app-wave 
-                          [waves]="waves" 
-                          [waveId]="row.wave_id" 
-                          [project_id]="project_id" 
+                        <app-wave
+                          [waves]="waves"
+                          [waveId]="row.wave_id"
+                          [project_id]="project_id"
                           [db_id]="row.db_id"
                           [editable]="row.editable"
                         ></app-wave>

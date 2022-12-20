@@ -69,6 +69,11 @@ const routes: Routes = [
         canActivate: [CurrentProjectGuard]
       },
       {
+         path:'configeditordms',
+         loadChildren: () => import(`../config-editor-dms/config-editor-dms.module`).then(module => module.ConfigeditorDmsModule),
+         canActivate: [CurrentProjectGuard]
+       },
+      {
         path:'datatransfermanager',
         loadChildren: () => import(`../data-transfer-manager/data-transfer-manager.module`).then(module => module.DataTransferManagerModule),
         canActivate: [CurrentProjectGuard]

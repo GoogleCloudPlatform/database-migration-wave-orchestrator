@@ -106,6 +106,7 @@ export class SideMenuComponent implements OnInit, OnDestroy {
         this.isMigrationRoadmapPage = value.urlAfterRedirects.startsWith('/mymigrationprojects/roadmap');
         this.isMigrationWaveHistoryPage = value.urlAfterRedirects.startsWith('/migrationwavemanager/history');
         this.isConfigEditorPage = value.urlAfterRedirects.startsWith('/configeditor');
+        this.isConfigEditorPage = value.urlAfterRedirects.startsWith('/configeditordms');
         this.isDataTransferConfigEditorPage = value.urlAfterRedirects.startsWith('/datatransferconfigeditor');
         this.isMigrationListPage = value.urlAfterRedirects.startsWith('/mymigrationprojects/list');
       });
