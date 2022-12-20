@@ -106,7 +106,7 @@ def register_blueprints(flask_app):
     flask_app.register_blueprint(webhook_bp, url_prefix='/webhooks')
     
     from bms_app.dms_cloudsql import bp as dms_cloudsql_bp
-    flask_app.register_blueprint(dms_cloudsql_bp, url_prefix='/dms-cloudsql')
+    api_bp.register_blueprint(dms_cloudsql_bp, url_prefix='/dms-cloudsql')
 
     # to server FE artifacts
     from bms_app.fe import bp as fe_bp
