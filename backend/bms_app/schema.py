@@ -182,6 +182,10 @@ class RACConfigSchema(Schema):
     dg_name = fields.Str()
     rac_nodes = fields.List(fields.Nested(RACNodeSchema))
 
+class CloudDMSSchema(Schema):
+    name = fields.Str()
+    displayname = fields.Str()
+    type = fields.Str()
 
 class ConfigSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
