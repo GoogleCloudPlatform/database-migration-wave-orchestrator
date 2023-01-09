@@ -25,6 +25,7 @@ from pandarallel import pandarallel
 
 from bms_app.dmscloudsql import bp
 from bms_app.dmscloudsql import dms_sql 
+import ast # to be added to requirments.txt
 
 # Initialization
 pandarallel.initialize(use_memory_fs=False)
@@ -308,7 +309,7 @@ def run_dms_test(dms_df)-> str:
     sp_config={"name":f"{cp_name}",
                 "displayName":f"{cp_name}",
                 "postgresql":{"host":f"{sp_host}",
-                "port":5432,
+                "port":{sp_port},
                 "username":f"{sp_username}",
                 "password":f"{sp_pwd}"}
                 }
@@ -473,32 +474,8 @@ def run_dms_test(dms_df)-> str:
 
     #print("------------------------------------------New Ending DMS for job no.:",dms_df["index"],"------------------------------------------")
 
-#Get data from tables to create a dataframe for all the source instances
-source_df = pd.DataFrame({'sp_name': ["wave12-postgres-profile-new-"], 
-                            'tp_name': ["wave1t=2-postgres-profile-new-"], 
-                            'mj_name': ["wave12dt1-postgres-mj-new-",], 
-                            'sp_host': ['34.72.187.12'], 
-                            'sp_username': ['dbmig'], 
-                            'sp_pwd': ['dbmig'],
-                            'tp_version': ['POSTGRES_12'], 
-                            'tp_tier': ['db-custom-1-3840'],
-                            'tp_version': ['POSTGRES_12'], 
-                            'tp_engine': ['POSTGRESQL']
-                            })
-
-source_df["index"]= source_df.reset_index().index
-source_df["sp_name"]=source_df["sp_name"] + source_df["index"].map(str)
-source_df["tp_name"]=source_df["tp_name"] + source_df["index"].map(str)
-source_df["mj_name"]=source_df["mj_name"] + source_df["index"].map(str)
-source_df=source_df.astype('string')
 
 
-
-#@bp.route('', methods=['GET'])
-
-
-    
-    
 
 #@bp.route('/dms', methods=['POST'])
 @bp.route('/dms')
@@ -510,11 +487,11 @@ def start_dms_migration():
                             'tp_name': ["waven29t-postgres-profile-new-"], 
                             'mj_name': ["waven2j-postgres-mj-new-",], 
                             'sp_host': ['34.72.187.12'], 
+                            'sp_port' : [5432],
                             'sp_username': ['dbmig'], 
                             'sp_pwd': ['dbmig'],
                             'tp_version': ['POSTGRES_12'], 
                             'tp_tier': ['db-custom-1-3840'],
-                            'tp_version': ['POSTGRES_12'], 
                             'tp_engine': ['POSTGRESQL']
                             })
 
@@ -538,11 +515,41 @@ def start_dms_migration():
         return "Database details not found for CloudSQL migration", 400
 
 
+    def get_db_details(secret_val, attribute1, attribute2) -> str:
+        secret_string = ast.literal_eval(secret_val)
+        print("secret_string:", secret_string)
+        if 'postgresql' in secret_string[attribute1]:
+            print("postgresql: ",secret_string[attribute1]['postgresql'][attribute2])
+            return secret_string[attribute1]['postgresql'][attribute2]
+        elif 'mysql' in secret_string[attribute1]:
+            print("mysql: ",secret_string[attribute1]['mysql'][attribute2])
+            return secret_string[attribute1]['mysql'][attribute2]
+        else:
+            print("none of the above")
+            return None
+
+
+
+
+
     print("df columns:",df.columns)
+    #check on passwordset field of teh connection rpofile json:sneha
     df['sp_name']='sp-' + df['project_name'].astype(str) + '-sourcedbid-' + df['source_db_id'].astype(str)
     df['tp_name']='tp-' + df['project_name'].astype(str) + '-targetdbid-' + df['target_db_id'].astype(str) 
     df['mj_name']='mj-' + df['project_name'].astype(str) + '-sourcedbid-' + df['source_db_id'].astype(str) + '-targetdbid-' + df['target_db_id'].astype(str)
     df['secret_data']= df.secret_name.apply(get_secret)
+    df['sp_host']=df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','host')).fillna(df["server"])
+    df['sp_port']=df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','port')).fillna(df["source_db_port"])
+    df['sp_username']=df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','username')) #must be provided in secret manger, else will lead to issues
+    df['sp_pwd']=df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','password')) #must be provided in secret manger, else will lead to issues
+
+
+
+
+    #df['secret_data'] = df['secret_data'].astype(str)
+    print("here haha: ",df['secret_data'].apply(lambda x: ast.literal_eval(x)['sp_config']['postgresql']['host']))
+    print("here ho: ",df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','host')))
+
 
     return df.to_dict('list') #data # working
     #new section
