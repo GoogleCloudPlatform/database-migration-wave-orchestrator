@@ -8,9 +8,11 @@ from googleapiclient import errors
 from google.cloud import secretmanager
 import os
 import sqlalchemy
+import shortuuid  # to be added to requirments.txt
+import json # to be added to requirments.txt
 
 import time
-import uuid
+import uuid # to be added to requirments.txt
 
 import datetime
 import re
@@ -33,6 +35,7 @@ pandarallel.initialize(use_memory_fs=False)
 
 # getting the credentials and project details for gcp project
 credentials, project_id = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"]) 
+su = shortuuid.ShortUUID(alphabet='23456789abcdefghijkmnopqrstuvwxyz')
 
 
 #getting request object
@@ -117,19 +120,20 @@ def get_lro_details(lro_detail: str) -> str:
 #Function to create database migration connection profile
 def create_connection_profile(gcp_project_id: str, profile_name: str, config: dict) -> str:
     service = get_service()
+    print("gcp_project_id:", gcp_project_id, ":profile_name:", profile_name, "config:", config)
     request_create_connprofile = service.projects().locations().connectionProfiles().create(
     parent=f'projects/{gcp_project_id}/locations/us-central1', #get the location programatiically later
     connectionProfileId=profile_name,
     body=config
     )
     
-    #print("before calling")
+    print("before calling")
     
     try:
         response_create_connprofile= request_create_connprofile.execute()
     except errors.HttpError as err:
         #print(err.resp.reason)
-        #print(err)
+        print(err)
         return 'ERROR-create_connection_profile:' + str(err.resp.status) + ':' + err.resp.reason
     
     #print(response_create_connprofile)
@@ -161,7 +165,7 @@ def create_migration_job(gcp_project_id: str, job_name: str, job_request_id: str
         response_create_migjob= request_create_migjob.execute()
     except errors.HttpError as err:
         #print(err.resp.reason)
-        #print(err)
+        print("mj job error:", err)
         return 'ERROR-create_migration_job:' + str(err.resp.status) + ':' + err.resp.reason
     
     #print(response_create_migjob)
@@ -291,37 +295,106 @@ def get_connection_profile(profile_detail: str) -> str:
 
 def run_dms_test(dms_df)-> str:
     #Create the configuration for source connection profile and call the fucnction to create the profile
-    #print("------------------------------------------New Starting DMS for job no.:",dms_df["index"],"------------------------------------------")
-
-    engine = sqlalchemy.create_engine(cs.DATABASE_URL)
-    sql=dms_sql.sql_query
-
-    df = pd.read_sql(sql,con=engine)
-    engine.dispose()
-    return df.to_dict('list') #data # working
-
-
+    print("------------------------------------------New Starting DMS for job no.:","------------------------------------------")
 
     cp_name = dms_df["sp_name"]
     sp_host = dms_df["sp_host"]
     sp_username = dms_df["sp_username"]
     sp_pwd = dms_df["sp_pwd"]
+    sp_port = dms_df["sp_port"]
     sp_config={"name":f"{cp_name}",
                 "displayName":f"{cp_name}",
                 "postgresql":{"host":f"{sp_host}",
-                "port":{sp_port},
+                "port":sp_port,
                 "username":f"{sp_username}",
                 "password":f"{sp_pwd}"}
                 }
-    #print("for dms_job_no:",dms_df["index"]," ,sp_config:",sp_config)
+
+    print(" ,sp_config:",sp_config, type(sp_config))
+    #remove later sneha
+    tcp_name = dms_df["tp_name"]
+    tp_version = dms_df["tp_version"]
+    tp_tier = dms_df["tp_tier"]
+    storageautoresizelimit = dms_df["storageautoresizelimit"]
+    activationpolicy = dms_df["activationpolicy"]
+    autostorageincrease = dms_df["autostorageincrease"]
+    zone = dms_df["zone"]
+    rootpassword = dms_df["rootpassword"]
+    scp_message=''
+    tcp_message =''
+    ipconfig = dms_df["ipconfig"] 
+    databaseflags = dms_df["databaseflags"]
+    datadisktype = dms_df["datadisktype"]
+    datadisksizegb = dms_df["datadisksizegb"]
+    cmekkeyname = dms_df["cmekkeyname"]
+
+
+    tp_config={ "name":f"{tcp_name}",
+      "displayName": f"{tcp_name}",
+      "cloudsql": {
+        "settings": {
+          "databaseVersion": f"{tp_version}",
+          "tier": f"{tp_tier}",
+          "storageAutoResizeLimit": storageautoresizelimit,
+          "activationPolicy": f"{activationpolicy}",
+          "autoStorageIncrease": autostorageincrease,
+          "zone": f"{zone}",
+          "sourceId": f"{scp_message}",
+          "rootPassword":f"{rootpassword}",
+          "ipConfig": ipconfig,
+          "databaseFlags": databaseflags,
+          "dataDiskType":f"{datadisktype}",
+          "dataDiskSizeGb":datadisksizegb,
+          "cmekKeyName":f"{cmekkeyname}"
+        }
+      }
+    }
+
+    print("here tp_config:",tp_config)
+
+
+
+    #get the location programatiically later
+    mj_name = dms_df["mj_name"]
+    mj_request_id = uuid.uuid4() 
+    mj_type = dms_df["type"]
+    dumppath = dms_df["dumppath"]
+    sourcedatabase_provider = dms_df["sourcedatabase_provider"]
+    sourcedatabase_engine  = dms_df["sourcedatabase_engine"]
+    destinationdatabase_provider  = dms_df["destinationdatabase_provider"]
+    destinationdatabase_engine  = dms_df["destinationdatabase_engine"]
+    connectivity  = dms_df["connectivity"] # add latest Sneha
+
+    mj_config={ "name":f"{mj_name}",
+      "displayName": f"{mj_name}",
+      "type":f"{mj_type}",
+      "dumpPath": f"{dumppath}",
+       "source":f"{scp_message}",
+       "destination":f"{tcp_message}",
+       "sourceDatabase":{
+          "provider":f"{sourcedatabase_provider}",
+          "engine":f"{sourcedatabase_engine}"
+       },
+       "destinationDatabase":{
+          "provider":f"{destinationdatabase_provider}",
+          "engine":f"{destinationdatabase_engine}"
+       }
+    }
+
+    print(" ,mj_config:",mj_config)
+
+    #return mj_config
+    #remove later sneha
 
 
     resp_scp = create_connection_profile(project_id, cp_name, sp_config)
+
+    print("create_connection_profile for source successful")
     scp_message = resp_scp[resp_scp.rfind(':') + 1:]
     scp_status_code = resp_scp[resp_scp.find(':') + 1: resp_scp.rfind(':') ]
-    print("for dms_job_no:",dms_df["index"]," ,resp_scp:",resp_scp)
-    #print("for dms_job_no:",dms_df["index"]," ,scp_message:",scp_message)
-    #print("for dms_job_no:",dms_df["index"]," ,scp_status_code:",scp_status_code)
+    print(" ,resp_scp:",resp_scp)
+    print(" ,scp_message:",scp_message)
+    #print(" ,scp_status_code:",scp_status_code)
 
     tp_config={}
     resp_tcp = ''
@@ -334,6 +407,16 @@ def run_dms_test(dms_df)-> str:
         tcp_name = dms_df["tp_name"]
         tp_version = dms_df["tp_version"]
         tp_tier = dms_df["tp_tier"]
+        storageautoresizelimit = dms_df["storageautoresizelimit"]
+        activationpolicy = dms_df["activationpolicy"]
+        autostorageincrease = dms_df["autostorageincrease"]
+        zone = dms_df["zone"]
+        rootpassword = dms_df["rootpassword"]
+        ipconfig = dms_df["ipconfig"] 
+        databaseflags = dms_df["databaseflags"]
+        datadisktype = dms_df["datadisktype"]
+        datadisksizegb = dms_df["datadisksizegb"]
+        cmekkeyname = dms_df["cmekkeyname"]
 
 
         tp_config={ "name":f"{tcp_name}",
@@ -342,24 +425,30 @@ def run_dms_test(dms_df)-> str:
             "settings": {
               "databaseVersion": f"{tp_version}",
               "tier": f"{tp_tier}",
-              "storageAutoResizeLimit": 0,
-              "activationPolicy": "ALWAYS",
-              "autoStorageIncrease": False,
-              "zone": "us-central1-b",
+              "storageAutoResizeLimit": storageautoresizelimit,
+              "activationPolicy": f"{activationpolicy}",
+              "autoStorageIncrease": autostorageincrease,
+              "zone": f"{zone}",
               "sourceId": f"{scp_message}",
-              "rootPassword":"sourcewaverunner2"    
+              "rootPassword":f"{rootpassword}",
+              "ipConfig": ipconfig,
+              "databaseFlags": databaseflags,
+              "dataDiskType":f"{datadisktype}",
+              "dataDiskSizeGb":datadisksizegb,
+              "cmekKeyName":f"{cmekkeyname}"
             }
           }
         }
+        print("before tp_config:",tp_config)
 
-        #print("for dms_job_no:",dms_df["index"]," ,tp_config:",tp_config)
+
 
         resp_tcp = create_connection_profile(project_id, tcp_name, tp_config)
         tcp_message = resp_tcp[resp_tcp.rfind(':') + 1:]
         tcp_status_code = resp_tcp[resp_tcp.find(':') + 1: resp_tcp.rfind(':') ]
-        print("for dms_job_no:",dms_df["index"]," ,resp_tcp:",resp_tcp)
-        #print("for dms_job_no:",dms_df["index"]," ,tcp_message:",tcp_message)
-        #print("for dms_job_no:",dms_df["index"]," ,tcp_status_code:",tcp_status_code)
+        print(" ,resp_tcp:",resp_tcp)
+        #print(" ,tcp_message:",tcp_message)
+        #print(" ,tcp_status_code:",tcp_status_code)
 
 
     else:
@@ -374,9 +463,9 @@ def run_dms_test(dms_df)-> str:
         resp_get_cp_details =  get_connection_profile(tcp_message)
         get_cp_message = resp_get_cp_details[resp_get_cp_details.rfind(':') + 1:]
         get_cp_status_code = resp_get_cp_details[resp_get_cp_details.find(':') + 1: resp_get_cp_details.rfind(':') ]
-        print("for dms_job_no:",dms_df["index"]," ,resp_get_cp_details:",resp_get_cp_details)
-        #print("for dms_job_no:",dms_df["index"]," ,get_cp_message:",get_cp_message)
-        #print("for dms_job_no:",dms_df["index"]," ,get_cp_status_code:",get_cp_status_code)
+        print(" ,resp_get_cp_details:",resp_get_cp_details)
+        #print(" ,get_cp_message:",get_cp_message)
+        #print(" ,get_cp_status_code:",get_cp_status_code)
 
     else:
         return resp_tcp
@@ -391,31 +480,39 @@ def run_dms_test(dms_df)-> str:
     if get_cp_status_code == '200':
         #get the location programatiically later
         mj_name = dms_df["mj_name"]
-        tp_engine = dms_df["tp_engine"]
         mj_request_id = uuid.uuid4() 
+        mj_type = dms_df["type"]
+        dumppath = dms_df["dumppath"]
+        sourcedatabase_provider = dms_df["sourcedatabase_provider"]
+        sourcedatabase_engine  = dms_df["sourcedatabase_engine"]
+        destinationdatabase_provider  = dms_df["destinationdatabase_provider"]
+        destinationdatabase_engine  = dms_df["destinationdatabase_engine"]
+        connectivity  = dms_df["connectivity"] # add latest Sneha
+
         mj_config={ "name":f"{mj_name}",
           "displayName": f"{mj_name}",
-          "type":"CONTINUOUS",
+          "type":f"{mj_type}",
+          "dumpPath": f"{dumppath}",
            "source":f"{scp_message}",
            "destination":f"{tcp_message}",
            "sourceDatabase":{
-              "provider":"DATABASE_PROVIDER_UNSPECIFIED",
-              "engine":f"{tp_engine}"
+              "provider":f"{sourcedatabase_provider}",
+              "engine":f"{sourcedatabase_engine}"
            },
            "destinationDatabase":{
-              "provider":"CLOUDSQL",
-              "engine":f"{tp_engine}"
+              "provider":f"{destinationdatabase_provider}",
+              "engine":f"{destinationdatabase_engine}"
            }
         }
 
-        #print("for dms_job_no:",dms_df["index"]," ,resp_tcp:",mj_config)
+        print(" ,resp_tcp:",mj_config)
 
         resp_mj = create_migration_job(project_id, mj_name, mj_request_id, mj_config)
         mj_message = resp_mj[resp_mj.rfind(':') + 1:]
         mj_status_code = resp_mj[resp_mj.find(':') + 1: resp_mj.rfind(':') ]
-        print("for dms_job_no:",dms_df["index"]," ,resp_mj:",resp_mj)
-        #print("for dms_job_no:",dms_df["index"]," ,mj_message:",mj_message)
-        #print("for dms_job_no:",dms_df["index"]," ,mj_status_code:",mj_status_code)
+        print(" ,resp_mj:",resp_mj)
+        #print(" ,mj_message:",mj_message)
+        #print(" ,mj_status_code:",mj_status_code)
 
     else:
         return resp_get_cp_details
@@ -430,9 +527,9 @@ def run_dms_test(dms_df)-> str:
         resp_get_mj_details =  verify_migration_job(mj_message)
         get_mj_message = resp_get_mj_details[resp_get_mj_details.rfind(':') + 1:]
         get_mj_status_code = resp_get_mj_details[resp_get_mj_details.find(':') + 1: resp_get_mj_details.rfind(':') ]
-        print("for dms_job_no:",dms_df["index"],",resp_get_mj_details:",resp_get_mj_details)
-        #print("for dms_job_no:",dms_df["index"],",get_mj_message:",get_mj_message)
-        #print("for dms_job_no:",dms_df["index"],",get_mj_status_code:",get_mj_status_code)
+        print(",resp_get_mj_details:",resp_get_mj_details)
+        #print(",get_mj_message:",get_mj_message)
+        #print(",get_mj_status_code:",get_mj_status_code)
 
     else:
         return resp_mj    
@@ -449,9 +546,9 @@ def run_dms_test(dms_df)-> str:
         resp_start_mj_details =  start_migration_job(mj_message)
         start_mj_message = resp_start_mj_details[resp_start_mj_details.rfind(':') + 1:]
         start_mj_status_code = resp_start_mj_details[resp_start_mj_details.find(':') + 1: resp_start_mj_details.rfind(':') ]
-        print("for dms_job_no:",dms_df["index"],",resp_start_mj_details:",resp_start_mj_details)
-        #print("for dms_job_no:",dms_df["index"],",start_mj_message:",start_mj_message)
-        #print("for dms_job_no:",dms_df["index"],",start_mj_status_code:",start_mj_status_code)
+        print(",resp_start_mj_details:",resp_start_mj_details)
+        #print(",start_mj_message:",start_mj_message)
+        #print(",start_mj_status_code:",start_mj_status_code)
     else:
         return resp_get_mj_details
 
@@ -465,9 +562,9 @@ def run_dms_test(dms_df)-> str:
         resp_promote_mj_details =  promote_migration_job(mj_message)
         promote_mj_message = resp_promote_mj_details[resp_promote_mj_details.rfind(':') + 1:]
         promote_mj_status_code = resp_promote_mj_details[resp_promote_mj_details.find(':') + 1: resp_promote_mj_details.rfind(':') ]
-        print("for dms_job_no:",dms_df["index"],",resp_promote_mj_details:",resp_promote_mj_details)
-        #print("for dms_job_no:",dms_df["index"],",promote_mj_message:",promote_mj_message)
-        #print("for dms_job_no:",dms_df["index"],",promote_mj_status_code:",promote_mj_status_code)
+        print(",resp_promote_mj_details:",resp_promote_mj_details)
+        #print(",promote_mj_message:",promote_mj_message)
+        #print(",promote_mj_status_code:",promote_mj_status_code)
         return resp_promote_mj_details
     else:
         return resp_start_mj_details
@@ -475,6 +572,34 @@ def run_dms_test(dms_df)-> str:
     #print("------------------------------------------New Ending DMS for job no.:",dms_df["index"],"------------------------------------------")
 
 
+
+def get_db_details(secret_val, attribute1, attribute2, attribute3 = '') -> str:
+        # attribute3 is used only for migration job related attributes
+        secret_string = ast.literal_eval(secret_val)
+        print("secret_string:", secret_string)
+        if attribute1 == 'sp_config':
+            if 'postgresql' in secret_string[attribute1]:
+                print("postgresql: ",secret_string.get(attribute1).get('postgresql').get(attribute2))
+                return secret_string.get(attribute1).get('postgresql').get(attribute2)
+            elif 'mysql' in secret_string[attribute1]:
+                print("mysql: ",secret_string.get(attribute1).get('mysql').get(attribute2))
+                return secret_string.get(attribute1).get('mysql').get(attribute2)
+            else:
+                print("none of the above")
+                return None
+        elif attribute1 == 'tp_config':
+            print(f"tp_config:{attribute2} ",secret_string.get(attribute1).get('cloudsql').get('settings').get(attribute2))
+            return secret_string.get(attribute1).get('cloudsql').get('settings').get(attribute2)
+        elif attribute1 == 'mj_config':
+            print(f"mj_config:{attribute2} ",secret_string['mj_config'])
+            print(f"attrs mj_config:{attribute1} {attribute2} {attribute3}")
+            if attribute3 =='':
+                #print(f" lala mj_config:{attribute2} ",secret_string['mj_config'][attribute2])
+                print(f" here mj_config:{attribute2} ",secret_string.get(attribute1).get(attribute2))
+                return secret_string.get(attribute1).get(attribute2)
+            else:
+                print(f"there mj_config:{attribute2} ",secret_string.get(attribute1).get(attribute2).get(attribute3))
+                return secret_string.get(attribute1).get(attribute2).get(attribute3)
 
 
 #@bp.route('/dms', methods=['POST'])
@@ -515,40 +640,46 @@ def start_dms_migration():
         return "Database details not found for CloudSQL migration", 400
 
 
-    def get_db_details(secret_val, attribute1, attribute2) -> str:
-        secret_string = ast.literal_eval(secret_val)
-        print("secret_string:", secret_string)
-        if 'postgresql' in secret_string[attribute1]:
-            print("postgresql: ",secret_string[attribute1]['postgresql'][attribute2])
-            return secret_string[attribute1]['postgresql'][attribute2]
-        elif 'mysql' in secret_string[attribute1]:
-            print("mysql: ",secret_string[attribute1]['mysql'][attribute2])
-            return secret_string[attribute1]['mysql'][attribute2]
-        else:
-            print("none of the above")
-            return None
-
-
-
-
-
     print("df columns:",df.columns)
-    #check on passwordset field of teh connection rpofile json:sneha
-    df['sp_name']='sp-' + df['project_name'].astype(str) + '-sourcedbid-' + df['source_db_id'].astype(str)
-    df['tp_name']='tp-' + df['project_name'].astype(str) + '-targetdbid-' + df['target_db_id'].astype(str) 
-    df['mj_name']='mj-' + df['project_name'].astype(str) + '-sourcedbid-' + df['source_db_id'].astype(str) + '-targetdbid-' + df['target_db_id'].astype(str)
     df['secret_data']= df.secret_name.apply(get_secret)
+    #source connection profile related columns
+    df['sp_name']='sp-' + df['project_name'].astype(str) + '-sourcedbid-' + df['source_db_id'].astype(str) + '-' + su.uuid()
     df['sp_host']=df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','host')).fillna(df["server"])
     df['sp_port']=df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','port')).fillna(df["source_db_port"])
     df['sp_username']=df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','username')) #must be provided in secret manger, else will lead to issues
     df['sp_pwd']=df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','password')) #must be provided in secret manger, else will lead to issues
+    #target connection profile related columns
+    df['tp_name']='tp-' + df['project_name'].astype(str) + '-targetdbid-' + df['target_db_id'].astype(str) + '-' + su.uuid()
+    df['tp_version'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','databaseVersion')).fillna('SQL_DATABASE_VERSION_UNSPECIFIED')
+    df['tp_tier'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','tier')).fillna(df["machine_type"])
+    df['storageAutoResizeLimit']=df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','storageAutoResizeLimit')).fillna(0)
+    df['activationPolicy']=df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','activationPolicy')).fillna('ALWAYS')
+    df['autoStorageIncrease']=df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','autoStorageIncrease')).astype(bool).fillna(False)
+    df['zone'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','zone')).fillna(df["location"])
+    df['rootPassword'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','rootPassword')) #must be provided in secret manger, else will lead to issues
+    df['ipConfig'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','ipConfig')) #test Sneha
+    df['databaseFlags'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','databaseFlags'))
+    df['dataDiskType'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','dataDiskType')).fillna('PD_SSD')
+    df['dataDiskSizeGb'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','dataDiskSizeGb')).fillna(10) #Default is 10 GB
+    df['cmekKeyName'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','cmekKeyName')).fillna('')
+    #migration job related columns
+    df['mj_name']='mj-' + df['project_name'].astype(str) + '-sourcedbid-' + df['source_db_id'].astype(str) + '-targetdbid-' + df['target_db_id'].astype(str)+ '-' + su.uuid()
+    df['type'] = df['secret_data'].apply(lambda x: get_db_details(x,'mj_config','types')).fillna('TYPE_UNSPECIFIED')
+    df['dumpPath'] = df['secret_data'].apply(lambda x: get_db_details(x,'mj_config','dumpPath')) 
+    df['sourceDatabase_provider'] = df['secret_data'].apply(lambda x: get_db_details(x,'mj_config','sourceDatabase','provider')).fillna('DATABASE_PROVIDER_UNSPECIFIED')
+    df['sourceDatabase_engine'] = df['secret_data'].apply(lambda x: get_db_details(x,'mj_config','sourceDatabase','engine')).fillna('DATABASE_ENGINE_UNSPECIFIED')
+    df['destinationDatabase_provider'] = df['secret_data'].apply(lambda x: get_db_details(x,'mj_config','destinationDatabase','provider')).fillna('CLOUDSQL')
+    df['destinationDatabase_engine'] = df['secret_data'].apply(lambda x: get_db_details(x,'mj_config','destinationDatabase','engine')).fillna('DATABASE_ENGINE_UNSPECIFIED')
+    df['connectivity'] = '' #add logic to get this information from cloud_dms_values column of the database
+
+    df.columns = map(str.lower, df.columns)
+    print("columns: ",df.columns)
 
 
+    df['output'] = df.parallel_apply(run_dms_test, axis=1) 
 
+    print("out of call: ",df.columns)
 
-    #df['secret_data'] = df['secret_data'].astype(str)
-    print("here haha: ",df['secret_data'].apply(lambda x: ast.literal_eval(x)['sp_config']['postgresql']['host']))
-    print("here ho: ",df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','host')))
 
 
     return df.to_dict('list') #data # working
@@ -559,9 +690,10 @@ def start_dms_migration():
     print("End of pandas and pandarallel apply: ")
     print(source_df)
     print("time taken for pandas and pandarallel apply: ", pp_total_time)
+    print("df columns", df.columns)
 
 
-    return source_df.to_dict('list'), 201
+    return source_df.to_dict('dict'), 201
     #return {'data':'ok'},201
 
 #commented out temporarily for now:sneha
