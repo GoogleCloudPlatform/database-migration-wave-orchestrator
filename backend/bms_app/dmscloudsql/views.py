@@ -9,7 +9,7 @@ from google.cloud import secretmanager
 import os
 import sqlalchemy
 import shortuuid  # to be added to requirments.txt
-import json # to be added to requirments.txt
+import json 
 
 import time
 import uuid # to be added to requirments.txt
@@ -311,81 +311,6 @@ def run_dms_test(dms_df)-> str:
                 }
 
     print(" ,sp_config:",sp_config, type(sp_config))
-    #remove later sneha
-    tcp_name = dms_df["tp_name"]
-    tp_version = dms_df["tp_version"]
-    tp_tier = dms_df["tp_tier"]
-    storageautoresizelimit = dms_df["storageautoresizelimit"]
-    activationpolicy = dms_df["activationpolicy"]
-    autostorageincrease = dms_df["autostorageincrease"]
-    zone = dms_df["zone"]
-    rootpassword = dms_df["rootpassword"]
-    scp_message=''
-    tcp_message =''
-    ipconfig = dms_df["ipconfig"] 
-    databaseflags = dms_df["databaseflags"]
-    datadisktype = dms_df["datadisktype"]
-    datadisksizegb = dms_df["datadisksizegb"]
-    cmekkeyname = dms_df["cmekkeyname"]
-
-
-    tp_config={ "name":f"{tcp_name}",
-      "displayName": f"{tcp_name}",
-      "cloudsql": {
-        "settings": {
-          "databaseVersion": f"{tp_version}",
-          "tier": f"{tp_tier}",
-          "storageAutoResizeLimit": storageautoresizelimit,
-          "activationPolicy": f"{activationpolicy}",
-          "autoStorageIncrease": autostorageincrease,
-          "zone": f"{zone}",
-          "sourceId": f"{scp_message}",
-          "rootPassword":f"{rootpassword}",
-          "ipConfig": ipconfig,
-          "databaseFlags": databaseflags,
-          "dataDiskType":f"{datadisktype}",
-          "dataDiskSizeGb":datadisksizegb,
-          "cmekKeyName":f"{cmekkeyname}"
-        }
-      }
-    }
-
-    print("here tp_config:",tp_config)
-
-
-
-    #get the location programatiically later
-    mj_name = dms_df["mj_name"]
-    mj_request_id = uuid.uuid4() 
-    mj_type = dms_df["type"]
-    dumppath = dms_df["dumppath"]
-    sourcedatabase_provider = dms_df["sourcedatabase_provider"]
-    sourcedatabase_engine  = dms_df["sourcedatabase_engine"]
-    destinationdatabase_provider  = dms_df["destinationdatabase_provider"]
-    destinationdatabase_engine  = dms_df["destinationdatabase_engine"]
-    connectivity  = dms_df["connectivity"] # add latest Sneha
-
-    mj_config={ "name":f"{mj_name}",
-      "displayName": f"{mj_name}",
-      "type":f"{mj_type}",
-      "dumpPath": f"{dumppath}",
-       "source":f"{scp_message}",
-       "destination":f"{tcp_message}",
-       "sourceDatabase":{
-          "provider":f"{sourcedatabase_provider}",
-          "engine":f"{sourcedatabase_engine}"
-       },
-       "destinationDatabase":{
-          "provider":f"{destinationdatabase_provider}",
-          "engine":f"{destinationdatabase_engine}"
-       }
-    }
-
-    print(" ,mj_config:",mj_config)
-
-    #return mj_config
-    #remove later sneha
-
 
     resp_scp = create_connection_profile(project_id, cp_name, sp_config)
 
@@ -479,9 +404,11 @@ def run_dms_test(dms_df)-> str:
     #Create the configuration for migration job and call the function to create the job
     if get_cp_status_code == '200':
         #get the location programatiically later
+        database_name = dms_df["database"]
         mj_name = dms_df["mj_name"]
         mj_request_id = uuid.uuid4() 
         mj_type = dms_df["type"]
+        dumpflags = dms_df["dumpflags"]
         dumppath = dms_df["dumppath"]
         sourcedatabase_provider = dms_df["sourcedatabase_provider"]
         sourcedatabase_engine  = dms_df["sourcedatabase_engine"]
@@ -489,21 +416,39 @@ def run_dms_test(dms_df)-> str:
         destinationdatabase_engine  = dms_df["destinationdatabase_engine"]
         connectivity  = dms_df["connectivity"] # add latest Sneha
 
-        mj_config={ "name":f"{mj_name}",
-          "displayName": f"{mj_name}",
-          "type":f"{mj_type}",
-          "dumpPath": f"{dumppath}",
-           "source":f"{scp_message}",
-           "destination":f"{tcp_message}",
-           "sourceDatabase":{
-              "provider":f"{sourcedatabase_provider}",
-              "engine":f"{sourcedatabase_engine}"
-           },
-           "destinationDatabase":{
-              "provider":f"{destinationdatabase_provider}",
-              "engine":f"{destinationdatabase_engine}"
-           }
-        }
+
+        if database_name == 'postgresql': #dumpFlags
+            mj_config={ "name":f"{mj_name}",
+                      "displayName": f"{mj_name}",
+                      "type":f"{mj_type}",
+                      "dumpFlags": dumpflags,
+                       "source":f"{scp_message}",
+                       "destination":f"{tcp_message}",
+                       "sourceDatabase":{
+                          "provider":f"{sourcedatabase_provider}",
+                          "engine":f"{sourcedatabase_engine}"
+                       },
+                       "destinationDatabase":{
+                          "provider":f"{destinationdatabase_provider}",
+                          "engine":f"{destinationdatabase_engine}"
+                       }
+                    }
+        else: #dumppath
+             mj_config={ "name":f"{mj_name}",
+                      "displayName": f"{mj_name}",
+                      "type":f"{mj_type}",
+                      "dumppath": f"{dumppath}",
+                       "source":f"{scp_message}",
+                       "destination":f"{tcp_message}",
+                       "sourceDatabase":{
+                          "provider":f"{sourcedatabase_provider}",
+                          "engine":f"{sourcedatabase_engine}"
+                       },
+                       "destinationDatabase":{
+                          "provider":f"{destinationdatabase_provider}",
+                          "engine":f"{destinationdatabase_engine}"
+                       }
+                    }
 
         print(" ,resp_tcp:",mj_config)
 
@@ -580,9 +525,13 @@ def get_db_details(secret_val, attribute1, attribute2, attribute3 = '') -> str:
         if attribute1 == 'sp_config':
             if 'postgresql' in secret_string[attribute1]:
                 print("postgresql: ",secret_string.get(attribute1).get('postgresql').get(attribute2))
+                if attribute2=='database':
+                    return 'postgresql'
                 return secret_string.get(attribute1).get('postgresql').get(attribute2)
             elif 'mysql' in secret_string[attribute1]:
                 print("mysql: ",secret_string.get(attribute1).get('mysql').get(attribute2))
+                if attribute2=='database':
+                    return 'postgresql'
                 return secret_string.get(attribute1).get('mysql').get(attribute2)
             else:
                 print("none of the above")
@@ -608,24 +557,6 @@ def start_dms_migration():
     """Update Operation and OperationDetails statuses/steps."""
     start_time = datetime.datetime.now()
     print("Start pandarallel apply: ")
-    source_df = pd.DataFrame({'sp_name': ["waven29s-postgres-profile-new-"], 
-                            'tp_name': ["waven29t-postgres-profile-new-"], 
-                            'mj_name': ["waven2j-postgres-mj-new-",], 
-                            'sp_host': ['34.72.187.12'], 
-                            'sp_port' : [5432],
-                            'sp_username': ['dbmig'], 
-                            'sp_pwd': ['dbmig'],
-                            'tp_version': ['POSTGRES_12'], 
-                            'tp_tier': ['db-custom-1-3840'],
-                            'tp_engine': ['POSTGRESQL']
-                            })
-
-    source_df["index"]= source_df.reset_index().index
-    source_df["sp_name"]=source_df["sp_name"] + source_df["index"].map(str)
-    source_df["tp_name"]=source_df["tp_name"] + source_df["index"].map(str)
-    source_df["mj_name"]=source_df["mj_name"] + source_df["index"].map(str)
-    source_df=source_df.astype('string')
-    #source_df['output'] = source_df.parallel_apply(run_dms_test, axis=1) #temp commented out
 
 
     #new section
@@ -642,14 +573,15 @@ def start_dms_migration():
 
     print("df columns:",df.columns)
     df['secret_data']= df.secret_name.apply(get_secret)
+    df['database'] = df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','database'))
     #source connection profile related columns
-    df['sp_name']='sp-' + df['project_name'].astype(str) + '-sourcedbid-' + df['source_db_id'].astype(str) + '-' + su.uuid()
+    df['sp_name']='sp-' + df['project_name'].astype(str) + '-sid-' + df['source_db_id'].astype(str) + '-' + su.uuid()
     df['sp_host']=df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','host')).fillna(df["server"])
     df['sp_port']=df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','port')).fillna(df["source_db_port"])
     df['sp_username']=df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','username')) #must be provided in secret manger, else will lead to issues
     df['sp_pwd']=df['secret_data'].apply(lambda x: get_db_details(x,'sp_config','password')) #must be provided in secret manger, else will lead to issues
     #target connection profile related columns
-    df['tp_name']='tp-' + df['project_name'].astype(str) + '-targetdbid-' + df['target_db_id'].astype(str) + '-' + su.uuid()
+    df['tp_name']='tp-' + df['project_name'].astype(str) + '-sid-' + df['source_db_id'].astype(str)+ '-tid-' + df['target_db_id'].astype(str) + '-' + su.uuid()
     df['tp_version'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','databaseVersion')).fillna('SQL_DATABASE_VERSION_UNSPECIFIED')
     df['tp_tier'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','tier')).fillna(df["machine_type"])
     df['storageAutoResizeLimit']=df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','storageAutoResizeLimit')).fillna(0)
@@ -660,11 +592,12 @@ def start_dms_migration():
     df['ipConfig'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','ipConfig')) #test Sneha
     df['databaseFlags'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','databaseFlags'))
     df['dataDiskType'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','dataDiskType')).fillna('PD_SSD')
-    df['dataDiskSizeGb'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','dataDiskSizeGb')).fillna(10) #Default is 10 GB
+    df['dataDiskSizeGb'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','dataDiskSizeGb')).fillna(11) #Default is 10 GB
     df['cmekKeyName'] = df['secret_data'].apply(lambda x: get_db_details(x,'tp_config','cmekKeyName')).fillna('')
     #migration job related columns
-    df['mj_name']='mj-' + df['project_name'].astype(str) + '-sourcedbid-' + df['source_db_id'].astype(str) + '-targetdbid-' + df['target_db_id'].astype(str)+ '-' + su.uuid()
-    df['type'] = df['secret_data'].apply(lambda x: get_db_details(x,'mj_config','types')).fillna('TYPE_UNSPECIFIED')
+    df['mj_name']='mj-' + df['project_name'].astype(str) + '-sid-' + df['source_db_id'].astype(str) + '-tid-' + df['target_db_id'].astype(str)+ '-' + su.uuid()
+    df['type'] = df['secret_data'].apply(lambda x: get_db_details(x,'mj_config','type')).fillna('CONTINUOUS') 
+    df['dumpFlags'] = df['secret_data'].apply(lambda x: get_db_details(x,'mj_config','dumpFlags')) 
     df['dumpPath'] = df['secret_data'].apply(lambda x: get_db_details(x,'mj_config','dumpPath')) 
     df['sourceDatabase_provider'] = df['secret_data'].apply(lambda x: get_db_details(x,'mj_config','sourceDatabase','provider')).fillna('DATABASE_PROVIDER_UNSPECIFIED')
     df['sourceDatabase_engine'] = df['secret_data'].apply(lambda x: get_db_details(x,'mj_config','sourceDatabase','engine')).fillna('DATABASE_ENGINE_UNSPECIFIED')
@@ -688,24 +621,14 @@ def start_dms_migration():
     end_time = datetime.datetime.now()
     pp_total_time = end_time - start_time
     print("End of pandas and pandarallel apply: ")
-    print(source_df)
+    print(df)
     print("time taken for pandas and pandarallel apply: ", pp_total_time)
     print("df columns", df.columns)
 
 
-    return source_df.to_dict('dict'), 201
+    return df.to_dict('dict'), 201
     #return {'data':'ok'},201
 
-#commented out temporarily for now:sneha
-###start_time = datetime.datetime.now()
-####print("Start pandarallel apply: ")
-###source_df['output'] = source_df.parallel_apply(run_dms_test, axis=1)
-###
-###end_time = datetime.datetime.now()
-###pp_total_time = end_time - start_time
-###print("End of pandas and pandarallel apply: ")
-###print(source_df)
-###print("time taken for pandas and pandarallel apply: ", pp_total_time)
 
 
 """
