@@ -88,6 +88,7 @@ requests==2.26.0
 rsa==4.7.2
 ruamel.yaml==0.17.17
 ruamel.yaml.clib==0.2.6
+shortuuid==1.0.11
 six==1.16.0
 SQLAlchemy==1.4.25
 SQLAlchemy-Utils==0.37.8
@@ -98,6 +99,7 @@ typing-extensions==3.10.0.2
 typing-inspect==0.7.1
 uritemplate==3.0.1
 urllib3==1.26.7
+uuid==1.30
 virtualenv==20.13.0
 Werkzeug==2.0.1
 wrapt==1.12.1
