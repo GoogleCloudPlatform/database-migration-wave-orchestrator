@@ -15,6 +15,7 @@ sql_query="""select
     cast(td.db_port as varchar) as taget_db_port,
     td.machine_type,
     td.secret_name,
+    td.location,
     td.name as target_name,
     td.id as target_db_id,
     --json_each_text(cfg.cloud_dms_values) ,
