@@ -8,7 +8,7 @@ data "google_app_engine_default_service_account" "default" {
 resource "google_secret_manager_secret_iam_member" "secret-access" {
   secret_id = google_secret_manager_secret.db_conn_string.id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${data.google_app_engine_default_service_account.default.email}"
+  member    = "serviceAccount:${google_service_account.waverunner.email}"
 }
 
 
@@ -44,7 +44,7 @@ resource "google_app_engine_flexible_app_version" "waverunner" {
   manual_scaling {
     instances = 2
   }
-  
+
   env_variables = {
     #TODO: improve this
     DATABASE_URL = "postgresql+psycopg2://${var.user_name}:${random_password.db_user_pass.result}@/${var.db_name}?host=/cloudsql/${var.project_id}:${var.region}:${module.sql-db.instance_name}"
@@ -69,6 +69,16 @@ resource "google_app_engine_flexible_app_version" "waverunner" {
 
 
   noop_on_destroy = true
+
+  timeouts {
+    create  = "1h"
+    update  = "1h"
+    delete  = "20m"
+  }
+
+   lifecycle {
+        ignore_changes        =  [ deployment ]
+  }
 
   depends_on = [google_project_service.gcp_services]
 }
