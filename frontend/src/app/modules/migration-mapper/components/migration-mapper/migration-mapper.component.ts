@@ -122,9 +122,13 @@ export class MigrationMapperComponent extends BaseMaterialTableComponent<Mapping
   }
 
   setCurrentElement(): void {
-    this.removeItemOnce(this.labelFilter, 'no_label');   
+    this.removeItemOnce(this.labelFilter, 'no_label');
     this.applyFilterForTable('label', this.labelFilter);
   }
+
+    isDms(target_db_tool_id : number) {
+      return (target_db_tool_id == 2 ? true :  false);
+    }
 
   getWaves(): void {
     this.subscriptions.push(
@@ -138,9 +142,11 @@ export class MigrationMapperComponent extends BaseMaterialTableComponent<Mapping
     this.subscriptions.push(
       this.mappingService.getMigrationMappings(this.project_id).subscribe((resp: Mapping) => {
         this.mappings = resp.data;
+        console.log("JSON Response: " + resp.data);
         this.ELEMENT_DATA = [];
         resp.data?.forEach((item: Mapping) => {
           item.db_type_text = this.getType(item.db_type);
+          //target_db_tool_id: item.target_db_tool_id;
           if (item.db_type === 'SI') {
             this.ELEMENT_DATA?.push(item);
           } else {
@@ -205,7 +211,7 @@ export class MigrationMapperComponent extends BaseMaterialTableComponent<Mapping
       this.openSnackBar('All selected mappings cannot be assigned to another wave');
       return;
     }
-    
+
     const dialogRef = this.dialog.open(WaveAssignComponent, {
       data: {
         waves: this.waves
@@ -470,7 +476,7 @@ export class MigrationMapperComponent extends BaseMaterialTableComponent<Mapping
         }
       }
 
-      if (arrLabels && data?.labels.length) {        
+      if (arrLabels && data?.labels.length) {
         return arrLabels.every(element => data.labels.filter((label: Label) => label.name === element).length > 0)
       }
 
@@ -483,7 +489,7 @@ export class MigrationMapperComponent extends BaseMaterialTableComponent<Mapping
   private openAssignWaveConfirmationMessage(wave: string): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: <DialogData>{
-        message: `By this performing action you will change previous wave assignments for the selected list of mappings. 
+        message: `By this performing action you will change previous wave assignments for the selected list of mappings.
         Do you want to proceed?`,
         AcceptCtaText: true,
         CancelCtaText: false,
@@ -513,7 +519,7 @@ export class MigrationMapperComponent extends BaseMaterialTableComponent<Mapping
       project_id: this.project_id,
       db_ids
     };
-  
+
     this.waveService.createMigrationWave(assignWaveObj).subscribe((resp: AddWaveResp) => {
       let message = '';
       if (resp.assigned) {

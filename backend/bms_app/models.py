@@ -44,6 +44,17 @@ class Project(db.Model):
     source_dbs = relationship('SourceDB', back_populates='project')
     labels = relationship('Label', back_populates='project')
 
+class DBTool(db.Model):
+    __tablename__ = 'dbtools'
+
+    id = db.Column(db.Integer, primary_key=True)
+    db_engine = db.Column(db.String, nullable=False)
+    type = db.Column(db.String, nullable=True, index=True)
+
+    #source_dbs = relationship('SourceDB', back_populates='db_engine')
+    source_db = relationship('SourceDB', back_populates='dbtools')
+    bms = relationship('BMSServer', back_populates='dbtools')
+
 
 class BMSServer(db.Model):
     __tablename__ = 'bms_servers'
@@ -62,7 +73,13 @@ class BMSServer(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now)
     location = db.Column(db.String)
 
+    db_tool_id = db.Column(db.Integer,db.ForeignKey('dbtools.id'),nullable=True)
+    db_version = db.Column(db.String)
+    db_port    = db.Column(db.Numeric)
+
+
     mapping = relationship('Mapping', back_populates='bms')
+    dbtools = relationship('DBTool', back_populates='bms')
 
 
 class SourceDBType(Enum):
@@ -97,13 +114,13 @@ class SourceDB(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     server = db.Column(db.String, nullable=False)
-    oracle_version = db.Column(db.String, nullable=False)
+    oracle_version = db.Column(db.String, nullable=True)
     oracle_release = db.Column(db.String)
     oracle_edition = db.Column(db.String, default='EE')
     db_type = db.Column(ChoiceType(SourceDBType, impl=db.String(10)), default=SourceDBType.SI)
     rac_nodes = db.Column(db.Integer, default=0)  # value parsed from assessment file
     fe_rac_nodes = db.Column(db.Integer)
-    arch = db.Column(db.String, nullable=False)
+    arch = db.Column(db.String, nullable=True)
     cores = db.Column(db.Integer, nullable=False)
     ram = db.Column(db.Integer, nullable=False)
     allocated_memory = db.Column(db.Integer, nullable=False)
@@ -113,6 +130,10 @@ class SourceDB(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     wave_id = db.Column(db.Integer, db.ForeignKey('waves.id'))
 
+    db_tool_id = db.Column(db.Integer,db.ForeignKey('dbtools.id'),nullable=True)
+    db_version = db.Column(db.String)
+    db_port    = db.Column(db.Numeric)
+
     wave = relationship('Wave', back_populates='source_db', uselist=False)
     config = relationship('Config', back_populates='source_db', uselist=False)
     mappings = relationship('Mapping', back_populates='source_db')
@@ -120,7 +141,12 @@ class SourceDB(db.Model):
     restore_config = relationship('RestoreConfig', back_populates='source_db', uselist=False)
     scheduled_tasks = relationship('ScheduledTask', back_populates='source_db')
 
+    dbtools = relationship('DBTool', back_populates='source_db')
+
+   ## mappings = relationship('Mapping', back_populates='source_db')
+
     labels = db.relationship('Label', secondary=source_db_to_label, back_populates='source_dbs', cascade='save-update, merge')
+
 
     @hybrid_property
     def is_rac(self):
@@ -148,7 +174,9 @@ class Config(db.Model):
     misc_config_values = db.Column(db.JSON)
     created_at = db.Column(db.DateTime)
     is_configured = db.Column(db.Boolean, default=False)
-
+    network_config_values = db.Column(db.JSON)
+    cloud_dms_values = db.Column(db.JSON)
+    
     source_db = relationship('SourceDB', back_populates='config')
 
 

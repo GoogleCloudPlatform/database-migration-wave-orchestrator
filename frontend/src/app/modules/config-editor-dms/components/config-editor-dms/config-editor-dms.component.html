@@ -1,0 +1,151 @@
+<!--
+ Copyright 2022 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div class="container container-row">
+  <div class="container">
+    <div class="container-header border-bottom">
+      <div class="section-header">{{mappings?.db_name}} Configuration
+        <mat-icon class="custom-icon black ml-2" matTooltip="On this page you can view and edit the set of software installation and database configuration parameters applied to mapping.
+           Any changes that can be applied to configurations are allowed only for existing mappings."
+          [matTooltipPosition]="'right'" aria-label="Configuration page functionality description">help</mat-icon>
+      </div>
+    </div>
+    <div class="pad2em">
+      <form [formGroup]="configEditorDmsForm" (ngSubmit)="onSubmit()">
+        <!-- Global parameters table -->
+        <table class="custom-table-form w-100">
+          <caption>
+            <h3 class="subtitle">Migration Properties</h3>
+            <p>Please review and validate migration properties.</p>
+          </caption>
+          <tr>
+            <th class="w-40">Parameter Name</th>
+            <th>Value</th>
+            <th></th>
+          </tr>
+
+          <tr formGroupName="misc_config_values">
+            <td>Connection Method</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-select">
+                <mat-label>Select:</mat-label>
+                <mat-select formControlName="connection_method">
+                  <mat-option *ngFor="let conMethod of connectionMethod " [value]="conMethod">
+                    {{conMethod.text}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="asm-compatible-asm" aria-label="Parameter 'ASM compatible.asm' description">help
+              </mat-icon>
+            </td>
+          </tr>
+
+          <tr formGroupName="misc_config_values">
+            <td>Migration Job Type</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-select">
+                <mat-label>Select:</mat-label>
+                <mat-select formControlName="migration_job_type">
+                  <mat-option *ngFor="let jobType of migrationJobType " [value]="jobType">
+                    {{jobType.text}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="asm-compatible-asm" aria-label="Parameter 'ASM compatible.asm' description">help
+              </mat-icon>
+            </td>
+          </tr>
+          <tr formGroupName="misc_config_values">
+            <td>New Dump Flag</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-select">
+                <mat-label>Select:</mat-label>
+                <mat-select formControlName="dump_flag">
+                  <mat-option *ngFor="let flag of dumpflag" [value]="flag">
+                    {{flag.text}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="asm-compatible-rdbms" aria-label="Parameter 'ASM compatible.rdbms' description">
+                help</mat-icon>
+            </td>
+          <!--<tr formGroupName="misc_config_values">
+            <td>Preferred NTP server</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-input">
+                <input matInput id="ntp-preferred" placeholder="Enter value" formControlName="ntp_preferred" name="ntp_preferred"
+                  autocomplete="no">
+                  <mat-error
+                  *ngIf="configEditorDmsForm?.get('misc_config_values')?.get('ntp_preferred')?.hasError('invalidFormat')">
+                  Format must be either of IP address or domain.com(domain.gov.com) type
+                  </mat-error>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="ntp-preferred" aria-label="Parameter 'ntp-preferred' description"
+                data-testid="icon-help">help</mat-icon>
+            </td>
+          </tr>-->
+        </table>
+
+        <!--<table class="custom-table-form w-100 mrg2em-top">
+          <caption>
+            <h3 class="subtitle">Database Parameters</h3>
+          </caption>
+          <tr>
+            <th class="w-40">Parameter Name</th>
+            <th>Value</th>
+            <th></th>
+          </tr>
+          <tr formGroupName="db_params_values">
+            <td>Database Name</td>
+            <td>
+              <mat-form-field appearance="outline" class="custom-input">
+                <input matInput placeholder="Enter value" formControlName="db_name" name="db_name" autocomplete="no" readonly>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-icon appTooltip="db-name" aria-label="Parameter 'db_name' description">help</mat-icon>
+            </td>
+          </tr>
+        </table> -->
+
+
+        <button
+          mat-raised-button
+          matRipple
+          type="button"
+          class="custom-button draft-btn mt-8 mr-4"
+          [matRippleDisabled]="true"
+          (click)="saveDraft()"
+          [disabled]="isFormDisabled"
+        >Save Draft</button>
+        <button
+          mat-raised-button
+          matRipple
+          type="submit"
+          class="custom-button mt-8"
+          [matRippleDisabled]="true"
+          aria-label="submit form"
+          [disabled]="isFormDisabled"
+        >Submit</button>
+      </form>
+    </div>
+  </div>
+</div>

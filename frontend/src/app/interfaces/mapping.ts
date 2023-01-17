@@ -32,6 +32,7 @@ export interface Mapping {
   db_type_text?: string;
   is_deployed?: boolean;
   editable?: boolean;
+  target_db_tool_id?: number;
 }
 
 export interface Node {
