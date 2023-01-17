@@ -182,6 +182,13 @@ class RACConfigSchema(Schema):
     dg_name = fields.Str()
     rac_nodes = fields.List(fields.Nested(RACNodeSchema))
 
+class CloudDMSSchema(Schema):
+    name = fields.Str()
+    displayName = fields.Str()
+    type = fields.Str()                     ## ONE_TIME , CONTINUOUS 
+    vpcPeeringConnectivity = fields.Str()
+    dumpPath = fields.Str()
+
 
 class ConfigSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

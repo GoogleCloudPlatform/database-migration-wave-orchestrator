@@ -55,6 +55,7 @@ def new_config(db_id):
         asm_config_values - optional
         misc_config_values - optional
         rac_config_values - optional
+        cloud_dms_values  - optional
     """
     config = SaveSourceDBConfigService.run(db_id, request.json)
 
