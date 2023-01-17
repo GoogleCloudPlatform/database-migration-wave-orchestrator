@@ -552,7 +552,7 @@ def get_db_details(secret_val, attribute1, attribute2, attribute3 = '') -> str:
 
 
 #@bp.route('/dms', methods=['POST'])
-@bp.route('/dms')
+@bp.route('/dms', methods=['POST'])
 def start_dms_migration():
     """Update Operation and OperationDetails statuses/steps."""
     start_time = datetime.datetime.now()
@@ -626,7 +626,8 @@ def start_dms_migration():
     print("df columns", df.columns)
 
 
-    return df.to_dict('dict'), 201
+    #return df.to_dict('dict'), 201 #commented for testing out POST method: Sneha
+    return {'data':'ok'},201
     #return {'data':'ok'},201
 
 
