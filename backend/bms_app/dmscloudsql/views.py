@@ -42,8 +42,6 @@ def test_cloudsql():
   return {'dms_sql': dms_sql.sql_query}
 
 
-# Remove this test function later:Sneha
-@bp.route('/region')
 def get_region(zone_name):
   service = get_service('compute')
 
@@ -922,5 +920,4 @@ def start_dms_migration():
   logger.debug('End of DMS API call: %s', end_time)
   logger.debug('Total time taken for DMS job: %s', pp_total_time)
 
-  # return df.to_dict('dict'), 201 #commented for testing out POST method: Sneha
   return {'data': 'ok'}, 201
