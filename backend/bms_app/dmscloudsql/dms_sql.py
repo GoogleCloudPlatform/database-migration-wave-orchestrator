@@ -1,5 +1,6 @@
 """SQL script to load data from waverunner database for Migration to CloudSQL"""
-# dms_servers.secret_name must be populated for Cloud SQL Migrations
+# bms_servers.secret_name must be populated for Cloud SQL Migrations
+# bms_servers.location is expected to store the zone name(not region)
 sql_query="""select
     distinct
     pj.id as project_id,
