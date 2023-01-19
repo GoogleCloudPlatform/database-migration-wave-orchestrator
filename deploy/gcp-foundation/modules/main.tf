@@ -153,7 +153,7 @@ module "sql-db" {
 
 #---------------------------------
 #
-# Terraform resource to create GCS 
+# Terraform resource to create GCS
 #
 #---------------------------------
 
@@ -251,41 +251,6 @@ resource "google_cloud_tasks_queue" "migsc-ctq" {
 }
 
 
-//--------------------------------------------------
-//
-//
-//  Terraform code to create pubsub subscriptor push
-//
-//
-//--------------------------------------------------
-
-resource "google_pubsub_subscription" "migsc-push-subs" {
-  name                       = var.pub_subs_name // "bms-subs-dev-mvp"
-  project                    = var.project_id
-  topic                      = google_pubsub_topic.topic.0.name
-  labels                     = var.gcp_labels
-  message_retention_duration = var.subs_message_retention_duration // "604800s"
-  retain_acked_messages      = var.subs_retain_acked_messages      // false
-  ack_deadline_seconds       = var.subs_ack_deadline_seconds       // 10
-  expiration_policy {
-    ttl = ""
-  }
-  retry_policy {
-    minimum_backoff = var.subs_retry_policy["minimum_backoff"]
-    maximum_backoff = var.subs_retry_policy["maximum_backoff"]
-  }
-  enable_message_ordering = var.subs_enable_message_ordering
-
-  push_config {
-    // push_endpoint = "https://${var.site_domain_name}/webhooks/status"
-    # push_endpoint = "${google_cloud_run_service.run_service.status[0].url}/webhooks/status"
-    push_endpoint = "https://${var.project_id}./webhooks/status"
-
-    attributes = {
-      x-goog-version = var.x-goog-version // "v1"
-    }
-  }
-}
 
 
 
@@ -328,3 +293,42 @@ resource "google_project_iam_member" "app_sa_predefined_roles" {
   member   = "serviceAccount:${google_service_account.waverunner.email}"
 }
 
+
+//--------------------------------------------------
+//
+//
+//  Terraform code to create pubsub subscriptor push
+//
+//
+//--------------------------------------------------
+
+resource "google_pubsub_subscription" "migsc-push-subs" {
+  name                       = var.pub_subs_name // "bms-subs-dev-mvp"
+  project                    = var.project_id
+  topic                      = google_pubsub_topic.topic.0.name
+  labels                     = var.gcp_labels
+  message_retention_duration = var.subs_message_retention_duration // "604800s"
+  retain_acked_messages      = var.subs_retain_acked_messages      // false
+  ack_deadline_seconds       = var.subs_ack_deadline_seconds       // 10
+  expiration_policy {
+    ttl = ""
+  }
+  retry_policy {
+    minimum_backoff = var.subs_retry_policy["minimum_backoff"]
+    maximum_backoff = var.subs_retry_policy["maximum_backoff"]
+  }
+  enable_message_ordering = var.subs_enable_message_ordering
+
+  push_config {
+    // push_endpoint = "https://${var.site_domain_name}/webhooks/status"
+    push_endpoint = "https://${var.project_id}./webhooks/status"
+    oidc_token {
+      service_account_email = "${google_service_account.waverunner.email}"
+      audience              = "${google_iap_client.project_client.client_id}"
+    }
+
+    attributes = {
+      x-goog-version = var.x-goog-version // "v1"
+    }
+  }
+}

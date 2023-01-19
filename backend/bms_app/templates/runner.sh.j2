@@ -34,7 +34,8 @@ fi
 #
 [[ -d ${WORK_DIR} ]] || mkdir -p ${WORK_DIR} && cd ${WORK_DIR}
 
-gcloud source repos clone ${GCS_REPO_NAME} --project=${PROJECT_NAME}
+#gcloud source repos clone ${GCS_REPO_NAME} --project=${PROJECT_NAME}
+git clone https://github.com/google/bms-toolkit
 
 cd ${BMS_TOOLKIT_DIR}
 chmod u+x ${BMS_TOOLKIT_DIR}/*.sh ${BMS_TOOLKIT_DIR}/startup/*.sh
