@@ -1,0 +1,7 @@
+terraform {
+  backend "gcs" {
+    bucket  = "GLOBALLY_UNIQUE_BUCKET_NAME"
+    prefix  = "tf-state-non-prod/gce-target-nodes"
+    impersonate_service_account = "SERVICE_ACCOUNT_TO_IMPERSONATE@PROJECT_ID.iam.gserviceaccount.com"
+  }
+}
