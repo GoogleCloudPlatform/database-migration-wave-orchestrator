@@ -3,3 +3,4 @@ __pycache__
 *.db
 bms_app/local_config.py
 _
+.idea/
