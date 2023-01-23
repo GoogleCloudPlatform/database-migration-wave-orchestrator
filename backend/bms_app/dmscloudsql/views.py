@@ -31,15 +31,44 @@ credentials, project_id = google.auth.default(
 )
 su = shortuuid.ShortUUID(alphabet='23456789abcdefghijkmnopqrstuvwxyz')
 
-# Getting request object
-auth_req = google.auth.transport.requests.Request()
+dms_data = pd.DataFrame()
 
 
 # Remove this test function later:Sneha
 @bp.route('/settings')
 def test_cloudsql():
   logger.debug('SQL to fetch data: %s', dms_sql.sql_query)
-  return {'dms_sql': dms_sql.sql_query}
+  global dms_data
+  if dms_data.empty:
+    get_data()
+    logger.debug('Reached this assignment section.')
+  else:
+    logger.debug('DFF already populated: test_cloudsql')
+  return dms_data.to_dict()  # {'dms_sql': dms_sql.sql_query}
+
+
+@bp.route('/profile')
+def trigger_profile_creation():
+  start_time = datetime.datetime.now()
+  logger.debug('Trigger source profile creation')
+  global dms_data
+  print('is empty: ', dms_data.empty)
+
+  if dms_data.empty:
+    logger.debug('Here in this assignment section.')
+    get_data()
+  else:
+    logger.debug('DF already populated: trigger_profile_creation')
+
+  dms_data['sp_output'] = dms_data.parallel_apply(
+      step1_create_dms_source_profile, axis=1
+  )
+  end_time = datetime.datetime.now()
+  pp_total_time = end_time - start_time
+  logger.debug(
+      'Total time taken for source profile creation: %s', pp_total_time
+  )
+  return dms_data.to_dict()
 
 
 def get_region(zone_name):
@@ -51,7 +80,7 @@ def get_region(zone_name):
   )
 
   response = request_region.execute()
-  response_region = response['region'][response['region'].rfind('/')+1:]
+  response_region = response['region'][response['region'].rfind('/') + 1 :]
   return response_region
 
 
@@ -124,13 +153,25 @@ def get_lro_details(lro_detail: str) -> str:
           + responseget_lro_state['response']['name']
       )
     elif 'error' in responseget_lro_state:
-      logger.exception('LRO error %s', responseget_lro_state['error'])
-      return (
-          'ERROR-get_lro_details:'
-          + str(responseget_lro_state['error']['code'])
-          + ':'
-          + responseget_lro_state['error']['message']
-      )
+      if (
+          responseget_lro_state['error']['message']
+          == 'Some table(s) have limited support.'
+      ):
+        logger.warning('LRO warning %s', responseget_lro_state['error'])
+        return (
+            'WARNING-get_lro_details:'
+            + str(responseget_lro_state['error']['code'])
+            + ':'
+            + responseget_lro_state['error']['message']
+        )
+      else:
+        logger.exception('LRO error %s', responseget_lro_state['error'])
+        return (
+            'ERROR-get_lro_details:'
+            + str(responseget_lro_state['error']['code'])
+            + ':'
+            + responseget_lro_state['error']['message']
+        )
 
 
 def create_connection_profile(
@@ -450,24 +491,23 @@ def get_connection_profile(profile_detail: str) -> str:
   )
 
 
-def run_dms_test(dms_df) -> str:
-  """Innvoke DMS Rest APIs.
+def step1_create_dms_source_profile(dms_df) -> str:
+  """Create source connection profile using DMS REST API.
 
   Args:
     dms_df:
 
   Returns:
   """
-
-  cp_name = dms_df['sp_name']
+  scp_name = dms_df['sp_name']
   sp_host = dms_df['sp_host']
   sp_username = dms_df['sp_username']
   sp_pwd = dms_df['sp_pwd']
   sp_port = dms_df['sp_port']
   sp_location = dms_df['region']
   sp_config = {
-      'name': f'{cp_name}',
-      'displayName': f'{cp_name}',
+      'name': f'{scp_name}',
+      'displayName': f'{scp_name}',
       'postgresql': {
           'host': f'{sp_host}',
           'port': sp_port,
@@ -478,61 +518,155 @@ def run_dms_test(dms_df) -> str:
 
   logger.debug('Config for source connection profile: %s', sp_config)
 
-  resp_scp = create_connection_profile(
-      project_id, cp_name, sp_location, sp_config
+  response = create_connection_profile(
+      project_id, scp_name, sp_location, sp_config
   )
+
+  return response
+
+
+def step2_create_dms_target_profile(dms_df, scp_message) -> str:
+  """Create target connection profile using DMS REST API.
+
+  Args:
+    dms_df:
+    scp_message:
+
+  Returns:
+  """
+  tcp_name = dms_df['tp_name']
+  tp_version = dms_df['tp_version']
+  tp_tier = dms_df['tp_tier']
+  storageautoresizelimit = dms_df['storageautoresizelimit']
+  activationpolicy = dms_df['activationpolicy']
+  autostorageincrease = dms_df['autostorageincrease']
+  zone = dms_df['zone']
+  rootpassword = dms_df['rootpassword']
+  ipconfig = dms_df['ipconfig']
+  databaseflags = dms_df['databaseflags']
+  datadisktype = dms_df['datadisktype']
+  datadisksizegb = dms_df['datadisksizegb']
+  cmekkeyname = dms_df['cmekkeyname']
+  tp_location = dms_df['region']
+
+  tp_config = {
+      'name': f'{tcp_name}',
+      'displayName': f'{tcp_name}',
+      'cloudsql': {
+          'settings': {
+              'databaseVersion': f'{tp_version}',
+              'tier': f'{tp_tier}',
+              'storageAutoResizeLimit': storageautoresizelimit,
+              'activationPolicy': f'{activationpolicy}',
+              'autoStorageIncrease': autostorageincrease,
+              'zone': f'{zone}',
+              'sourceId': f'{scp_message}',
+              'rootPassword': f'{rootpassword}',
+              'ipConfig': ipconfig,
+              'databaseFlags': databaseflags,
+              'dataDiskType': f'{datadisktype}',
+              'dataDiskSizeGb': datadisksizegb,
+              'cmekKeyName': f'{cmekkeyname}',
+          }
+      },
+  }
+  logger.debug('Config for target connection profile: %s', tp_config)
+
+  response = create_connection_profile(
+      project_id, tcp_name, tp_location, tp_config
+  )
+
+  return response
+
+
+def step3_create_migration_job(dms_df, scp_message, tcp_message) -> str:
+  """Create target connection profile using DMS REST API.
+
+  Args:
+    dms_df:
+    scp_message:
+    tcp_message:
+
+  Returns:
+  """
+  database_name = dms_df['database']
+  mj_name = dms_df['mj_name']
+  mj_request_id = uuid.uuid4()
+  mj_type = dms_df['type']
+  dumpflags = dms_df['dumpflags']
+  dumppath = dms_df['dumppath']
+  sourcedatabase_provider = dms_df['sourcedatabase_provider']
+  sourcedatabase_engine = dms_df['sourcedatabase_engine']
+  destinationdatabase_provider = dms_df['destinationdatabase_provider']
+  destinationdatabase_engine = dms_df['destinationdatabase_engine']
+  connectivity = dms_df['connectivity']  # add logic Sneha
+  mj_location = dms_df['region']
+
+  if database_name == 'postgresql':  # Use key: "dumpFlags"
+    mj_config = {
+        'name': f'{mj_name}',
+        'displayName': f'{mj_name}',
+        'type': f'{mj_type}',
+        'dumpFlags': dumpflags,
+        'source': f'{scp_message}',
+        'destination': f'{tcp_message}',
+        'sourceDatabase': {
+            'provider': f'{sourcedatabase_provider}',
+            'engine': f'{sourcedatabase_engine}',
+        },
+        'destinationDatabase': {
+            'provider': f'{destinationdatabase_provider}',
+            'engine': f'{destinationdatabase_engine}',
+        },
+    }
+  else:  # Use key: "dumppath"
+    mj_config = {
+        'name': f'{mj_name}',
+        'displayName': f'{mj_name}',
+        'type': f'{mj_type}',
+        'dumppath': f'{dumppath}',
+        'source': f'{scp_message}',
+        'destination': f'{tcp_message}',
+        'sourceDatabase': {
+            'provider': f'{sourcedatabase_provider}',
+            'engine': f'{sourcedatabase_engine}',
+        },
+        'destinationDatabase': {
+            'provider': f'{destinationdatabase_provider}',
+            'engine': f'{destinationdatabase_engine}',
+        },
+    }
+
+  logger.debug('Config for migration job: %s', mj_config)
+
+  response = create_migration_job(
+      project_id, mj_name, mj_request_id, mj_location, mj_config
+  )
+
+  return response
+
+
+def run_dms_test(dms_df) -> str:
+  """Innvoke DMS Rest APIs.
+
+  Args:
+    dms_df:
+
+  Returns:
+  """
+
+  resp_scp = step1_create_dms_source_profile(dms_df)
 
   logger.debug('Response of source connection profile creation: %s', resp_scp)
   scp_message = resp_scp[resp_scp.rfind(':') + 1 :]
   scp_status_code = resp_scp[resp_scp.find(':') + 1 : resp_scp.rfind(':')]
 
-  tp_config = {}
   resp_tcp = ''
   tcp_status_code = 0
   tcp_message = ''
 
   if scp_status_code == '200':
-    tcp_name = dms_df['tp_name']
-    tp_version = dms_df['tp_version']
-    tp_tier = dms_df['tp_tier']
-    storageautoresizelimit = dms_df['storageautoresizelimit']
-    activationpolicy = dms_df['activationpolicy']
-    autostorageincrease = dms_df['autostorageincrease']
-    zone = dms_df['zone']
-    rootpassword = dms_df['rootpassword']
-    ipconfig = dms_df['ipconfig']
-    databaseflags = dms_df['databaseflags']
-    datadisktype = dms_df['datadisktype']
-    datadisksizegb = dms_df['datadisksizegb']
-    cmekkeyname = dms_df['cmekkeyname']
-    tp_location = dms_df['region']
-
-    tp_config = {
-        'name': f'{tcp_name}',
-        'displayName': f'{tcp_name}',
-        'cloudsql': {
-            'settings': {
-                'databaseVersion': f'{tp_version}',
-                'tier': f'{tp_tier}',
-                'storageAutoResizeLimit': storageautoresizelimit,
-                'activationPolicy': f'{activationpolicy}',
-                'autoStorageIncrease': autostorageincrease,
-                'zone': f'{zone}',
-                'sourceId': f'{scp_message}',
-                'rootPassword': f'{rootpassword}',
-                'ipConfig': ipconfig,
-                'databaseFlags': databaseflags,
-                'dataDiskType': f'{datadisktype}',
-                'dataDiskSizeGb': datadisksizegb,
-                'cmekKeyName': f'{cmekkeyname}',
-            }
-        },
-    }
-    logger.debug('Config for target connection profile: %s', tp_config)
-
-    resp_tcp = create_connection_profile(
-        project_id, tcp_name, tp_location, tp_config
-    )
+    resp_tcp = step2_create_dms_target_profile(dms_df, scp_message)
 
     logger.debug('Response of target connection profile creation: %s', resp_tcp)
     tcp_message = resp_tcp[resp_tcp.rfind(':') + 1 :]
@@ -553,7 +687,9 @@ def run_dms_test(dms_df) -> str:
         'Response from fetching target connection profile details: %s',
         resp_get_cp_details,
     )
-    get_cp_message = resp_get_cp_details[resp_get_cp_details.rfind(':') + 1 :]
+    get_cp_message = resp_get_cp_details[
+        resp_get_cp_details.rfind(':') + 1 :
+    ]  # stores the public IP of CloudSQL
     get_cp_status_code = resp_get_cp_details[
         resp_get_cp_details.find(':') + 1 : resp_get_cp_details.rfind(':')
     ]
@@ -564,64 +700,11 @@ def run_dms_test(dms_df) -> str:
     )
     return resp_tcp
 
-  mj_config = {}
   resp_mj = ''
   mj_status_code = 0
   mj_message = ''
   if get_cp_status_code == '200':
-    database_name = dms_df['database']
-    mj_name = dms_df['mj_name']
-    mj_request_id = uuid.uuid4()
-    mj_type = dms_df['type']
-    dumpflags = dms_df['dumpflags']
-    dumppath = dms_df['dumppath']
-    sourcedatabase_provider = dms_df['sourcedatabase_provider']
-    sourcedatabase_engine = dms_df['sourcedatabase_engine']
-    destinationdatabase_provider = dms_df['destinationdatabase_provider']
-    destinationdatabase_engine = dms_df['destinationdatabase_engine']
-    connectivity = dms_df['connectivity']  # add logic Sneha
-    mj_location = dms_df['region']
-
-    if database_name == 'postgresql':  # Use key: "dumpFlags"
-      mj_config = {
-          'name': f'{mj_name}',
-          'displayName': f'{mj_name}',
-          'type': f'{mj_type}',
-          'dumpFlags': dumpflags,
-          'source': f'{scp_message}',
-          'destination': f'{tcp_message}',
-          'sourceDatabase': {
-              'provider': f'{sourcedatabase_provider}',
-              'engine': f'{sourcedatabase_engine}',
-          },
-          'destinationDatabase': {
-              'provider': f'{destinationdatabase_provider}',
-              'engine': f'{destinationdatabase_engine}',
-          },
-      }
-    else:  # Use key: "dumppath"
-      mj_config = {
-          'name': f'{mj_name}',
-          'displayName': f'{mj_name}',
-          'type': f'{mj_type}',
-          'dumppath': f'{dumppath}',
-          'source': f'{scp_message}',
-          'destination': f'{tcp_message}',
-          'sourceDatabase': {
-              'provider': f'{sourcedatabase_provider}',
-              'engine': f'{sourcedatabase_engine}',
-          },
-          'destinationDatabase': {
-              'provider': f'{destinationdatabase_provider}',
-              'engine': f'{destinationdatabase_engine}',
-          },
-      }
-
-    logger.debug('Config for migration job: %s', mj_config)
-
-    resp_mj = create_migration_job(
-        project_id, mj_name, mj_request_id, mj_location, mj_config
-    )
+    resp_mj = step3_create_migration_job(dms_df, scp_message, tcp_message)
 
     logger.debug(
         'Response from migration job creation: %s',
@@ -741,8 +824,8 @@ def get_db_details(secret_val, attribute1, attribute2, attribute3='') -> str:
       return secret_string.get(attribute1).get(attribute2).get(attribute3)
 
 
-@bp.route('/dms', methods=['POST'])
-def start_dms_migration():
+# @bp.route('/dms', methods=['POST'])
+def get_data():
   """Update Operation and OperationDetails statuses/steps."""
   start_time = datetime.datetime.now()
   logger.debug('Start of DMS API call: %s', start_time)
@@ -913,7 +996,19 @@ def start_dms_migration():
 
   df.columns = map(str.lower, df.columns)
 
-  df['output'] = df.parallel_apply(run_dms_test, axis=1)
+  global dms_data
+  dms_data = df
+
+
+@bp.route('/dms', methods=['POST'])
+def start_dms_migration():
+  start_time = datetime.datetime.now()
+  global dms_data
+
+  if dms_data.empty:
+    get_data()
+
+  dms_data['output'] = dms_data.parallel_apply(run_dms_test, axis=1)
 
   end_time = datetime.datetime.now()
   pp_total_time = end_time - start_time
