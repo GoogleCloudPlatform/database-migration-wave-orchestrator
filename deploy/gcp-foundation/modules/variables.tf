@@ -3,6 +3,16 @@ variable "project_id" {
   description = "Project where the application will be created"
 }
 
+variable "networkname" {
+  type        = string
+  description = "Custom VPC Name"
+}
+
+variable "subnetname" {
+  type        = string
+  description = "Subnet Name with in the VPC"
+}
+
 variable "region" {
   type        = string
   description = "Region where Waverunner resources will be created"
