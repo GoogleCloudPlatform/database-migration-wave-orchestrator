@@ -2,7 +2,7 @@ alembic==1.7.5
 astroid==2.8.0
 attrs==21.2.0
 cachetools==4.2.4
-certifi==2021.10.8
+certifi==2022.12.7
 cfgv==3.3.1
 charset-normalizer==2.0.7
 click==8.0.1
