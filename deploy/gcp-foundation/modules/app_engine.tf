@@ -28,6 +28,11 @@ resource "google_app_engine_flexible_app_version" "waverunner" {
   service    = "default"
   runtime    = "custom"
 
+  network {
+      name =  var.networkname
+      subnetwork = var.subnetname
+  }
+
   deployment {
     container {
       image = var.waverunner_image
