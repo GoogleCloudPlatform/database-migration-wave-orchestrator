@@ -95,7 +95,7 @@ typing-inspect==0.7.1
 uritemplate==3.0.1
 urllib3==1.26.7
 virtualenv==20.13.0
-Werkzeug==2.0.1
+Werkzeug==2.2.3
 wrapt==1.12.1
 WTForms==2.3.3
 zipp==3.7.0
