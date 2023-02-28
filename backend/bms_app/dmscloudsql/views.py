@@ -47,8 +47,8 @@ def test_cloudsql():
   return dms_data.to_dict()  # {'dms_sql': dms_sql.sql_query}
 
 
-@bp.route('/profile')
-def trigger_profile_creation():
+@bp.route('/source')
+def trigger_source_profile_creation():
   start_time = datetime.datetime.now()
   logger.debug('Trigger source profile creation')
   global dms_data
@@ -58,15 +58,48 @@ def trigger_profile_creation():
     logger.debug('Here in this assignment section.')
     get_data()
   else:
-    logger.debug('DF already populated: trigger_profile_creation')
+    logger.debug('DF already populated: trigger_source_profile_creation')
 
   dms_data['sp_output'] = dms_data.parallel_apply(
       step1_create_dms_source_profile, axis=1
+  )
+  dms_data['scp_message'] = (
+      dms_data['sp_output'].astype(str).apply(lambda x: x[x.rfind(':') + 1 :])
+  )
+  dms_data['scp_status_code'] = (
+      dms_data['sp_output']
+      .astype(str)
+      .apply(lambda x: x[x.find(':') + 1 : x.rfind(':')])
   )
   end_time = datetime.datetime.now()
   pp_total_time = end_time - start_time
   logger.debug(
       'Total time taken for source profile creation: %s', pp_total_time
+  )
+
+  return dms_data.to_dict()
+
+
+@bp.route('/target')
+def trigger_target_profile_creation():
+  start_time = datetime.datetime.now()
+  logger.debug('Trigger target profile creation')
+  global dms_data
+  print('is empty: ', dms_data.empty)
+
+  if dms_data.empty:
+    logger.debug('Here in this assignment section.')
+    get_data()
+  else:
+    logger.debug('DF already populated: trigger_target_profile_creation')
+
+  dms_data['tp_output'] = dms_data.parallel_apply(
+      step2_create_dms_target_profile, axis=1
+  )
+  end_time = datetime.datetime.now()
+  pp_total_time = end_time - start_time
+  logger.debug(
+      'Total time taken for target profile creation: %s', pp_total_time
   )
   return dms_data.to_dict()
 
@@ -525,7 +558,7 @@ def step1_create_dms_source_profile(dms_df) -> str:
   return response
 
 
-def step2_create_dms_target_profile(dms_df, scp_message) -> str:
+def step2_create_dms_target_profile(dms_df, scp_message='') -> str:
   """Create target connection profile using DMS REST API.
 
   Args:
@@ -548,6 +581,8 @@ def step2_create_dms_target_profile(dms_df, scp_message) -> str:
   datadisksizegb = dms_df['datadisksizegb']
   cmekkeyname = dms_df['cmekkeyname']
   tp_location = dms_df['region']
+  if not scp_message:  # Invoked from api:/target
+    scp_message = dms_df['scp_message']
 
   tp_config = {
       'name': f'{tcp_name}',
@@ -1000,7 +1035,7 @@ def get_data():
   dms_data = df
 
 
-@bp.route('/dms', methods=['POST'])
+@bp.route('/dms', methods=['POST']) #used for one shot testing of E2E DMS run
 def start_dms_migration():
   start_time = datetime.datetime.now()
   global dms_data
