@@ -75,6 +75,12 @@
                   <td mat-cell *matCellDef="let row">{{row.source_hostname}}</td>
                   </ng-container>
 
+                  <!-- DB Engine Column -->
+                  <ng-container matColumnDef="source_db_engine">
+                  <th mat-header-cell mat-sort-header *matHeaderCellDef > Engine </th>
+                  <td mat-cell *matCellDef="let row">{{row.source_db_engine}}</td>
+                  </ng-container>
+
                   <!-- DB Name Column -->
                   <ng-container matColumnDef="db_name">
                   <th mat-header-cell mat-sort-header *matHeaderCellDef > Database </th>
@@ -131,6 +137,9 @@
                         </div>
                       </div>
                     </ng-container>
+                    <ng-container *ngIf="row.source_db_engine == 'POSTGRES'">
+                      Auto-created by DMS
+                    </ng-container>
                   </td>
                   </ng-container>
 
@@ -159,6 +168,11 @@
                           Open Config Editor
                         </a>
                       </div>
+                      <div *ngIf="row.source_db_engine === 'POSTGRES'">
+                        <a class="link" *ngIf="!isWaveRunning(row.wave_id)  else waveRuning" [routerLink]="['/configeditor/dms']" [queryParams]="{databaseId: row.db_id}">
+                          Open Config Editor
+                        </a>
+                      </div>
                       <ng-template #waveRuning>
                           <div class="wave-running" *ngIf="isWaveRunning(row.wave_id)">
                             <mat-icon matTooltip="Wave is running, so you cannot modify it" matTooltipPosition="above">lock</mat-icon>
@@ -171,7 +185,7 @@
                   <ng-container matColumnDef="wave">
                     <th mat-header-cell *matHeaderCellDef> Wave </th>
                     <td mat-cell *matCellDef="let row">
-                      <div *ngIf="row.bms?.length">
+                      <div *ngIf="row.bms?.length || row.source_db_engine === 'POSTGRES'">
                         <app-wave 
                           [waves]="waves" 
                           [waveId]="row.wave_id" 

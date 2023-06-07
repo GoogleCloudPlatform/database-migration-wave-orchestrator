@@ -31,9 +31,11 @@ class SourceDBSchema(ma.SQLAlchemyAutoSchema):
 
     db_size = fields.Float()
     project_id = fields.Integer()
-    db_type = fields.Function(lambda obj: obj.db_type.value)
+    db_type = fields.Function(lambda obj: obj.db_type.value if obj.db_type else None)
     status = fields.Function(lambda obj: obj.status.value)
     is_rac = fields.Function(lambda obj: obj.is_rac)
+    db_engine = fields.Function(lambda obj: obj.db_engine.value)
+    wave_id = fields.Integer()
 
     labels = fields.Function(
         lambda obj: LabelSchema(

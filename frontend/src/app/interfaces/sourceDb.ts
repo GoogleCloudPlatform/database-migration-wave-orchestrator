@@ -33,7 +33,8 @@ export interface SourceDb {
   oracle_edition?: string;
   fe_rac_nodes?: number;
   wave_id?: number;
-  labels?: SourceDbLabel[]
+  labels?: SourceDbLabel[],
+  db_engine?: string;
 }
 
 interface SourceDbLabel {

@@ -84,7 +84,7 @@ export class MigrationMapperComponent extends BaseMaterialTableComponent<Mapping
     this.getMigrations();
     this.getWaves();
     this.getLabels();
-    this.displayedColumns = [ 'source_hostname', 'db_name', 'oracle_version' , 'db_type_text' , 'target_host', 'label', 'configuration' , 'wave', 'status'];
+    this.displayedColumns = [ 'source_hostname', 'source_db_engine', 'db_name', 'oracle_version' , 'db_type_text' , 'target_host', 'label', 'configuration' , 'wave', 'status'];
 
     this.subscriptions.push(this.waveService.refreshWaveList$.subscribe((val: boolean) => {
       if (val) {
@@ -244,11 +244,12 @@ export class MigrationMapperComponent extends BaseMaterialTableComponent<Mapping
       this.sourceDbService.getSourceDbsProjects(this.project_id).subscribe((resp: SourceDb) => {
         resp.data?.forEach((item: SourceDb) => {
           if (!this.mappings?.some((m: Mapping) => m.db_id === item.id)) {
-            const nodesCount = item?.fe_rac_nodes || item.rac_nodes;
+            const nodesCount = item?.fe_rac_nodes || item.rac_nodes || 0;
             let newMapping = {
               db_id: item.id,
               db_type: item.db_type,
               db_name: item.db_name,
+              source_db_engine: item.db_engine,
               oracle_version: item.oracle_version,
               source_hostname: item.server,
               nodes_amount: nodesCount,
@@ -317,8 +318,10 @@ export class MigrationMapperComponent extends BaseMaterialTableComponent<Mapping
         return 'Single Instance';
       case 'RAC':
         return 'Real Application Cluster';
-      default:
+      case 'DG':
         return 'DG'; // TODO
+      default:
+        return '';
     }
   }
 

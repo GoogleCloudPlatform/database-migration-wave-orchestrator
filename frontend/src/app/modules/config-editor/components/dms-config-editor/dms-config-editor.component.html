@@ -1,0 +1,34 @@
+<div class="container container-row">
+    <div class="container">
+      <div class="container-header border-bottom">
+        <div class="section-header">{{sourceDb?.db_name}} Configuration
+          <mat-icon class="custom-icon black ml-2" matTooltip="On this page you can view and edit the configurations for the DMS migration."
+            [matTooltipPosition]="'right'" aria-label="Configuration page functionality description">help</mat-icon>
+        </div>
+      </div>
+        <div class="pad2em">
+            <table class="custom-table-form w-100">
+                <caption>
+                  <h3 class="subtitle">Miscellaneous Parameters</h3>
+                  <p>Please review and validate miscellaneous parameters.</p>
+                </caption>
+                <tr>
+                  <th class="w-40">Parameter Name</th>
+                  <th>Value</th>
+                  <th></th>
+                </tr>
+            </table>
+            <button
+                mat-raised-button
+                matRipple
+                type="button"
+                class="custom-button draft-btn mt-8 mr-4"
+                [matRippleDisabled]="true"
+                (click)="saveConfig()"
+            >Save</button>
+        </div>
+    </div>
+
+</div>
+
+

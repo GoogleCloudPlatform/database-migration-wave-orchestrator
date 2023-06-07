@@ -53,16 +53,17 @@ class BaseOperation:
         all_mappings = [m for obj in db_mappings_objects for m in obj.mappings]
 
         for mapping in all_mappings:
-            operation_details_models.append(
-                OperationDetails(
-                    mapping_id=mapping.id,
-                    wave_id=operation.wave_id,
-                    operation_id=operation.id,
-                    status=OperationStatus.STARTING,
-                    operation_type=self.OPERATION_TYPE,
-                    step='PRE_DEPLOYMENT',
+            if mapping:
+                operation_details_models.append(
+                    OperationDetails(
+                        mapping_id=mapping.id,
+                        wave_id=operation.wave_id,
+                        operation_id=operation.id,
+                        status=OperationStatus.STARTING,
+                        operation_type=self.OPERATION_TYPE,
+                        step='PRE_DEPLOYMENT',
+                    )
                 )
-            )
 
         db.session.add_all(operation_details_models)
         db.session.commit()

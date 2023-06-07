@@ -21,7 +21,7 @@ from bms_app.models import (
 )
 from bms_app.schema import (
     ASMConfigSchema, DataMountSchema, DbParamsSchema, InstallConfigSchema,
-    MiscConfigSchema, RACConfigSchema
+    MiscConfigSchema, RACConfigSchema, DMSConfigSchema
 )
 from bms_app.services.utils import generate_target_gcp_logs_link
 
@@ -168,10 +168,12 @@ class SaveSourceDBConfigService:
         'asm_config_values': ASMConfigSchema(many=True),
         'misc_config_values': MiscConfigSchema(),
         'rac_config_values': RACConfigSchema(),
+        'dms_config_values': DMSConfigSchema()
     }
     CONFIG_ATTRS = (
         'install_config_values', 'db_params_values', 'data_mounts_values',
-        'asm_config_values', 'misc_config_values', 'rac_config_values'
+        'asm_config_values', 'misc_config_values', 'rac_config_values',
+        'dms_config_values'
     )
 
     @classmethod

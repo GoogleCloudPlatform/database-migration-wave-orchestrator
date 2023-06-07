@@ -19,7 +19,7 @@ from .objects import DbMapping
 
 def get_db_mappings_qs(wave_id=None, db_ids=None, filter_deployable=False):
     """Return queryset to retrieve source dbs according to the filters."""
-    qs = db.session.query(SourceDB, Mapping).join(Mapping)
+    qs = db.session.query(SourceDB, Mapping).outerjoin(Mapping)
 
     if wave_id:
         qs = qs.filter(SourceDB.wave_id == wave_id)
@@ -52,6 +52,9 @@ def generate_db_mappings_objects(qs):
                 'db': source_db,
                 'mappings': [],
             }
+        
+        if not mapping:
+            data[db_id]['is_dms'] = True
 
         data[db_id]['mappings'].append(mapping)
 
@@ -62,6 +65,7 @@ def generate_db_mappings_objects(qs):
             DbMapping(
                 db=obj['db'],
                 mappings=obj['mappings'],
+                is_dms=obj['is_dms'],
             )
         )
 

@@ -182,6 +182,11 @@ class RACConfigSchema(Schema):
     dg_name = fields.Str()
     rac_nodes = fields.List(fields.Nested(RACNodeSchema))
 
+class DMSConfigSchema(Schema):
+    port = fields.Int()
+    username = fields.Str()
+    password = fields.Str()
+
 
 class ConfigSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
