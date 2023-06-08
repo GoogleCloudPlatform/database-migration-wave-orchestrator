@@ -88,6 +88,10 @@ class SourceDBStatus(Enum):
     FAILOVER_COMPLETE = 'FAILOVER_COMPLETE'
     FAILOVER_FAILED = 'FAILOVER_FAILED'
 
+class SourceDBEngine(Enum):
+    ORACLE = 'ORACLE'
+    POSTGRES = 'POSTGRES'
+
 
 class SourceDB(db.Model):
     __tablename__ = 'source_dbs'
@@ -97,18 +101,19 @@ class SourceDB(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     server = db.Column(db.String, nullable=False)
-    oracle_version = db.Column(db.String, nullable=False)
+    db_engine = db.Column(ChoiceType(SourceDBEngine, impl=db.String(20)), default=SourceDBEngine.ORACLE)
+    oracle_version = db.Column(db.String)
     oracle_release = db.Column(db.String)
     oracle_edition = db.Column(db.String, default='EE')
     db_type = db.Column(ChoiceType(SourceDBType, impl=db.String(10)), default=SourceDBType.SI)
     rac_nodes = db.Column(db.Integer, default=0)  # value parsed from assessment file
     fe_rac_nodes = db.Column(db.Integer)
-    arch = db.Column(db.String, nullable=False)
-    cores = db.Column(db.Integer, nullable=False)
-    ram = db.Column(db.Integer, nullable=False)
-    allocated_memory = db.Column(db.Integer, nullable=False)
+    arch = db.Column(db.String)
+    cores = db.Column(db.Integer)
+    ram = db.Column(db.Integer)
+    allocated_memory = db.Column(db.Integer)
     db_name = db.Column(db.String, nullable=False)
-    db_size = db.Column(db.Numeric, nullable=False)
+    db_size = db.Column(db.Numeric)
     status = db.Column(ChoiceType(SourceDBStatus, impl=db.String(20)), default=SourceDBStatus.EMPTY)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     wave_id = db.Column(db.Integer, db.ForeignKey('waves.id'))
@@ -146,6 +151,7 @@ class Config(db.Model):
     asm_config_values = db.Column(db.JSON)
     rac_config_values = db.Column(db.JSON)
     misc_config_values = db.Column(db.JSON)
+    dms_config_values = db.Column(db.JSON)
     created_at = db.Column(db.DateTime)
     is_configured = db.Column(db.Boolean, default=False)
 
@@ -226,7 +232,7 @@ class OperationDetails(db.Model):
     __tablename__ = 'operation_details'
 
     id = db.Column(db.Integer, primary_key=True)
-    mapping_id = db.Column(db.Integer, db.ForeignKey('mappings.id'), nullable=False)
+    mapping_id = db.Column(db.Integer, db.ForeignKey('mappings.id'))
     wave_id = db.Column(db.Integer, db.ForeignKey('waves.id'), nullable=True)
     operation_id = db.Column(db.Integer, db.ForeignKey('operations.id'), nullable=False)
     operation_type = db.Column(ChoiceType(OperationType, impl=db.String(20)))

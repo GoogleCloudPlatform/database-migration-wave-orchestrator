@@ -55,7 +55,9 @@ def new_config(db_id):
         asm_config_values - optional
         misc_config_values - optional
         rac_config_values - optional
+        dms_config_values - optional
     """
+    print(request.json)
     config = SaveSourceDBConfigService.run(db_id, request.json)
 
     return ConfigSchema(exclude=['id']).dump(config), 201

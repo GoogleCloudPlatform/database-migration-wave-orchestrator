@@ -19,10 +19,11 @@
   <span class="text">{{panelTitle}}</span>
 </a>
 <ul class="list">
-  <li>Server Name: &nbsp;<b>{{mappings?.source_hostname}}</b></li>
-  <li>Current Database: &nbsp;<b>{{mappings?.db_name}}</b></li>
-  <li>Version: &nbsp;<b>{{mappings?.oracle_version}}</b></li>
-  <li>Type: &nbsp;<b>{{dbType}}</b></li>
-  <li>Target: <b *ngFor="let target of mappings?.bms; let last = last">{{target.name}}{{last ? '':', '}}</b></li>
+  <li>Server Name: &nbsp;<b>{{sourceDb?.server}}</b></li>
+  <li>Current Database: &nbsp;<b>{{sourceDb?.db_name}}</b></li>
+  <li>Engine: &nbsp;<b>{{sourceDb?.db_engine}}</b></li>
+  <li *ngIf="sourceDb?.oracle_version">Version: &nbsp;<b>{{sourceDb?.oracle_version}}</b></li>
+  <li *ngIf="dbType">Type: &nbsp;<b>{{dbType}}</b></li>
+  <li *ngIf="mappings">Target: <b *ngFor="let target of mappings?.bms; let last = last">{{target.name}}{{last ? '':', '}}</b></li>
   <li *ngIf="mappings?.oracle_release">Release: &nbsp;<b>{{mappings?.oracle_release}}</b></li>
 </ul>

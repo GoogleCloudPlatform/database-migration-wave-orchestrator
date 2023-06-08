@@ -40,7 +40,7 @@ export class SourceDatabasesComponent extends BaseMaterialTableComponent<SourceD
   currentProjectId!: number;
   showDataTable: boolean = false;
   overrideDatabase: boolean = false;
-  displayedColumns = [ 'server' , 'db_name' , 'oracle_version' , 'db_type', 'label'];
+  displayedColumns = [ 'server', 'db_engine', 'db_name', 'oracle_version', 'db_type', 'label'];
   ELEMENT_DATA: SourceDb[] | undefined;
   files = [];
   labels: Label[] = [];

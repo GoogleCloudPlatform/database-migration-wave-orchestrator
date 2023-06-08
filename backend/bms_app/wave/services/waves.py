@@ -18,7 +18,7 @@ from sqlalchemy import func
 from bms_app.models import (
     DEPLOYED_STATUSES, OPERATION_STATUSES_ORDER, BMSServer, Config, Mapping,
     Operation, OperationDetails, OperationType, SourceDB, SourceDBStatus, Wave,
-    db
+    SourceDBEngine, db
 )
 from bms_app.schema import WaveSchema
 from bms_app.services.utils import generate_target_gcp_logs_link
@@ -146,6 +146,31 @@ class LastOpWaveDetails:
                 'completed_at': last_deploy.completed_at,
                 'operation_type': last_deploy.operation_type.value,
             }
+    
+    def _get_dms_auto_mappings(self):
+        query = db.session.query(SourceDB)\
+            .outerjoin(Config) \
+            .with_entities(SourceDB, Config.is_configured) \
+            .filter(SourceDB.wave_id == self.wave_id) \
+            .filter(SourceDB.db_engine == SourceDBEngine.POSTGRES)
+
+        mappings = [] 
+        for source_db, is_configured in query:
+            mapping = {
+                'server': source_db.server,
+                'db_id': source_db.id,
+                'db_name': source_db.db_name,
+                'is_deployable': source_db.is_deployable,
+                'is_dms_auto_mapping': True,
+                'db_engine': source_db.db_engine.value,
+                'operation_type': None, # TODO: get last operation type
+                'operation_status': '',
+                'operation_id': None, # TODO: get last operation id
+                'is_configured': is_configured if is_configured is not None else False,
+            }
+            mappings.append(mapping)
+        
+        return mappings
 
     def _get_mappings_data(self):
         """Return info and last operation for each db mapping."""
@@ -204,7 +229,9 @@ class LastOpWaveDetails:
 
         add_aggregated_db_status(mappings_data)
 
-        return list(mappings_data.values())
+        dms_auto_mappings = self._get_dms_auto_mappings()
+
+        return list(mappings_data.values()) + dms_auto_mappings
 
 
 class RunningWaveDetails:
@@ -345,7 +372,7 @@ def assign_source_db_wave(wave, db_ids):
         .all()
 
     for source_db, mapp_count in query:
-        if not mapp_count:
+        if not mapp_count and source_db.db_engine == SourceDBEngine.ORACLE:
             unmapped += 1
         # assign only db without any operation
         elif source_db.status == SourceDBStatus.EMPTY and \

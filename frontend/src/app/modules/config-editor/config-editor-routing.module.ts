@@ -18,9 +18,11 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { ConfigEditorComponent } from "./components/config-editor/config-editor.component";
+import { DmsConfigEditorComponent } from './components/dms-config-editor/dms-config-editor.component';
 
 const routes: Routes = [
-  {path: '' , component: ConfigEditorComponent}
+  {path: '' , component: ConfigEditorComponent},
+  {path: 'dms' , component: DmsConfigEditorComponent}
 ];
 
 @NgModule({

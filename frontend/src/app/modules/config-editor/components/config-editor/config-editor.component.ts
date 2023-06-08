@@ -258,7 +258,7 @@ export class ConfigEditorComponent implements OnInit, OnDestroy {
     const dataMountsValues = this.configEditorForm.get('data_mounts_values') as FormArray;
 
     if (resp.misc_config_values?.swap_blk_device) {
-      resp.data_mounts_values.push({
+      resp.data_mounts_values?.push({
         blk_device: resp.misc_config_values?.swap_blk_device,
         fstype: 'xfs',
         mount_opts: 'nofail',
@@ -284,9 +284,9 @@ export class ConfigEditorComponent implements OnInit, OnDestroy {
 
     const asmConfigValues = this.configEditorForm.get('asm_config_values') as FormArray;
 
-    if (resp.asm_config_values?.length > 0) {
+    if (resp.asm_config_values?.length && resp.asm_config_values?.length > 0) {
       asmConfigValues.removeAt(0);
-      resp.asm_config_values.forEach((acv: any ) => {
+      resp.asm_config_values?.forEach((acv: any ) => {
         asmConfigValues.push(
           this.formBuilder.group({
               diskgroup:  new FormControl(acv.diskgroup , [Validators.required]),

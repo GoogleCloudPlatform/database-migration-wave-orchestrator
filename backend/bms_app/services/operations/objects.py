@@ -25,3 +25,4 @@ class DbMapping:
     """
     db: SourceDB
     mappings: list  # list of Mapping objects
+    is_dms: bool = False

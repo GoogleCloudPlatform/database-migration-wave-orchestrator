@@ -35,6 +35,7 @@ import { ConfigeditorRoutingModule } from "./config-editor-routing.module";
 import { ConfigEditorComponent } from "./components/config-editor/config-editor.component";
 import { ConfigEditorTooltipComponent } from "./components/config-editor-tooltip/config-editor-tooltip.component";
 import { ConfigEditorTooltipDirective } from "./components/config-editor-tooltip/config-editor-tooltip.directive";
+import { DmsConfigEditorComponent } from './components/dms-config-editor/dms-config-editor.component';
 
 
 const maskConfig: Partial<IConfig> = {
@@ -45,7 +46,8 @@ const maskConfig: Partial<IConfig> = {
   declarations: [
     ConfigEditorComponent,
     ConfigEditorTooltipComponent,
-    ConfigEditorTooltipDirective
+    ConfigEditorTooltipDirective,
+    DmsConfigEditorComponent,
   ],
   exports: [],
   imports: [

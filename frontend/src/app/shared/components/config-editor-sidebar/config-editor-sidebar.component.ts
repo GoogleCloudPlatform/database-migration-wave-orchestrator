@@ -24,6 +24,8 @@ import { MappingService } from "@app-services/migration-mapper/mapping.service";
 
 import { getDBType }  from "@app-shared/helpers/functions";
 import { UtilService } from '@app-services/util/util.service';
+import { SourceDb } from '@app-interfaces/sourceDb';
+import { SourceDbService } from '@app-services/source-db/source-db.service';
 
 @Component({
   selector: 'app-config-editor-sidebar',
@@ -33,10 +35,12 @@ export class ConfigEditorSidebarComponent implements OnInit, OnDestroy {
   @Input() panelTitle: string = 'Config Editor';
   private routeSubscription!: Subscription;
   mappings!: Mapping;
+  sourceDb!: SourceDb;
   dbType!: string;
 
   constructor(
     private readonly mappingService: MappingService,
+    private readonly sourceDbService: SourceDbService,
     private utilService: UtilService,
     private readonly activatedRoute: ActivatedRoute) {}
 
@@ -54,7 +58,14 @@ export class ConfigEditorSidebarComponent implements OnInit, OnDestroy {
     this.mappingService.getMappingsByDbId(databaseId).subscribe((response) => {
       if (!response.data) return;
       this.mappings = response.data[0];
-      this.dbType = getDBType(response.data[0].db_type);
+      if (this.mappings) {
+        this.dbType = getDBType(response.data[0].db_type);
+      }
+    });
+
+    this.sourceDbService.getSourceDb(Number(databaseId)).subscribe(response => {
+      if (!response) return;
+      this.sourceDb = response;
     });
   }
   

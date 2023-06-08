@@ -15,14 +15,15 @@
  */
 
 export interface ConfigEditor {
-  asm_config_values: {
+  is_configured?: boolean,
+  asm_config_values?: {
     au_size: string,
     diskgroup: string,
     redundancy: string
     disks: {}[] ;
   }[],
   created_at?: string,
-  data_mounts_values: DataMountValues[],
+  data_mounts_values?: DataMountValues[],
   db_id?: number,
   db_params_values?: {
     db_name?: string,
@@ -57,6 +58,11 @@ export interface ConfigEditor {
     scan_ip3?: string,
     dg_name?: string,
     rac_nodes: Node[]
+  },
+  dms_config_values?: {
+    port?: number,
+    username?: string,
+    password?: string
   }
 }
 

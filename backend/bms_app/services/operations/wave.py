@@ -25,6 +25,8 @@ from bms_app.services.control_node import (
 from bms_app.services.status_handlers.operation import (
     DeploymentOperationStatusHandler
 )
+from bms_app.services.dms import DMS
+from bms_app import settings
 
 from .base import BaseOperation
 from .db_mappings import get_wave_db_mappings_objects
@@ -80,7 +82,8 @@ class BaseWaveOperation(BaseOperation):
                 operation,
                 db_mappings_objects
             )
-        except Exception:
+        except Exception as e:
+            print(e)
             logger.exception(
                 'error starting %s %s', operation.operation_type.value, wave_id
             )
@@ -89,8 +92,61 @@ class BaseWaveOperation(BaseOperation):
         self._post_operation_action(db_mappings_objects)
 
         db.session.commit()
+    
+    def _start_dms_pre_deployment(self, wave, operation, dms_mappings):
+        # TODO: implement this
+        pass
+
+
+    def _start_dms_pre_deployment_local(self, wave, operation, dms_mappings):
+        print('dms deployment started')
+        dms = DMS(project_id=settings.GCP_PROJECT_NAME, region="us-central1")
+        # TODO: do this async using operations callbacks
+        for mapping in dms_mappings:
+            source_conn_name = f'waverunner-source-{mapping.db.db_name}'
+            dest_conn_name = f'waverunner-target-for-{mapping.db.db_name}'
+            job_name = f'waverunner-{mapping.db.db_name}'
+            job_display_name = f'Waverunner job for {mapping.db.db_name}'
+
+            def start_job(result):
+                logger.info('starting job...')
+                dms.start_migration_job(job_name)
+            
+            def create_job(result):
+                logger.info('creating job...')
+                dms.create_migration_job(
+                    name=job_name,
+                    display_name=job_display_name,
+                    source_conn=source_conn_name,
+                    destination_conn=dest_conn_name
+                ).add_done_callback(start_job)
+            
+            def create_dest_connection(result):
+                logger.info('creating destination connection...')
+                dms.create_destination_connection_profile(
+                    name=dest_conn_name,
+                    source_conn_name=source_conn_name
+                ).add_done_callback(create_job)
+                
+            logger.info('creating source connection...')
+            dms.create_source_connection_profile(
+                name=source_conn_name,
+                host=mapping.db.server
+            ).add_done_callback(create_job)
+
 
     def _start_pre_deployment(self, wave, operation, db_mappings_objects):
+        dms_mappings = list(filter(lambda mapping: mapping.is_dms, db_mappings_objects))
+        bms_mappings = list(filter(lambda mapping: not mapping.is_dms, db_mappings_objects))
+
+        print(f'dms: {dms_mappings}')
+        print(f'bms: {bms_mappings}')
+
+        self._start_dms_pre_deployment_local(wave, operation, dms_mappings)
+
+        if not bms_mappings:
+            return
+
         """Generate ansible configs and start control node."""
         gcs_config_dir = self._get_gcs_config_dir(
             wave_id=operation.wave_id,
@@ -99,7 +155,7 @@ class BaseWaveOperation(BaseOperation):
 
         # generate and upload ansible config files
         AnsibleConfigService(
-            db_mappings_objects,
+            bms_mappings,
             gcs_config_dir
         ).run()
 
@@ -109,7 +165,7 @@ class BaseWaveOperation(BaseOperation):
             operation=operation,
             gcs_config_dir=gcs_config_dir,
             wave=wave,
-            total_targets=self._count_total_targets(db_mappings_objects),
+            total_targets=self._count_total_targets(bms_mappings),
         )
 
     @staticmethod
