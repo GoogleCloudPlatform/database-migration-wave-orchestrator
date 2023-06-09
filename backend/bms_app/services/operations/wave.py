@@ -28,13 +28,14 @@ from bms_app.services.status_handlers.operation import (
 )
 from bms_app.services.dms import DMS
 from bms_app import settings
-from google.cloud.workflows import executions
+from google.cloud import secretmanager
 
 from .base import BaseOperation
 from .db_mappings import get_wave_db_mappings_objects
 
 
 logger = logging.getLogger(__name__)
+secrets_client = secretmanager.SecretManagerServiceClient()
 
 
 class BaseWaveOperation(BaseOperation):
@@ -98,7 +99,14 @@ class BaseWaveOperation(BaseOperation):
     def _get_dms_config(self, source_db: SourceDB) -> DMSConfigSchema:
         config: Config = db.session.query(Config).filter_by(db_id=source_db.id).one()
         schema = DMSConfigSchema()
-        return schema.load(config.dms_config_values)
+        dms_config: DMSConfigSchema = schema.load(config.dms_config_values)
+        if dms_config['password_secret_id']:
+            req = secretmanager.AccessSecretVersionRequest(
+                name=secrets_client.secret_version_path(settings.GCP_PROJECT_NAME, dms_config['password_secret_id'], "latest")
+            )
+            res = secrets_client.access_secret_version(request=req)
+            dms_config['password'] = res.payload.data.decode('UTF-8')
+        return dms_config
 
     def _start_dms_pre_deployment_local(self, wave, operation, dms_mappings):
         print('dms deployment started')
