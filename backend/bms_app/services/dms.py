@@ -74,7 +74,14 @@ class DMS:
         req = clouddms_v1.GetConnectionProfileRequest(name=self._get_connection_profile_name(name))
         return self.client.get_connection_profile(request=req)
 
-    def create_source_connection_profile(self, name: str, host: str) -> operation.Operation:
+    def create_source_connection_profile(
+        self,
+        name: str,
+        host: str,
+        port: int,
+        username: str,
+        password: str
+    ) -> operation.Operation:
         req = clouddms_v1.CreateConnectionProfileRequest(
             parent=self._get_parent(),
             connection_profile_id=name,
@@ -83,9 +90,9 @@ class DMS:
                 display_name='Source Connection Profile for Waverunner',
                 postgresql=clouddms_v1.PostgreSqlConnectionProfile(
                     host=host,
-                    port=5432, # TODO: parametrize this
-                    username='postgres', # TODO: parametrize this
-                    password='waverunner-test' # TODO: use secret manager
+                    port=port,
+                    username=username,
+                    password=password
                 )
             ),
             request_id=self._get_new_request_id(),

@@ -17,7 +17,8 @@ from datetime import datetime
 
 from marshmallow import ValidationError
 
-from bms_app.models import OperationType, Wave, db
+from bms_app.models import SourceDB, Config, OperationType, Wave, db
+from bms_app.schema import DMSConfigSchema
 from bms_app.services.ansible import AnsibleConfigService
 from bms_app.services.control_node import (
     DeployControlNodeService, RollbackConrolNodeService
@@ -27,6 +28,7 @@ from bms_app.services.status_handlers.operation import (
 )
 from bms_app.services.dms import DMS
 from bms_app import settings
+from google.cloud.workflows import executions
 
 from .base import BaseOperation
 from .db_mappings import get_wave_db_mappings_objects
@@ -93,20 +95,22 @@ class BaseWaveOperation(BaseOperation):
 
         db.session.commit()
     
-    def _start_dms_pre_deployment(self, wave, operation, dms_mappings):
-        # TODO: implement this
-        pass
-
+    def _get_dms_config(self, source_db: SourceDB) -> DMSConfigSchema:
+        config: Config = db.session.query(Config).filter_by(db_id=source_db.id).one()
+        schema = DMSConfigSchema()
+        return schema.load(config.dms_config_values)
 
     def _start_dms_pre_deployment_local(self, wave, operation, dms_mappings):
         print('dms deployment started')
         dms = DMS(project_id=settings.GCP_PROJECT_NAME, region="us-central1")
         # TODO: do this async using operations callbacks
         for mapping in dms_mappings:
-            source_conn_name = f'waverunner-source-{mapping.db.db_name}'
-            dest_conn_name = f'waverunner-target-for-{mapping.db.db_name}'
-            job_name = f'waverunner-{mapping.db.db_name}'
+            config = self._get_dms_config(mapping.db)
+            source_conn_name = f'waverunner-source-{mapping.db.db_name}-dev'
+            dest_conn_name = f'waverunner-target-for-{mapping.db.db_name}-dev'
+            job_name = f'waverunner-{mapping.db.db_name}-dev'
             job_display_name = f'Waverunner job for {mapping.db.db_name}'
+            print(f'Source DB config: {config}')
 
             def start_job(result):
                 logger.info('starting job...')
@@ -131,8 +135,11 @@ class BaseWaveOperation(BaseOperation):
             logger.info('creating source connection...')
             dms.create_source_connection_profile(
                 name=source_conn_name,
-                host=mapping.db.server
-            ).add_done_callback(create_job)
+                host=mapping.db.server,
+                port=config['port'],
+                username=config['username'],
+                password=config['password']
+            ).add_done_callback(create_dest_connection)
 
 
     def _start_pre_deployment(self, wave, operation, db_mappings_objects):
