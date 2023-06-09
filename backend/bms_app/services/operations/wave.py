@@ -106,9 +106,9 @@ class BaseWaveOperation(BaseOperation):
         # TODO: do this async using operations callbacks
         for mapping in dms_mappings:
             config = self._get_dms_config(mapping.db)
-            source_conn_name = f'waverunner-source-{mapping.db.db_name}-dev'
-            dest_conn_name = f'waverunner-target-for-{mapping.db.db_name}-dev'
-            job_name = f'waverunner-{mapping.db.db_name}-dev'
+            source_conn_name = f'waverunner-source-{mapping.db.db_name}'
+            dest_conn_name = f'waverunner-target-for-{mapping.db.db_name}'
+            job_name = f'waverunner-{mapping.db.db_name}'
             job_display_name = f'Waverunner job for {mapping.db.db_name}'
             print(f'Source DB config: {config}')
 

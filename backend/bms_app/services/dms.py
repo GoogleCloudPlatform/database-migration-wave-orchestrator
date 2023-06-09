@@ -87,7 +87,7 @@ class DMS:
             connection_profile_id=name,
             connection_profile=clouddms_v1.ConnectionProfile(
                 name=self._get_connection_profile_name(name),
-                display_name='Source Connection Profile for Waverunner',
+                display_name=f'{host} (Waverunner)',
                 postgresql=clouddms_v1.PostgreSqlConnectionProfile(
                     host=host,
                     port=port,
@@ -110,18 +110,17 @@ class DMS:
             connection_profile=clouddms_v1.ConnectionProfile(
                 name=self._get_connection_profile_name(name),
                 labels={},
-                display_name='Destination Connection Profile for Waverunner',
+                display_name='Waverunner destination',
                 cloudsql=clouddms_v1.CloudSqlConnectionProfile(
                     settings=clouddms_v1.CloudSqlSettings(
                         database_version=clouddms_v1.CloudSqlSettings.SqlDatabaseVersion.POSTGRES_12,
-                        # TODO: parametrize
-                        tier='db-custom-1-3840',  # TODO: calculate based on database type
+                        tier='db-custom-1-3840',
                         ip_config=clouddms_v1.SqlIpConfig(
                             enable_ipv4=True
                         ),
-                        data_disk_type=clouddms_v1.CloudSqlSettings.SqlDataDiskType.PD_SSD,  # TODO: parametrize
-                        data_disk_size_gb=10,  # TODO: parametrize
-                        zone='us-central1-c',  # TODO: parametrize
+                        data_disk_type=clouddms_v1.CloudSqlSettings.SqlDataDiskType.PD_SSD,
+                        data_disk_size_gb=20,
+                        zone='us-central1-c',
                         source_id=self._get_connection_profile_name(source_conn_name),
                         root_password='waverunner-test'  # TODO: use secret manager
                     ),
