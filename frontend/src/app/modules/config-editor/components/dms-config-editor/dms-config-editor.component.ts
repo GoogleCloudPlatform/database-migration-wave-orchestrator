@@ -16,14 +16,6 @@ export class DmsConfigEditorComponent implements OnInit {
 
   dbId?: string
   sourceDb?: SourceDb
-  config?: ConfigEditor = {
-    is_configured: true,
-    dms_config_values: {
-      port: 5432,
-      username: "postgres",
-      password: "waverunner-test"
-    }
-  }
   configForm: FormGroup
 
   constructor(
@@ -38,7 +30,7 @@ export class DmsConfigEditorComponent implements OnInit {
       dms_config_values: new FormGroup({
         port: new FormControl(5432, []),
         username: new FormControl('', []),
-        password: new FormControl('', []),
+        password_secret_id: new FormControl('', []),
       })
     })
   }
@@ -61,7 +53,6 @@ export class DmsConfigEditorComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log('saving config')
     this.configForm.get('is_configured')?.setValue(true);
     this.configEditorService.createConfigEditorsingleInstance(this.configForm.value, Number(this.dbId))
       .subscribe(() => {
