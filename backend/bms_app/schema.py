@@ -186,6 +186,7 @@ class DMSConfigSchema(Schema):
     port = fields.Int()
     username = fields.Str()
     password = fields.Str()
+    password_secret_id = fields.Str()
 
 
 class ConfigSchema(ma.SQLAlchemyAutoSchema):

@@ -4,3 +4,4 @@ __pycache__
 bms_app/local_config.py
 _
 .idea/
+*.key.json
