@@ -6,29 +6,56 @@
             [matTooltipPosition]="'right'" aria-label="Configuration page functionality description">help</mat-icon>
         </div>
       </div>
-        <div class="pad2em">
-            <table class="custom-table-form w-100">
-                <caption>
-                  <h3 class="subtitle">Miscellaneous Parameters</h3>
-                  <p>Please review and validate miscellaneous parameters.</p>
-                </caption>
-                <tr>
-                  <th class="w-40">Parameter Name</th>
-                  <th>Value</th>
-                  <th></th>
-                </tr>
-            </table>
-            <button
-                mat-raised-button
-                matRipple
-                type="button"
-                class="custom-button draft-btn mt-8 mr-4"
-                [matRippleDisabled]="true"
-                (click)="saveConfig()"
-            >Save</button>
-        </div>
+      <div class="pad2em">
+        <form [formGroup]="configForm" (ngSubmit)="onSubmit()">
+          <table class="custom-table-form w-100">
+            <caption>
+              <h3 class="subtitle">DMS Migration Parameters</h3>
+              <p>Please review and validate migration parameters.</p>
+            </caption>
+            <tr>
+              <th>Parameter Name</th>
+              <th>Value</th>
+            </tr>
+            <tr formGroupName="dms_config_values">
+              <td>Source Port</td>
+              <td>
+                <mat-form-field appearance="outline" class="custom-input">
+                  <input matInput id="port" placeholder="Enter value" formControlName="port" name="port"
+                    autocomplete="no">
+                </mat-form-field>
+              </td>
+            </tr>
+            <tr formGroupName="dms_config_values">
+              <td>Username</td>
+              <td>
+                <mat-form-field appearance="outline" class="custom-input">
+                  <input matInput id="username" placeholder="Enter value" formControlName="username" name="username"
+                    autocomplete="no">
+                </mat-form-field>
+              </td>
+            </tr>
+            <tr formGroupName="dms_config_values">
+              <td>Password Secret Name</td>
+              <td>
+                <mat-form-field appearance="outline" class="custom-input">
+                  <input matInput id="password_secret_id" placeholder="Enter value" formControlName="password_secret_id" name="password_secret_id"
+                    autocomplete="no">
+                </mat-form-field>
+              </td>
+            </tr>
+          </table>
+          <button
+            mat-raised-button
+            matRipple
+            type="submit"
+            class="custom-button draft-btn mt-8 mr-4"
+            [matRippleDisabled]="true">
+            Save
+          </button>
+        </form>
+      </div>
     </div>
-
 </div>
 
 

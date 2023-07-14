@@ -17,7 +17,8 @@ from datetime import datetime
 
 from marshmallow import ValidationError
 
-from bms_app.models import OperationType, Wave, db
+from bms_app.models import SourceDB, Config, OperationType, Wave, db
+from bms_app.schema import DMSConfigSchema
 from bms_app.services.ansible import AnsibleConfigService
 from bms_app.services.control_node import (
     DeployControlNodeService, RollbackConrolNodeService
@@ -27,12 +28,14 @@ from bms_app.services.status_handlers.operation import (
 )
 from bms_app.services.dms import DMS
 from bms_app import settings
+from google.cloud import secretmanager
 
 from .base import BaseOperation
 from .db_mappings import get_wave_db_mappings_objects
 
 
 logger = logging.getLogger(__name__)
+secrets_client = secretmanager.SecretManagerServiceClient()
 
 
 class BaseWaveOperation(BaseOperation):
@@ -93,20 +96,29 @@ class BaseWaveOperation(BaseOperation):
 
         db.session.commit()
     
-    def _start_dms_pre_deployment(self, wave, operation, dms_mappings):
-        # TODO: implement this
-        pass
-
+    def _get_dms_config(self, source_db: SourceDB) -> DMSConfigSchema:
+        config: Config = db.session.query(Config).filter_by(db_id=source_db.id).one()
+        schema = DMSConfigSchema()
+        dms_config: DMSConfigSchema = schema.load(config.dms_config_values)
+        if dms_config['password_secret_id']:
+            req = secretmanager.AccessSecretVersionRequest(
+                name=secrets_client.secret_version_path(settings.GCP_PROJECT_NAME, dms_config['password_secret_id'], "latest")
+            )
+            res = secrets_client.access_secret_version(request=req)
+            dms_config['password'] = res.payload.data.decode('UTF-8')
+        return dms_config
 
     def _start_dms_pre_deployment_local(self, wave, operation, dms_mappings):
         print('dms deployment started')
         dms = DMS(project_id=settings.GCP_PROJECT_NAME, region="us-central1")
         # TODO: do this async using operations callbacks
         for mapping in dms_mappings:
+            config = self._get_dms_config(mapping.db)
             source_conn_name = f'waverunner-source-{mapping.db.db_name}'
             dest_conn_name = f'waverunner-target-for-{mapping.db.db_name}'
             job_name = f'waverunner-{mapping.db.db_name}'
             job_display_name = f'Waverunner job for {mapping.db.db_name}'
+            print(f'Source DB config: {config}')
 
             def start_job(result):
                 logger.info('starting job...')
@@ -131,8 +143,11 @@ class BaseWaveOperation(BaseOperation):
             logger.info('creating source connection...')
             dms.create_source_connection_profile(
                 name=source_conn_name,
-                host=mapping.db.server
-            ).add_done_callback(create_job)
+                host=mapping.db.server,
+                port=config['port'],
+                username=config['username'],
+                password=config['password']
+            ).add_done_callback(create_dest_connection)
 
 
     def _start_pre_deployment(self, wave, operation, db_mappings_objects):
