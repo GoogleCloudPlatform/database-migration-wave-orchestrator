@@ -61,6 +61,7 @@ class BaseWaveOperation(BaseOperation):
             )
 
     def run(self, wave_id, db_ids=None):
+        # TODO: validate that all databases can be migrated using BMS
         wave = Wave.query.with_for_update().get(wave_id)
         self._validate_wave_status(wave)
 

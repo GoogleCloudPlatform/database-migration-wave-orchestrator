@@ -130,6 +130,11 @@ class DeploymentOperationDetailStatusHandler(BaseOperationDetailStatusHandler):
     FAILED_STATUS = SourceDBStatus.FAILED
     COMPLETE_STATUS = SourceDBStatus.DEPLOYED
 
+class DMSDeploymentOperationDetailStatusHandler(BaseOperationDetailStatusHandler):
+    """Handler to process Wave OperationDetails status/step changes."""
+    FAILED_STATUS = SourceDBStatus.FAILED
+    COMPLETE_STATUS = SourceDBStatus.DEPLOYED
+
 
 class PreRestoreOperationDetailStatusHandler(BaseOperationDetailStatusHandler):
     """Handler to process Pre_restore OperationDetails status/step changes."""

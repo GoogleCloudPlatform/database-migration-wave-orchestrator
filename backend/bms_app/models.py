@@ -98,6 +98,7 @@ class SourceDB(db.Model):
     __table_args__ = (db.UniqueConstraint('server', 'db_name', 'project_id'), )
 
     DEPLOYABLE_STATUSES = (SourceDBStatus.EMPTY, SourceDBStatus.ROLLBACKED)
+    DMS_DEPLOYABLE_DBS = (SourceDBEngine.POSTGRES,)
 
     id = db.Column(db.Integer, primary_key=True)
     server = db.Column(db.String, nullable=False)
@@ -138,6 +139,10 @@ class SourceDB(db.Model):
     @is_deployable.expression
     def is_deployable(cls):
         return cls.status.in_(cls.DEPLOYABLE_STATUSES)
+    
+    @hybrid_property
+    def is_dms_deployable(self):
+        return self.is_deployable and self.db_type in self.DMS_DEPLOYABLE_DBS
 
 
 class Config(db.Model):
@@ -197,6 +202,7 @@ class OperationStatus(Enum):
 
 class OperationType(Enum):
     DEPLOYMENT = 'DEPLOYMENT'
+    DMS_DEPLOYMENT = 'DMS_DEPLOYMENT'
     ROLLBACK = 'ROLLBACK'
     PRE_RESTORE = 'PRE_RESTORE'
     BACKUP_RESTORE = 'BACKUP_RESTORE'
@@ -224,6 +230,10 @@ class Operation(db.Model):
         return self.operation_type == OperationType.DEPLOYMENT
 
     @hybrid_property
+    def is_dms_deployment(self):
+        return self.operation_type == OperationType.DMS_DEPLOYMENT
+
+    @hybrid_property
     def is_rollback(self):
         return self.operation_type == OperationType.ROLLBACK
 
@@ -232,7 +242,7 @@ class OperationDetails(db.Model):
     __tablename__ = 'operation_details'
 
     id = db.Column(db.Integer, primary_key=True)
-    mapping_id = db.Column(db.Integer, db.ForeignKey('mappings.id'))
+    mapping_id = db.Column(db.Integer, db.ForeignKey('mappings.id'), nullable=True)
     wave_id = db.Column(db.Integer, db.ForeignKey('waves.id'), nullable=True)
     operation_id = db.Column(db.Integer, db.ForeignKey('operations.id'), nullable=False)
     operation_type = db.Column(ChoiceType(OperationType, impl=db.String(20)))
@@ -250,6 +260,10 @@ class OperationDetails(db.Model):
     @hybrid_property
     def is_deployment(self):
         return self.operation_type == OperationType.DEPLOYMENT
+    
+    @hybrid_property
+    def is_dms_deployment(self):
+        return self.operation_type == OperationType.DMS_DEPLOYMENT
 
     @hybrid_property
     def is_rollback(self):
@@ -357,7 +371,8 @@ DATA_TRANSFER_DB_STATUSES = [
 
 WAVE_OPERATIONS = [
     OperationType.DEPLOYMENT,
-    OperationType.ROLLBACK
+    OperationType.DMS_DEPLOYMENT,
+    OperationType.ROLLBACK,
 ]
 
 PRE_RESTORE_ALLOWED_STATUSES = [

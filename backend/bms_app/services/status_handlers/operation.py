@@ -18,6 +18,7 @@ from bms_app.models import (
 
 from .operation_detail import (
     DeploymentOperationDetailStatusHandler,
+    DMSDeploymentOperationDetailStatusHandler,
     FailOverOperationDetailStatusHandler,
     PreRestoreOperationDetailStatusHandler,
     RestoreOperationDetailStatusHandler, RollbackOperationDetailStatusHandler,
@@ -98,6 +99,9 @@ class DeploymentOperationStatusHandler(BaseOperationStatusHandler):
         """Set wave.is_running = False."""
         Wave.query.filter(Wave.id == self.operation.wave_id) \
             .update({'is_running': False})
+
+class DMSDeploymentOperationStatusHandler(DeploymentOperationStatusHandler):
+    OP_DETAILS_STATUS_HANDLER = DMSDeploymentOperationDetailStatusHandler
 
 
 class PreRestoreOperationStatusHandler(BaseOperationStatusHandler):

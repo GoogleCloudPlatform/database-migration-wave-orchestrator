@@ -18,12 +18,14 @@ from datetime import datetime
 
 from bms_app.models import BMSServer, Mapping, Operation, OperationDetails, db
 from bms_app.services.status_handlers.operation import (
-    DeploymentOperationStatusHandler, FailOverOperationStatusHandler,
-    PreRestoreOperationStatusHandler, RestoreOperationStatusHandler,
-    RollbackOperationStatusHandler, RollbackRestoreOperationStatusHandler
+    DeploymentOperationStatusHandler, DMSDeploymentOperationStatusHandler,
+    FailOverOperationStatusHandler, PreRestoreOperationStatusHandler,
+    RestoreOperationStatusHandler, RollbackOperationStatusHandler,
+    RollbackRestoreOperationStatusHandler
 )
 from bms_app.services.status_handlers.operation_detail import (
     DeploymentOperationDetailStatusHandler,
+    DMSDeploymentOperationDetailStatusHandler,
     FailOverOperationDetailStatusHandler,
     PreRestoreOperationDetailStatusHandler,
     RestoreOperationDetailStatusHandler, RollbackOperationDetailStatusHandler,
@@ -33,6 +35,7 @@ from bms_app.services.status_handlers.operation_detail import (
 
 operation_details_handler_mapper = {
     'DEPLOYMENT': DeploymentOperationDetailStatusHandler,
+    'DMS_DEPLOYMENT': DMSDeploymentOperationDetailStatusHandler,
     'ROLLBACK': RollbackOperationDetailStatusHandler,
     'PRE_RESTORE': PreRestoreOperationDetailStatusHandler,
     'BACKUP_RESTORE': RestoreOperationDetailStatusHandler,
@@ -43,6 +46,7 @@ operation_details_handler_mapper = {
 
 operation_handler_mapper = {
     'DEPLOYMENT': DeploymentOperationStatusHandler,
+    'DMS_DEPLOYMENT': DMSDeploymentOperationStatusHandler,
     'ROLLBACK': RollbackOperationStatusHandler,
     'PRE_RESTORE': PreRestoreOperationStatusHandler,
     'BACKUP_RESTORE': RestoreOperationStatusHandler,
@@ -82,6 +86,33 @@ def process_host_related_data(msg, completed_at):
                 status_handler.set_status(msg['host_status'])
 
         db.session.flush()
+
+def process_dms_data(msg, completed_at):
+    op_detail = (
+        db.session.query(OperationDetails)
+        .filter(OperationDetails.operation_id == msg['operation_id'])
+        .first()
+    )
+
+    cls_handler = operation_details_handler_mapper.get(
+        op_detail.operation_type.value
+    )
+
+    status_handler = cls_handler(op_detail, completed_at)
+
+    if 'step' in msg:
+        status_handler.set_step(msg['step'], msg['timestamp'])
+    
+    if 'dms_status' in msg:
+        if msg['dms_status'] == 'FAILED':
+            status_handler.fail()
+        elif msg['dms_status'] == 'COMPLETE':
+            status_handler.complete()
+        else:
+            status_handler.set_status(msg['dms_status'])
+    
+    db.session.flush()
+
 
 
 def process_operation_data(msg, completed_at):
@@ -126,6 +157,9 @@ def process_msg(envelope):
 
     # lock in order to prevent running this function more than once
     Operation.query.with_for_update().get(msg['operation_id'])
+
+    if 'dms' in msg:
+        process_dms_data(msg, completed_at)
 
     if 'hostnames' in msg:
         process_host_related_data(msg, completed_at)

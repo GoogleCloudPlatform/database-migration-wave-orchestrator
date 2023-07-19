@@ -76,6 +76,47 @@ DEPLOYMENT_STEPS = BASE_STEPS + [
     }
 ]
 
+DMS_DEPLOYMENT_STEPS = [
+    {
+        'id': 'PRE_DEPLOYMENT',
+        'name': 'Pre-deployment',
+        'description': (
+            'Starts the Workflow to run the following steps.'
+        )
+    },
+    {
+        'id': 'CREATE_SRC_CONNECTION_PROFILE',
+        'name': 'Create Source Connection Profile',
+        'description': (
+            'Creates the connection profile based on source database connection details.\n'
+            'Connection profile contains information such as:\n'
+            '- Host\n'
+            '- Port\n'
+            '- Username\n'
+            '- Password\n'
+        )
+    },
+    {
+        'id': 'CREATE_DST_CONNECTION_PROFILE',
+        'name': 'Create Destination Connection Profile',
+        'description': (
+            'Creates the connection profile to the target CloudSQL instance.\n'
+            'Creating the connection profile also triggers the creation of the target instance\n'
+        )
+    },
+    {
+        'id': 'RUN_MIGRATION_JOB',
+        'name': 'Run DMS Migration Job',
+        'description': (
+            'Starts the DMS migration job with the source and target connection profiles\n'
+            'created in previous steps.\n',
+            'Data is mirrored from the source to the target. CloudSQL continues operating as\n'
+            'slave. A manual promotion must be made to start using the target instance as primary\n'
+            'database.'
+        )
+    }
+]
+
 ROLLBACK_STEPS = BASE_STEPS + [
     {
         'id': 'CLEANUP',
