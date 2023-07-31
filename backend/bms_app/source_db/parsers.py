@@ -44,13 +44,14 @@ class MigvisorParser:
 
     COLUMNS_TO_PARSE = [
         'server', 'oracle_version', 'arch', 'cores', 'ram',
-        'allocated_memory', 'db_name', 'db_size'
+        'allocated_memory', 'db_name', 'db_size', 'db_engine'
     ]
     COLUMNS_MAP = {
         'architecture': 'arch',
         'allocated memory': 'allocated_memory',
         'database name': 'db_name',
         'database size (gb)': 'db_size',
+        'database type': 'db_engine',
         'version': 'oracle_version'
     }
     DATABASE_SERVERS_SHEET = 'Database Servers'
@@ -221,6 +222,9 @@ class MigvisorParser:
         # make sure 'oracle_version' is string
         df['oracle_version'] = df['oracle_version'].apply(
             lambda x: None if x is None else str(x)
+        )
+        df['db_engine'] = df['db_engine'].apply(
+            lambda engine: str.upper(engine)
         )
 
         return df.to_dict(orient='records')

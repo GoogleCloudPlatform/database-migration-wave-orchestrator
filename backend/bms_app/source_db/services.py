@@ -33,11 +33,14 @@ class InSourceDBSchema(ma.SQLAlchemyAutoSchema):
 
     @post_load
     def db_type(self, data, many, **kwargs):
-        if data['rac_nodes']:
+        if 'db_engine' in data and data['db_engine'] != 'ORACLE':
+            data['db_type'] = None
+        elif 'rac_nodes' in data and data['rac_nodes']:
             data['db_type'] = SourceDBType.RAC
         else:
             data['db_type'] = SourceDBType.SI
 
+        print(data)
         return data
 
 
@@ -68,7 +71,7 @@ class InASMConfig(Schema):
 in_db_schema = InSourceDBSchema(
     only=['server', 'oracle_version', 'arch', 'cores', 'ram',
           'allocated_memory', 'db_name', 'db_size', 'oracle_release',
-          'rac_nodes']
+          'rac_nodes', 'db_engine']
 )
 
 
@@ -79,7 +82,7 @@ def update_db_config(source_db, raw_db_data):
 
     upd_data = {
         'db_id': source_db.id,
-        'asm_config_values': asm_data['asm'],
+        'asm_config_values': asm_data['asm'] if 'asm' in asm_data else None,
         'misc_config_values': misc_data
 
     }
