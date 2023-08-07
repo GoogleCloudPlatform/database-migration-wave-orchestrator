@@ -104,6 +104,9 @@ def register_blueprints(flask_app):
 
     from bms_app.webhook import bp as webhook_bp
     flask_app.register_blueprint(webhook_bp, url_prefix='/webhooks')
+    
+    from bms_app.dmscloudsql import bp as dmscloudsql_bp
+    api_bp.register_blueprint(dmscloudsql_bp, url_prefix='/dmscloudsql')
 
     # to server FE artifacts
     from bms_app.fe import bp as fe_bp
