@@ -16,7 +16,7 @@
 
 from marshmallow import ValidationError
 
-from bms_app.models import Project, SourceDB, db
+from bms_app.models import Project, Database, db
 
 
 def validate_project_id(project_id):
@@ -25,12 +25,11 @@ def validate_project_id(project_id):
             .filter(Project.id == project_id).count():
         raise ValidationError('invalid project_id')
 
-
-def validate_source_db_id(db_id):
-    """Raise an exception if source_db_id does not exist."""
-    if not db.session.query(SourceDB.id) \
-            .filter(SourceDB.id == db_id).count():
-        raise ValidationError('invalid source_db_id')
+def validate_database_id(id):
+    """Raise an exception if Database id does not exist."""
+    if not db.session.query(Database.id)\
+            .filter(Database.id == id).count():
+        raise ValidationError('invalid database id')
 
 
 def check_if_text(file_object):

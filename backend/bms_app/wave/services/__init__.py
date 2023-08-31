@@ -13,5 +13,5 @@
 # limitations under the License.
 
 from .waves import (
-    GetWaveService, list_waves_service, validate_wave_name_is_unique
+    WaveService
 )
