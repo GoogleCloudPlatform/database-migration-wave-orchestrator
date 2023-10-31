@@ -36,10 +36,8 @@ import { getDBType } from '@app-shared/helpers/functions';
   styleUrls: ['./source-databases.component.scss']
 })
 export class SourceDatabasesComponent extends BaseMaterialTableComponent<SourceDb> implements OnInit, OnDestroy {
-  @ViewChild("fileUpload", {static: false}) fileUpload!: ElementRef;
   currentProjectId!: number;
   showDataTable: boolean = false;
-  overrideDatabase: boolean = false;
   displayedColumns = [ 'server', 'db_engine', 'db_name', 'oracle_version', 'db_type', 'label'];
   ELEMENT_DATA: SourceDb[] | undefined;
   files = [];
@@ -52,7 +50,6 @@ export class SourceDatabasesComponent extends BaseMaterialTableComponent<SourceD
     private sourceDbService: SourceDbService,
     private labelService: LabelService,
     private utilService: UtilService,
-    private snackBar: MatSnackBar,
     private slidingPanelService: SlidingPanelService,
   ) {
     super();
@@ -132,40 +129,6 @@ export class SourceDatabasesComponent extends BaseMaterialTableComponent<SourceD
   manageLabels(event: Event): void {
     event.stopPropagation();
     this.slidingPanelService.slidingPanelConfig$.next({ name: 'label', editMode: false });
-  }
-
-  uploadFile() {
-    const fileUpload = this.fileUpload.nativeElement;
-    fileUpload.click();
-    const formData = new FormData();
-    fileUpload.onchange = () => {
-      formData.append("file", fileUpload.files[0], fileUpload.files[0].name);
-      formData.append("project_id", String(this.currentProjectId));
-      formData.append("overwrite", String(this.overrideDatabase));
-      this.sourceDbService.uploadSourceDbFile(formData).subscribe( resp => {
-        if (!resp)
-          return;
-        this.openSnackBar('File uploaded successfully. ' + this.getResult(resp));
-        this.getSourceDbs();
-        fileUpload.value = null;
-      },
-      (error) => {
-        this.openSnackBar(error);
-        fileUpload.value = null;
-      })
-    };
-  }
-
-  getResult(resp: {added: number, skipped: number, updated: number}): string {
-    return this.overrideDatabase
-    ? `${resp.added} of new records and ${resp.updated} of overwritten`
-    : `${resp.added} of new records and ${resp.skipped} of ignored`
-  }
-
-  openSnackBar(message:string) {
-    this.snackBar.open(message, 'Accept' , {
-      duration: 5000,
-    });
   }
 
   private sortLabels(): void {

@@ -1,0 +1,42 @@
+  <div class="container-content">
+    <h3 class="custom-sub-title">Add Source Database</h3>
+    <div class="note mb-8">
+      Please fill the details of the database you want to add.
+    </div>
+    <div class="container" [formGroup]="form">
+      <mat-form-field appearance="outline" class="custom-select">
+        <mat-label>Database Engine</mat-label>
+        <mat-select formControlName="db_engine">
+          <mat-option *ngFor="let engine of db_engines | keyvalue" [value]="engine.key">
+            {{engine.value}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="custom-input">
+        <input matInput id="name" placeholder="Database Name" formControlName="db_name" name="name"
+               autocomplete="no">
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="custom-input">
+        <input matInput id="server" placeholder="Server" formControlName="server" name="server"
+               autocomplete="no">
+      </mat-form-field>
+
+      <div class="row mt-8">
+        <button
+          mat-flat-button
+          matRipple
+          class="custom-button mr-4"
+          [matRippleDisabled]="true"
+          (click)="addSourceDatabase()"
+        >Save</button>
+        <button
+          mat-stroked-button
+          matRipple
+          class="custom-button"
+          [matRippleDisabled]="true"
+          (click)="goBack()"
+        >Cancel</button>
+      </div>
+    </div>
+</div>

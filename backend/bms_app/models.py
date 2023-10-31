@@ -105,7 +105,7 @@ class SourceDB(db.Model):
     oracle_version = db.Column(db.String)
     oracle_release = db.Column(db.String)
     oracle_edition = db.Column(db.String, default='EE')
-    db_type = db.Column(ChoiceType(SourceDBType, impl=db.String(10)), default=SourceDBType.SI)
+    db_type = db.Column(ChoiceType(SourceDBType, impl=db.String(10)))
     rac_nodes = db.Column(db.Integer, default=0)  # value parsed from assessment file
     fe_rac_nodes = db.Column(db.Integer)
     arch = db.Column(db.String)

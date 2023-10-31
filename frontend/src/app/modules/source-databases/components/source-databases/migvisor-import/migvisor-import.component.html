@@ -1,0 +1,39 @@
+  <div class="container-content">
+    <h3 class="custom-sub-title">MigVisor Assessment</h3>
+    <div class="note">
+      Please upload the DB assessment output file from MigVisor tool (Using the MigVisor web interface click
+      “Export” button to exporting the database migration insights to an Excel file).
+     <br><br>
+      Exporting data provides additional options including:
+      <ul>
+        <li>Exporting selected databases only. </li>
+        <li>Exporting displayed databases, which are all databases currently viewable in the dashboard, after any filtering has been applied. </li>
+        <li>Exporting all databases loaded into MigVisor.</li>
+      </ul>
+      Learn more by visiting official MigVisor documentation pages: <br/>
+      <a href="https://doc.migvisor.com/mdoc/index.html" class="link" target="_blank">https://doc.migvisor.com/mdoc/index.html</a>  <br>
+      <a href="https://epammarketplace.a.bigcontent.io/v1/static/migVisor_Getting_Started" class="link" target="_blank">https://epammarketplace.a.bigcontent.io/v1/static/migVisor_Getting_Started</a>
+    </div>
+    <div class="mrg2em-top">
+      <mat-checkbox class="custom-checkbox source-db-overwrite-checkbox" [(ngModel)]="overrideDatabase" ngDefaultControl>Overwrite existing databases</mat-checkbox>
+      <br>
+      <sub>not including deployed databases; related configurations will be removed</sub>
+    </div>
+    <input type="file" #fileUpload hidden>
+    <div class="row mt-8">
+        <button
+        mat-flat-button
+        matRipple
+        class="custom-button mr-4"
+        [matRippleDisabled]="true"
+        (click)="uploadFile()"
+        >Upload assessment file</button>
+        <button
+        mat-stroked-button
+        matRipple
+        class="custom-button"
+        [matRippleDisabled]="true"
+        (click)="goBack()"
+        >Cancel</button>
+    </div>
+</div>

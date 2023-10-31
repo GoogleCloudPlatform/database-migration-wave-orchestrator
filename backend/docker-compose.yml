@@ -27,6 +27,8 @@ services:
       GCS_DEPLOYMENT_CONFIG_PREFIX: test
   db:
     image: registry.hub.docker.com/library/postgres
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: bms
       POSTGRES_USER: bms

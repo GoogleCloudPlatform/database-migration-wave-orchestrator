@@ -14,6 +14,7 @@
 
 from flask import request
 from marshmallow import ValidationError
+from http import HTTPStatus
 
 from bms_app.models import SourceDB, db
 from bms_app.schema import FileSchema, LabelSchema
@@ -52,6 +53,14 @@ def delete_source_db(source_db_id):
     db.session.delete(source_db)
     db.session.commit()
     return {}, 204
+
+@bp.route('', methods=["POST"])
+def create():
+    source_db = SourceDBSchema().load(request.json)
+    db.session.add(source_db)
+    db.session.commit()
+    db.session.flush()
+    return SourceDBSchema().dump(source_db), HTTPStatus.CREATED
 
 
 @bp.route('/migvisor', methods=['POST'])

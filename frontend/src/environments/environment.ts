@@ -20,7 +20,7 @@
 
 export const environment = {
   production: false,
-  apiURL: 'https://bms-app-7kldqulr3q-ew.a.run.app'
+  apiURL: 'http://localhost:5000'
 };
 
 /*

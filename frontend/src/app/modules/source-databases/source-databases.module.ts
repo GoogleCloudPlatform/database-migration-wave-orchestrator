@@ -16,7 +16,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
@@ -34,28 +34,33 @@ import { SourceDatabasesRoutingModule } from './source-databases-routing.module'
 import { SharedModule } from '@app-shared/shared.module';
 
 import { SourceDatabasesComponent } from './components/source-databases/source-databases.component';
+import { MigvisorImportComponent } from './components/source-databases/migvisor-import/migvisor-import.component';
+import { ManualEntryComponent } from './components/source-databases/manual-entry/manual-entry.component';
 
 
 @NgModule({
   declarations: [
-    SourceDatabasesComponent
+    SourceDatabasesComponent,
+    MigvisorImportComponent,
+    ManualEntryComponent
   ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    SourceDatabasesRoutingModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatTableModule,
-    MatCheckboxModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatInputModule,
-    MatMenuModule,
-    MatSnackBarModule,
-    MatSelectModule,
-    SharedModule
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        SourceDatabasesRoutingModule,
+        MatButtonModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatTableModule,
+        MatCheckboxModule,
+        MatSortModule,
+        MatPaginatorModule,
+        MatInputModule,
+        MatMenuModule,
+        MatSnackBarModule,
+        MatSelectModule,
+        SharedModule,
+        ReactiveFormsModule
+    ]
 })
 export class SourcedatabasesModule { }

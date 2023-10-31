@@ -16,14 +16,14 @@
 
 export interface SourceDb {
   data?: SourceDb[];
-  allocated_memory: number;
+  allocated_memory?: number;
   arch?: string;
   cores?: number;
   db_type?: string;
   db_name?: string;
   db_size?: number;
   id?: number;
-  rac_nodes: number;
+  rac_nodes?: number;
   project_id?: number;
   ram?: number;
   server?: string;

@@ -49,4 +49,11 @@ export class SourceDbService extends HttpService {
         catchError(this.handleError)
       )
   }
+
+  saveSourceDb(sourceDatabase: SourceDb) {
+    return this.http.post<SourceDb>(this.apiURL + '/source-dbs', sourceDatabase, this.httpOptionsFD)
+      .pipe(
+        catchError(this.handleError)
+      )
+  }
 }

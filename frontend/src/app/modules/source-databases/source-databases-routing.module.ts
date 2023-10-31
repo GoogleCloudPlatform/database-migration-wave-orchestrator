@@ -18,9 +18,13 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { SourceDatabasesComponent } from "./components/source-databases/source-databases.component";
+import { MigvisorImportComponent } from './components/source-databases/migvisor-import/migvisor-import.component';
+import { ManualEntryComponent } from './components/source-databases/manual-entry/manual-entry.component';
 
 const routes: Routes = [
-  { path: '' , component: SourceDatabasesComponent }
+  { path: '' , component: SourceDatabasesComponent },
+  { path: 'migvisor-import' , component: MigvisorImportComponent },
+  { path: 'create' , component: ManualEntryComponent },
 ];
 
 @NgModule({
