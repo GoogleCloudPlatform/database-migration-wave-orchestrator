@@ -30,9 +30,9 @@ DATE_RUN=`${DATE_CMD} +%F-%T`
 
 ${CAT_CMD} $HOME/gce_metadata/gce_metadata-??-????-??-??*.json > $HOME/gce_metadata/cat_unified.json; tail -1 $HOME/gce_metadata/cat_unified.json | ${SED_CMD} '$ s/},/}/' $HOME/gce_metadata/cat_unified.json | ${SED_CMD} '1 i [' | ${SED_CMD} '$ a ]' > $HOME/gce_metadata/cat_unified_to_gcs.json
 
-${GSUTIL_CMD} cp $HOME/gce_metadata/cat_unified_to_gcs.json gs://${BUCKET}/gce_metadata/gce_metadata-unified-${DATE_RUN}.json
+gcloud storage cp $HOME/gce_metadata/cat_unified_to_gcs.json gs://${BUCKET}/gce_metadata/gce_metadata-unified-${DATE_RUN}.json
 rm $HOME/gce_metadata/gce_metadata-??-????-??-??*.json
 rm $HOME/gce_metadata/cat_unified*.json
-${GSUTIL_CMD} rm gs://${BUCKET}/gce_metadata/gce_metadata-??-????-??-??*.json
+gcloud storage rm gs://${BUCKET}/gce_metadata/gce_metadata-??-????-??-??*.json
 
 # End

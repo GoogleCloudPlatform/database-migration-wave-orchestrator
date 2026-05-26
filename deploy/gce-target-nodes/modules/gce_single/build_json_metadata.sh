@@ -20,7 +20,7 @@
 # Get full path for useradd, mkdir, sed, systemctl, tr and perl commands
 
 DATE_CMD="$(which date)";
-GSUTIL_CMD="$(which gsutil)";
+GCLOUD_CMD="$(which gcloud)";
 SED_CMD="$(which sed)";
 CAT_CMD="$(which cat)";
 MKDIR_CMD="$(which mkdir)";
@@ -32,14 +32,14 @@ ${CHMOD_CMD} -R ug+wr $HOME/gce_metadata
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 DATE_RUN=`${DATE_CMD} +%F-%T`
 
-${GSUTIL_CMD} cp gs://${BUCKET}/gce_metadata/gce_metadata-[0-9][0-9]*.json $HOME/gce_metadata
+${GCLOUD_CMD} storage cp gs://${BUCKET}/gce_metadata/gce_metadata-[0-9][0-9]*.json $HOME/gce_metadata
 
 # sleep 240
 # ${CAT_CMD} $HOME/gce_metadata/gce_metadata-??-????-??-??*.json > $HOME/gce_metadata/cat_unified.json; tail -1 $HOME/gce_metadata/cat_unified.json | ${SED_CMD} '$ s/},/}/' $HOME/gce_metadata/cat_unified.json | ${SED_CMD} '1 i [' | ${SED_CMD} '$ a ]' > $HOME/gce_metadata/cat_unified_to_gcs.json
 
-# ${GSUTIL_CMD} cp $HOME/gce_metadata/cat_unified_to_gcs.json gs://${BUCKET}/gce_metadata/gce_metadata-unified-${DATE_RUN}.json
+# ${GCLOUD_CMD} storage cp $HOME/gce_metadata/cat_unified_to_gcs.json gs://${BUCKET}/gce_metadata/gce_metadata-unified-${DATE_RUN}.json
 # # rm $HOME/gce_metadata/gce_metadata-??-????-??-??*.json
 # # rm $HOME/gce_metadata/cat_unified*.json
-# # ${GSUTIL_CMD} rm gs://${BUCKET}/gce_metadata/gce_metadata-??-????-??-??*.json
+# # ${GCLOUD_CMD} storage rm gs://${BUCKET}/gce_metadata/gce_metadata-??-????-??-??*.json
 
 # End

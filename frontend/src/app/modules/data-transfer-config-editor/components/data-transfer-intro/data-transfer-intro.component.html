@@ -54,11 +54,11 @@
   </app-code-clipboard>
 
   <app-code-clipboard 
-    text="gsutil mb -p $PROJECT_ID -l $LOCATION gs://$&#123;PROJECT_ID&#125;-rman-backup"
+    text="gcloud storage buckets create --project $PROJECT_ID --location $LOCATION gs://$&#123;PROJECT_ID&#125;-rman-backup"
     [accent]="['$PROJECT_ID', '$LOCATION', '$&#123;PROJECT_ID&#125;']">
   </app-code-clipboard>
   <app-code-clipboard 
-    text="gsutil -m cp -n -r $SOURCE gs://$&#123;PROJECT_ID&#125;-rman-backup"
+    text="gcloud storage cp --no-clobber --recursive $SOURCE gs://$&#123;PROJECT_ID&#125;-rman-backup"
     [accent]="['$SOURCE', '$&#123;PROJECT_ID&#125;']">
 </app-code-clipboard>
 
@@ -85,4 +85,3 @@
     [(ngModel)]="hidePage"
   >Don't show me this page again.</mat-checkbox>
 </div>
-

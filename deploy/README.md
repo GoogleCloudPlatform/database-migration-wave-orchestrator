@@ -282,13 +282,13 @@ The way these backend files work is described below:
 <br>
 
 
-### 1.3.1.1. Using the following gsutil command, create a new bucket to store the terraform state file: 
+### 1.3.1.1. Using the following gcloud storage command, create a new bucket to store the terraform state file: 
 
 ```code
-gsutil mb -p GCP_PROJECT_ID -c standard -l EU gs://GLOBALLY_UNIQUE_BUCKET_NAME
+gcloud storage buckets create --project=GCP_PROJECT_ID --default-storage-class=standard --location=EU gs://GLOBALLY_UNIQUE_BUCKET_NAME
 ```
 
-**NOTE**: <p style='text-align: justify;'> Before running this command, we must have authenticated to GCP (for more info on authentication, see the section ?TERRAFORM AUTHENTICATION? in this document) with appropriate permissions. If the gsutil command will be run from a cloud shell session, GCP authentication is not required. </p>
+**NOTE**: <p style='text-align: justify;'> Before running this command, we must have authenticated to GCP (for more info on authentication, see the section ?TERRAFORM AUTHENTICATION? in this document) with appropriate permissions. If the gcloud storage command will be run from a cloud shell session, GCP authentication is not required. </p>
 <br>
 
 ###  1.3.1.2. Once the GIT repository has been cloned (as described above in the section "GIT REPOSITORY FOR TERRAFORM TEMPLATES" of this document), edit the appropriate configuration file for terraform state and apply the change as follow:

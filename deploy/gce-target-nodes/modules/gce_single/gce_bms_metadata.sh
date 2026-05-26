@@ -151,8 +151,8 @@ echo '{' >> $SCRIPT_DIR/local_gce_bms_temp.txt
 # ------------------------------------------------------------------------------------------
 
 new_file=false
-# ${GSUTIL_CMD} ls gs://oracle-bms-go3-inv/gce_metadata/*.json 2> /var/log/gce_metadata/json/gsutil_ls_output.out
-${GSUTIL_CMD} ls gs://${BUCKET}/gce_metadata/*.json 2> /var/log/gce_metadata/json/gsutil_ls_output.out
+# ${GCLOUD_CMD} storage ls gs://oracle-bms-go3-inv/gce_metadata/*.json 2> /var/log/gce_metadata/json/gsutil_ls_output.out
+${GCLOUD_CMD} storage ls gs://${BUCKET}/gce_metadata/*.json 2> /var/log/gce_metadata/json/gsutil_ls_output.out
 
 if [ $? == 1 ]; then
         grep 'One or more URLs matched no objects' /var/log/gce_metadata/json/gsutil_ls_output.out
@@ -167,8 +167,8 @@ if [ $? == 1 ]; then
 
 	current_year=`date +%Y`
 
-        # ${GSUTIL_CMD} cp gs://oracle-bms-go3-inv/gce_metadata/*.json /var/log/gce_metadata/json
-        ${GSUTIL_CMD} cp gs://${BUCKET}/gce_metadata/*.json /var/log/gce_metadata/json
+        # ${GCLOUD_CMD} storage cp gs://oracle-bms-go3-inv/gce_metadata/*.json /var/log/gce_metadata/json
+        ${GCLOUD_CMD} storage cp gs://${BUCKET}/gce_metadata/*.json /var/log/gce_metadata/json
 
         chmod ug+w /var/log/gce_metadata/json/*.json
         date_of_most_recent_json_file=`ls -1 ${current_year}*.json | awk -F '.' '{print $1}' | ${SORT_CMD} | tail -1 | awk -F '-' '{print $1"-"$2"-"$3}'`
@@ -338,8 +338,8 @@ fi
 cat $SCRIPT_DIR/gce_bms_description.txt > /var/log/gce_metadata/json/${json_file_name}
 
 DATE_RUN=`date +%F-%T`
-# ${GSUTIL_CMD} cp /var/log/gce_metadata/json/$json_file_name gs://${BUCKET}/gce_metadata
-${GSUTIL_CMD} cp /var/log/gce_metadata/json/$json_file_name gs://${BUCKET}/gce_metadata/gce_metadata-${sequence}-${DATE_RUN}.json
+# ${GCLOUD_CMD} storage cp /var/log/gce_metadata/json/$json_file_name gs://${BUCKET}/gce_metadata
+${GCLOUD_CMD} storage cp /var/log/gce_metadata/json/$json_file_name gs://${BUCKET}/gce_metadata/gce_metadata-${sequence}-${DATE_RUN}.json
 
 chmod ug+rw $HOME/*.txt
 rm -rf $SCRIPT_DIR/gce_bms_description.txt
