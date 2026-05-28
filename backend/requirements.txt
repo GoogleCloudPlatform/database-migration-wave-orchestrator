@@ -99,6 +99,6 @@ virtualenv==20.13.0
 Werkzeug==2.0.1
 wrapt==1.12.1
 WTForms==2.3.3
-zipp==3.7.0
+zipp==3.19.1
 google-cloud-dms==1.3.2
 google-cloud-secret-manager==2.11.1
